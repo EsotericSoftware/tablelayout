@@ -4,10 +4,10 @@ package com.esotericsoftware.tablelayout;
 
 import java.util.ArrayList;
 
-import com.esotericsoftware.tablelayout.TableLayout.Cell;
+import com.esotericsoftware.tablelayout.BaseTableLayout.Cell;
 
 class TableLayoutParser {
-	static public void parse (TableLayout table, Cell cell, String input) {
+	static public void parse (BaseTableLayout table, Cell cell, String input) {
 		char[] data = (input + " ").toCharArray();
 		int cs, p = 0, pe = data.length, eof = pe, top = 0;
 		int[] stack = new int[4];
@@ -15,7 +15,7 @@ class TableLayoutParser {
 		int s = 0;
 		String name = null;
 		ArrayList<String> values = new ArrayList(4);
-		ArrayList<TableLayout> tables = new ArrayList(8);
+		ArrayList<BaseTableLayout> tables = new ArrayList(8);
 
 		RuntimeException parseRuntimeEx = null;
 		try {
@@ -64,7 +64,7 @@ class TableLayoutParser {
 			}
 			action addCell {
 				System.out.println("addCell: " + new String(data, s, p - s));
-				Integer widget = null;
+				Object widget = null;
 				if (s < p) {
 					widget = table.getWidget(new String(data, s, p - s));
 					if (widget == null) throw new IllegalArgumentException("Widget not found with name: " + new String(data, s, p - s));
@@ -73,7 +73,7 @@ class TableLayoutParser {
 			}
 			action addLabel {
 				System.out.println("addLabel: " + new String(data, s, p - s));
-				String widget = new String(data, s, p - s);
+				Object widget = table.newLabel(new String(data, s, p - s));
 				cell = table.add(widget);
 			}
 			action cellValue {
@@ -83,16 +83,16 @@ class TableLayoutParser {
 			action startTable {
 				System.out.println("startTable");
 				cell = null;
-				TableLayout parentTable = table;
+				BaseTableLayout parentTable = table;
 				tables.add(parentTable);
-				table = new TableLayout();
+				table = parentTable.newTableLayout();
 				table.nameToWidget.putAll(parentTable.nameToWidget);
 				fcall table;
 			}
 			action endTable {
 				if (top > 0) {
 					System.out.println("endTable");
-					TableLayout childTable = table;
+					BaseTableLayout childTable = table;
 					table = tables.size() == 0 ? null : tables.remove(tables.size() - 1);
 					cell = table.add(childTable);
 					fret;
@@ -152,7 +152,7 @@ class TableLayoutParser {
 
 	%% write data;
 
-	static private void setTableValues (TableLayout table, String name, ArrayList<String> values) {
+	static private void setTableValues (BaseTableLayout table, String name, ArrayList<String> values) {
 		try {
 			String value;
 			if (name.equals("size")) {
@@ -232,18 +232,23 @@ class TableLayoutParser {
 				for (int i = 0, n = values.size(); i < n; i++) {
 					value = values.get(i);
 					if (value.equals("center"))
-						table.align |= TableLayout.CENTER;
+						table.align |= BaseTableLayout.CENTER;
 					else if (value.equals("left"))
-						table.align |= TableLayout.LEFT;
+						table.align |= BaseTableLayout.LEFT;
 					else if (value.equals("right"))
-						table.align |= TableLayout.RIGHT;
+						table.align |= BaseTableLayout.RIGHT;
 					else if (value.equals("top"))
-						table.align |= TableLayout.TOP;
+						table.align |= BaseTableLayout.TOP;
 					else if (value.equals("bottom"))
-						table.align |= TableLayout.BOTTOM;
+						table.align |= BaseTableLayout.BOTTOM;
 					else
 						throw new IllegalArgumentException("Invalid value: " + value);
 				}
+
+			} else if (name.equals("debug")) {
+				if (values.size() == 0) table.debug = "all,";
+				for (int i = 0, n = values.size(); i < n; i++)
+					table.debug += values.get(i) + ",";
 
 			} else
 				throw new IllegalArgumentException("Unknown property: " + name);
@@ -423,15 +428,15 @@ class TableLayoutParser {
 				for (int i = 0, n = values.size(); i < n; i++) {
 					value = values.get(i);
 					if (value.equals("center"))
-						c.align |= TableLayout.CENTER;
+						c.align |= BaseTableLayout.CENTER;
 					else if (value.equals("left"))
-						c.align |= TableLayout.LEFT;
+						c.align |= BaseTableLayout.LEFT;
 					else if (value.equals("right"))
-						c.align |= TableLayout.RIGHT;
+						c.align |= BaseTableLayout.RIGHT;
 					else if (value.equals("top"))
-						c.align |= TableLayout.TOP;
+						c.align |= BaseTableLayout.TOP;
 					else if (value.equals("bottom"))
-						c.align |= TableLayout.BOTTOM;
+						c.align |= BaseTableLayout.BOTTOM;
 					else
 						throw new IllegalArgumentException("Invalid value: " + value);
 				}
@@ -465,9 +470,9 @@ class TableLayoutParser {
 	}
 
 	public static void main (String args[]) {
-		TableLayout table = new TableLayout();
-		table.set(123, "button");
-		table.set(345, "textbox");
+		BaseTableLayout table = new BaseTableLayout();
+		table.set("button", 123);
+		table.set("textbox", 345);
 		table.parse("" //
 			+ "width:400 height:400 " //
 			+ "[button]size:80,80 align:left spacing:10 \n " //

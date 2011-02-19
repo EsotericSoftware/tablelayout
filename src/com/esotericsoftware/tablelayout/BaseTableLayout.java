@@ -1,9 +1,7 @@
 
 package com.esotericsoftware.tablelayout;
 
-import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -16,7 +14,7 @@ import javax.swing.JPanel;
 // BOZO - When merging alignment, clear only the flags necessary?
 // BOZO - Compute min, pref, max size for table layout.
 
-public class TableLayout {
+public class BaseTableLayout<T> {
 	public static final int CENTER = 1 << 0;
 	public static final int TOP = 1 << 1;
 	public static final int BOTTOM = 1 << 2;
@@ -25,31 +23,33 @@ public class TableLayout {
 	public static final int X = 1 << 5;
 	public static final int Y = 1 << 6;
 
-	public int tableWidgetX, tableWidgetY;
+	public int tableLayoutX, tableLayoutY;
 	public int tableLayoutWidth, tableLayoutHeight;
 
 	public int width, height;
 	public int padTop, padLeft, padBottom, padRight;
-	public int align;
-	public float fillX, fillY;
+	public int align = CENTER;
+	public String debug;
+	public float fillX, fillY; // BOZO - Use?
 
-	final HashMap<String, Integer> nameToWidget = new HashMap();
+	protected final ArrayList<Cell> cells = new ArrayList();
+
+	final HashMap<String, T> nameToWidget = new HashMap();
 	final ArrayList<Cell> columnDefaults = new ArrayList(4);
 	Cell rowDefaults;
 
 	private final Cell defaults = Cell.defaults();
-	private final ArrayList<Cell> cells = new ArrayList();
 	private int columns, rows;
 
-	public TableLayout () {
+	public BaseTableLayout () {
 	}
 
-	public TableLayout (String tableText) {
+	public BaseTableLayout (String tableText) {
 		this();
 		parse(tableText);
 	}
 
-	public int set (int widget, String name) {
+	public T set (String name, T widget) {
 		nameToWidget.put(name, widget);
 		return widget;
 	}
@@ -58,7 +58,7 @@ public class TableLayout {
 		TableLayoutParser.parse(this, null, tableText);
 	}
 
-	public Cell add (Object widget) {
+	public Cell add (T widget) {
 		Cell cell = new Cell();
 		cell.widget = widget;
 
@@ -96,7 +96,7 @@ public class TableLayout {
 		return cell;
 	}
 
-	public Cell add (Object widget, String cellText) {
+	public Cell add (T widget, String cellText) {
 		Cell cell = add(widget);
 		TableLayoutParser.parse(null, cell, cellText);
 		return cell;
@@ -120,11 +120,19 @@ public class TableLayout {
 		cells.get(cells.size() - 1).endRow = true;
 	}
 
-	public Integer getWidget (String name) {
+	public BaseTableLayout newTableLayout () {
+		return new BaseTableLayout();
+	}
+
+	public T newLabel (String text) {
+		return (T)text;
+	}
+
+	public T getWidget (String name) {
 		return nameToWidget.get(name);
 	}
 
-	public Cell getCell (Integer widget) {
+	public Cell getCell (T widget) {
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.widget == widget) return c;
@@ -155,9 +163,7 @@ public class TableLayout {
 		return cell;
 	}
 
-	void draw (Graphics2D g) {
-		g.setColor(Color.black);
-
+	public void layout () {
 		if (cells.size() > 0 && !cells.get(cells.size() - 1).endRow) endRow();
 
 		// Determine minimum and preferred cell sizes. Also compute the combined padding/spacing for each cell.
@@ -211,6 +217,7 @@ public class TableLayout {
 			totalPrefHeight += Math.max(rowMinHeight[i], rowPrefHeight[i]);
 		}
 		int[] columnMaxWidth = new int[columns], rowMaxHeight = new int[rows];
+		int tableLayoutWidth = this.tableLayoutWidth - padLeft - padRight;
 		int extraWidth = Math.max(0, tableLayoutWidth - totalMinWidth);
 		int totalGrowWidth = totalPrefWidth - totalMinWidth;
 		for (int i = 0; i < columns; i++) {
@@ -219,7 +226,8 @@ public class TableLayout {
 			columnMaxWidth[i] = columnMinWidth[i] + (int)(extraWidth * growRatio);
 		}
 		int totalGrowHeight = totalPrefHeight - totalMinHeight;
-		int extraHeight = Math.max(0, tableLayoutHeight - totalMinHeight);
+		int tableLayoutHeight = this.tableLayoutHeight - padTop - padBottom;
+		int extraHeight = Math.max(0, tableLayoutHeight - padTop - padBottom - totalMinHeight);
 		for (int i = 0; i < rows; i++) {
 			int growHeight = rowPrefHeight[i] - rowMinHeight[i];
 			float growRatio = growHeight / (float)totalGrowHeight;
@@ -234,22 +242,22 @@ public class TableLayout {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
 
-			int spannedColumnMaxWidth = 0;
+			int spannedCellMaxWidth = 0;
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++) {
-				spannedColumnMaxWidth += columnMaxWidth[column];
+				spannedCellMaxWidth += columnMaxWidth[column];
 
 				if (c.expandWidth != 0 && expandWidth[column] == 0) {
 					expandWidth[column] = c.expandWidth / (float)c.colspan;
 					totalExpandWidth += c.expandWidth / (float)c.colspan;
 				}
 			}
-			spannedColumnMaxWidth -= c.padLeftTemp - c.padRightTemp;
+			spannedCellMaxWidth -= c.padLeftTemp - c.padRightTemp;
 			if (c.expandHeight != 0 && expandHeight[c.row] == 0) {
 				expandHeight[c.row] = c.expandHeight;
 				totalExpandHeight += c.expandHeight;
 			}
 
-			c.widgetWidth = Math.min(spannedColumnMaxWidth, c.prefWidth);
+			c.widgetWidth = Math.min(spannedCellMaxWidth, c.prefWidth);
 			c.widgetHeight = Math.min(rowMaxHeight[c.row] - c.padTopTemp - c.padBottomTemp, c.prefHeight);
 
 			if (c.colspan == 1)
@@ -299,20 +307,16 @@ public class TableLayout {
 			tableHeight += rowHeight[i];
 		tableHeight = Math.max(tableHeight, height);
 
-		int x = tableWidgetX, y = tableWidgetY;
-		if ((align & LEFT) != 0)
-			x += padLeft;
-		else if ((align & RIGHT) != 0)
-			x += tableLayoutWidth - tableWidth - padRight;
-		else
-			x += (tableLayoutWidth - tableWidth + padLeft - padRight) / 2;
+		int x = tableLayoutX + padLeft, y = tableLayoutY + padTop;
+		if ((align & RIGHT) != 0)
+			x += tableLayoutWidth - tableWidth;
+		else if ((align & CENTER) != 0) //
+			x += (tableLayoutWidth - tableWidth) / 2;
 
-		if ((align & TOP) != 0)
-			y += padTop;
-		else if ((align & BOTTOM) != 0)
-			y += tableLayoutHeight - tableHeight - padBottom;
-		else
-			y += (tableLayoutHeight - tableHeight + padTop - padBottom) / 2;
+		if ((align & BOTTOM) != 0)
+			y += tableLayoutHeight - tableHeight;
+		else if ((align & CENTER) != 0) //
+			y += (tableLayoutHeight - tableHeight) / 2;
 
 		// Position widgets within cells.
 		int currentX = x;
@@ -321,13 +325,15 @@ public class TableLayout {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
 
-			int spannedColumnWidth = 0;
+			int spannedCellWidth = 0;
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
-				spannedColumnWidth += columnWidth[column];
-			spannedColumnWidth -= c.padLeftTemp - c.padRightTemp;
+				spannedCellWidth += columnWidth[column];
+			spannedCellWidth -= c.padLeftTemp + c.padRightTemp;
+
+			currentX += c.padLeftTemp;
 
 			if (c.fillWidth > 0) {
-				c.widgetWidth = Math.max((int)(spannedColumnWidth * c.fillWidth) - c.padLeftTemp - c.padRightTemp, c.minWidth);
+				c.widgetWidth = Math.max((int)(spannedCellWidth * c.fillWidth) - c.padLeftTemp - c.padRightTemp, c.minWidth);
 				if (c.maxWidth > 0) c.widgetWidth = Math.min(c.widgetWidth, c.maxWidth);
 			}
 			if (c.fillHeight > 0) {
@@ -336,11 +342,11 @@ public class TableLayout {
 			}
 
 			if ((c.align & LEFT) != 0)
-				c.widgetX = currentX + c.padLeftTemp;
+				c.widgetX = currentX;
 			else if ((c.align & RIGHT) != 0)
-				c.widgetX = currentX + spannedColumnWidth - c.widgetWidth - c.padRightTemp;
+				c.widgetX = currentX + spannedCellWidth - c.widgetWidth;
 			else
-				c.widgetX = currentX + (spannedColumnWidth - c.widgetWidth + c.padLeftTemp - c.padRightTemp) / 2;
+				c.widgetX = currentX + (spannedCellWidth - c.widgetWidth) / 2;
 
 			if ((c.align & TOP) != 0)
 				c.widgetY = currentY + c.padTopTemp;
@@ -349,51 +355,57 @@ public class TableLayout {
 			else
 				c.widgetY = currentY + (rowHeight[c.row] - c.widgetHeight + c.padTopTemp - c.padBottomTemp) / 2;
 
+			// BOZO - Needed?
+			if (c.widget instanceof BaseTableLayout) {
+				BaseTableLayout table = (BaseTableLayout)c.widget;
+				table.tableLayoutX = c.widgetX;
+				table.tableLayoutY = c.widgetY;
+				table.tableLayoutWidth = c.widgetWidth;
+				table.tableLayoutHeight = c.widgetHeight;
+				table.layout();
+			}
+
 			if (c.endRow) {
 				currentX = x;
 				currentY += rowHeight[c.row];
 			} else
-				currentX += spannedColumnWidth;
+				currentX += spannedCellWidth + c.padRightTemp;
 		}
 
 		// Draw widgets and bounds.
+		if (debug == null) return;
 		currentX = x;
 		currentY = y;
-		g.drawRect(tableWidgetX, tableWidgetY, tableLayoutWidth, tableLayoutHeight);
-		g.drawRect(x, y, tableWidth, tableHeight);
+		if (debug.contains("table,") || debug.contains("all,")) {
+			drawDebugRect(true, tableLayoutX + padLeft, tableLayoutY + padTop, tableLayoutWidth - 1, tableLayoutHeight - 1);
+			drawDebugRect(true, x, y, tableWidth - 1, tableHeight - 1);
+		}
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
 
-			// Cell bounds.
-			g.setColor(Color.blue);
-			int spannedColumnWidth = 0;
-			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
-				spannedColumnWidth += columnWidth[column];
-			spannedColumnWidth -= c.padLeftTemp - c.padRightTemp;
-			g.drawRect(currentX, currentY, spannedColumnWidth, rowHeight[c.row]);
-
 			// Widget bounds.
-			g.setColor(Color.red);
-			g.drawRect(c.widgetX, c.widgetY, c.widgetWidth, c.widgetHeight);
+			if (debug.contains("widget,") || debug.contains("all,"))
+				drawDebugRect(true, c.widgetX, c.widgetY, c.widgetWidth - 1, c.widgetHeight - 1);
 
-			// Widget.
-			if (c.widget instanceof TableLayout) {
-				TableLayout table = (TableLayout)c.widget;
-				table.tableWidgetX = c.widgetX;
-				table.tableWidgetY = c.widgetY;
-				table.tableLayoutWidth = c.widgetWidth;
-				table.tableLayoutHeight = c.widgetHeight;
-				table.draw(g);
-			} else
-				g.drawString(c.widget + "", c.widgetX + c.widgetWidth / 2, c.widgetY + c.widgetHeight / 2);
-
+			// Cell bounds.
+			int spannedCellWidth = 0;
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
+				spannedCellWidth += columnWidth[column];
+			spannedCellWidth -= c.padLeftTemp + c.padRightTemp;
+			currentX += c.padLeftTemp;
+			if (debug.contains("cell,") || debug.contains("all,"))
+				drawDebugRect(false, currentX, currentY + c.padTopTemp, spannedCellWidth - 1, rowHeight[c.row] - c.padTopTemp
+					- c.padBottomTemp - 1);
 			if (c.endRow) {
 				currentX = x;
 				currentY += rowHeight[c.row];
 			} else
-				currentX += spannedColumnWidth;
+				currentX += spannedCellWidth + c.padRightTemp;
 		}
+	}
+
+	protected void drawDebugRect (boolean dash, int x, int y, int w, int h) {
 	}
 
 	static public class Cell {
@@ -409,14 +421,14 @@ public class TableLayout {
 		public Integer colspan;
 		public Boolean uniformWidth, uniformHeight;
 
-		Object widget;
 		boolean endRow;
 		int column, row;
 		int cellAboveIndex = -1;
 		int padTopTemp, padLeftTemp, padBottomTemp, padRightTemp;
 
-		int widgetX, widgetY;
-		int widgetWidth, widgetHeight;
+		public Object widget;
+		public int widgetX, widgetY;
+		public int widgetWidth, widgetHeight;
 
 		Cell () {
 		}
@@ -509,17 +521,17 @@ public class TableLayout {
 		frame.setSize(800, 600);
 		frame.setLocationRelativeTo(null);
 
-		final TableLayout table = new TableLayout();
-		table.set(1, "1");
-		table.set(2, "2");
-		table.set(3, "3");
-		table.set(4, "4");
-		table.set(5, "5");
-		table.set(6, "6");
-		table.set(7, "7");
-		table.set(8, "8");
-		table.set(9, "9");
-		table.set(10, "10");
+		final BaseTableLayout table = new BaseTableLayout();
+		table.set("1", 1);
+		table.set("2", 2);
+		table.set("3", 3);
+		table.set("4", 4);
+		table.set("5", 5);
+		table.set("6", 6);
+		table.set("7", 7);
+		table.set("8", 8);
+		table.set("9", 9);
+		table.set("10", 10);
 
 		// table.parse("align:center padding:10" //
 		// + "* height:140 expand" //
@@ -591,10 +603,7 @@ public class TableLayout {
 
 		frame.setContentPane(new JPanel() {
 			public void paintComponent (Graphics g) {
-				table.tableLayoutWidth = getWidth() - 20;
-				table.tableLayoutHeight = getHeight() - 20;
-				g.translate(10, 10);
-				table.draw((Graphics2D)g);
+				table.layout();
 			}
 		});
 		frame.setVisible(true);
