@@ -333,7 +333,7 @@ public class BaseTableLayout<T> {
 			currentX += c.padLeftTemp;
 
 			if (c.fillWidth > 0) {
-				c.widgetWidth = Math.max((int)(spannedCellWidth * c.fillWidth) - c.padLeftTemp - c.padRightTemp, c.minWidth);
+				c.widgetWidth = Math.max((int)(spannedCellWidth * c.fillWidth), c.minWidth);
 				if (c.maxWidth > 0) c.widgetWidth = Math.min(c.widgetWidth, c.maxWidth);
 			}
 			if (c.fillHeight > 0) {

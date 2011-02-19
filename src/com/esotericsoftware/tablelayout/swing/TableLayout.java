@@ -173,11 +173,11 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 		// );
 
 		table.parse("padding:10 debug " //
-			+ "* align:left padding:10" //
+			+ "* align:left padding:10 uniform" //
 			+ "|  | align:right " //
 			+ "--- align:bottom,right" //
 			+ "'Name:' align:top" //
-			+ "[1] size:100,200 expand:x" //
+			+ "[1] fill " //
 			+ "--- " //
 			+ "'Stuff:'" //
 			+ "[2] size:100,200 " //
