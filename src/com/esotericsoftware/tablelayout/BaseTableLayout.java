@@ -35,10 +35,10 @@ public class BaseTableLayout<T> {
 	protected final ArrayList<Cell> cells = new ArrayList();
 
 	final HashMap<String, T> nameToWidget = new HashMap();
-	final ArrayList<Cell> columnDefaults = new ArrayList(4);
-	Cell rowDefaults;
 
-	private final Cell defaults = Cell.defaults();
+	private final Cell cellDefaults = Cell.defaults();
+	private final ArrayList<Cell> columnDefaults = new ArrayList(4);
+	private Cell rowDefaults;
 	private int columns, rows;
 
 	public BaseTableLayout () {
@@ -50,8 +50,12 @@ public class BaseTableLayout<T> {
 	}
 
 	public T set (String name, T widget) {
-		nameToWidget.put(name, widget);
+		nameToWidget.put(name.toLowerCase(), widget);
 		return widget;
+	}
+
+	public void setAll (HashMap<String, T> nameToWidget) {
+		nameToWidget.putAll(nameToWidget);
 	}
 
 	public void parse (String tableText) {
@@ -88,9 +92,9 @@ public class BaseTableLayout<T> {
 
 		if (cell.column < columnDefaults.size()) {
 			Cell columnDefaults = this.columnDefaults.get(cell.column);
-			cell.set(columnDefaults != null ? columnDefaults : defaults);
+			cell.set(columnDefaults != null ? columnDefaults : cellDefaults);
 		} else
-			cell.set(defaults);
+			cell.set(cellDefaults);
 		cell.merge(rowDefaults);
 
 		return cell;
@@ -120,12 +124,16 @@ public class BaseTableLayout<T> {
 		cells.get(cells.size() - 1).endRow = true;
 	}
 
-	public BaseTableLayout newTableLayout () {
+	protected BaseTableLayout newTableLayout () {
 		return new BaseTableLayout();
 	}
 
-	public T newLabel (String text) {
+	protected T newLabel (String text) {
 		return (T)text;
+	}
+
+	protected T newSplitPane (boolean horizontal, T first, T second) {
+		return (T)(first + (horizontal ? "|" : "-") + second);
 	}
 
 	public T getWidget (String name) {
@@ -144,15 +152,15 @@ public class BaseTableLayout<T> {
 		return getCell(getWidget(name));
 	}
 
-	public Cell getDefaults () {
-		return defaults;
+	public Cell getCellDefaults () {
+		return cellDefaults;
 	}
 
 	public Cell getColumnDefaults (int column) {
 		Cell cell = columnDefaults.size() > column ? columnDefaults.get(column) : null;
 		if (cell == null) {
 			cell = new Cell();
-			cell.set(defaults);
+			cell.set(cellDefaults);
 			if (column <= columnDefaults.size()) {
 				for (int i = columnDefaults.size(); i < column; i++)
 					columnDefaults.add(null);
@@ -161,6 +169,10 @@ public class BaseTableLayout<T> {
 				columnDefaults.set(column, cell);
 		}
 		return cell;
+	}
+
+	public ArrayList<Cell> getColumnDefaults () {
+		return columnDefaults;
 	}
 
 	public void layout () {

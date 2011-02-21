@@ -17,11 +17,13 @@ import java.util.TimerTask;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 
 import com.esotericsoftware.tablelayout.BaseTableLayout;
 
 // BOZO - Handle removing components.
+// BOZO - * for colspan?
 
 public class TableLayout extends BaseTableLayout<Component> implements LayoutManager {
 	static private Timer timer;
@@ -53,12 +55,20 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 		return cell;
 	}
 
-	public TableLayout newTableLayout () {
+	protected TableLayout newTableLayout () {
 		return new TableLayout();
 	}
 
-	public Component newLabel (String text) {
+	protected Component newLabel (String text) {
 		return new JLabel(text);
+	}
+
+	protected Component newSplitPane (boolean horizontal, Component first, Component second) {
+		JSplitPane split = new JSplitPane();
+		split.add(first, JSplitPane.LEFT);
+		split.add(second, JSplitPane.RIGHT);
+
+		return super.newSplitPane(horizontal, first, second);
 	}
 
 	public void addLayoutComponent (String text, Component comp) {
@@ -70,11 +80,11 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 	}
 
 	public Dimension preferredLayoutSize (Container parent) {
-		throw new UnsupportedOperationException();
+		return new Dimension();
 	}
 
 	public Dimension minimumLayoutSize (Container parent) {
-		throw new UnsupportedOperationException();
+		return new Dimension();
 	}
 
 	public void layoutContainer (Container parent) {

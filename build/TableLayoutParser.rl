@@ -16,6 +16,11 @@ class TableLayoutParser {
 		String name = null;
 		ArrayList<String> values = new ArrayList(4);
 		ArrayList<BaseTableLayout> tables = new ArrayList(8);
+		Cell rowDefaults = null;
+
+		if (cell != null) {
+			// BOZO - Set cell state.
+		}
 
 		RuntimeException parseRuntimeEx = null;
 		try {
@@ -32,42 +37,51 @@ class TableLayoutParser {
 			
 			action buffer { s = p; }
 			action name {
-				//System.out.println("name: " + new String(data, s, p - s));
-				name = new String(data, s, p - s).toLowerCase();
+				name = new String(data, s, p - s);
+				s = p;
 			}
 			action value {
-				//System.out.println("value: " + new String(data, s, p - s));
-				values.add(new String(data, s, p - s).toLowerCase());
+				values.add(new String(data, s, p - s));
 			}
-			action tableValue {
-				System.out.println("tableValues: " + name + " = " + values);
-				setTableValues(table, name, values);
+			action tableProperty {
+				System.out.println("tableProperty: " + name + " = " + values);
+				setTableProperty(table, name, values);
 			}
-			action cellDefaultValue {
-				System.out.println("cellDefaultValue: " + name + " = " + values);
-				setCellValues(table.getDefaults(), name, values);
+			action cellDefaultProperty {
+				System.out.println("cellDefaultProperty: " + name + " = " + values);
+				setCellProperty(table.getCellDefaults(), name, values);
 			}
 			action startColumn {
-				table.getColumnDefaults(table.columnDefaults.size());
+				table.getColumnDefaults(table.getColumnDefaults().size());
 			}
-			action columnDefaultValue {
-				System.out.println("columnDefaultValue: " + name + " = " + values);
-				setCellValues(table.getColumnDefaults(table.columnDefaults.size() - 1), name, values);
+			action columnDefaultProperty {
+				System.out.println("columnDefaultProperty: " + name + " = " + values);
+				setCellProperty(table.getColumnDefaults(table.getColumnDefaults().size() - 1), name, values);
 			}
 			action startRow {
 				System.out.println("startRow");
-				table.startRow();
+				rowDefaults = table.startRow();
 			}
 			action rowDefaultValue {
 				System.out.println("rowDefaultValue: " + name + " = " + values);
-				setCellValues(table.rowDefaults, name, values);
+				setCellProperty(rowDefaults, name, values);
 			}
-			action addCell {
-				System.out.println("addCell: " + new String(data, s, p - s));
+			action addWidget {
+				String className = p > s ? new String(data, s, p - s) : null;
+				System.out.println("addWidget: " + name + " " + className);
 				Object widget = null;
-				if (s < p) {
-					widget = table.getWidget(new String(data, s, p - s));
-					if (widget == null) throw new IllegalArgumentException("Widget not found with name: " + new String(data, s, p - s));
+				if (className == null) {
+					if (!name.isEmpty()) {
+						widget = table.getWidget(name);
+						if (widget == null) throw new IllegalArgumentException("Widget not found with name: " + name);
+					}
+				} else {
+					try {
+						widget = Class.forName(className).newInstance();
+					} catch (Exception ex) {
+						throw new RuntimeException("Error creating instance of class: " + className, ex);
+					}
+					table.set(name, widget);
 				}
 				cell = table.add(widget);
 			}
@@ -76,9 +90,9 @@ class TableLayoutParser {
 				Object widget = table.newLabel(new String(data, s, p - s));
 				cell = table.add(widget);
 			}
-			action cellValue {
-				System.out.println("cellValue: " + name + " = " + values);
-				setCellValues(cell, name, values);
+			action cellProperty {
+				System.out.println("cellProperty: " + name + " = " + values);
+				setCellProperty(cell, name, values);
 			}
 			action startTable {
 				System.out.println("startTable");
@@ -86,52 +100,87 @@ class TableLayoutParser {
 				BaseTableLayout parentTable = table;
 				tables.add(parentTable);
 				table = parentTable.newTableLayout();
-				table.nameToWidget.putAll(parentTable.nameToWidget);
+				table.setAll(parentTable.nameToWidget);
 				fcall table;
 			}
 			action endTable {
-				if (top > 0) {
+				if (!tables.isEmpty()) {
 					System.out.println("endTable");
 					BaseTableLayout childTable = table;
-					table = tables.size() == 0 ? null : tables.remove(tables.size() - 1);
+					table = tables.remove(tables.size() - 1);
 					cell = table.add(childTable);
 					fret;
 				}
 			}
+			action setTitle {
+				System.out.println("setTitle: " + new String(data, s, p - s));
+				// BOZO
+			}
+			action widgetProperty {
+				System.out.println("widgetProperty: " + name + " = " + values);
+				C
+				values.clear();
+			}
+			action widgetLayoutString {
+				System.out.println("widgetLayoutString: " + new String(data, s, p - s));
+			}
 
-			nameAndValues = (
+			property =
 				alnum+ >buffer %name (
 					space* ':' space* ('-'? alnum+ '%'?) >buffer %value
 					(',' alnum* >buffer %value)*
-				)?
-			);
+				)?;
 
-			table =
-				space*
-				(nameAndValues %tableValue (space+ nameAndValues %tableValue)* )?
-				space*
-				('*' space* nameAndValues %cellDefaultValue (space+ nameAndValues %cellDefaultValue)* )?
-				space*
-				('|' %startColumn space* (nameAndValues %columnDefaultValue (space+ nameAndValues %columnDefaultValue)* )? space* )*
+			widget = '[' ^[\]:]* >buffer %name (':' ^[\]]+ >buffer)? ']' @addWidget;
+			label = '\'' ^'\''* >buffer %addLabel '\'';
+			startTable = '{' @startTable;
+
+			title = '<' ^'>'* >buffer %setTitle '>';
+
+			startWidgetProperties = '(' @{ fcall widgetProperties; };
+			widgetProperty = alnum+ >buffer %name space* ':' space* alnum+ >buffer %value;
+			widgetProperties := space*
+				# Widget properties.
+				(widgetProperty %widgetProperty (space+ widgetProperty %widgetProperty)* space*)?
 				(
-					space*
-					('---' %startRow space* (nameAndValues %rowDefaultValue (space+ nameAndValues %rowDefaultValue)* )? )?
-					space*
+					# Widget contents.
+					(widget | label | startTable) space*
+					# Contents title.
+					(title space*)?
+					# Contents layout string.
 					(
-						(
-							('[' ^']'* >buffer %addCell ']') |
-							('\'' ^'\''* >buffer %addLabel '\'') |
-							('{' @startTable )
-						)
-						space*
-						(nameAndValues %cellValue (space+ nameAndValues %cellValue)* )?
-						space*
+						(alnum+ >buffer %widgetLayoutString) |
+						('\'' (^'\''* >buffer %widgetLayoutString) '\'')
+					)?
+					# Contents properties.
+					startWidgetProperties?
+				)*
+				space* ')' @{ fret; };
+
+			table = space*
+				# Table title.
+				(title space*)?
+				# Table properties.
+				(property %tableProperty (space+ property %tableProperty)* space*)?
+				# Default cell properties.
+				('*' space* property %cellDefaultProperty (space+ property %cellDefaultProperty)* space*)?
+				# Default column properties.
+				('|' %startColumn space* property %columnDefaultProperty (space+ property %columnDefaultProperty)* space* '|'? space*)*
+				(
+					# Start row and default row properties.
+					('---' %startRow space* (property %rowDefaultValue (space+ property %rowDefaultValue)* )? )?
+					(
+						# Cell contents.
+						space* (widget | label | startTable) space*
+						# Contents title.
+						(title space*)?
+						# Cell properties.
+						(property %cellProperty (space+ property %cellProperty)* space*)?
+						# Contents properties.
+						startWidgetProperties? space*
 					)+
 				)+
-				space*
-				'}'
-				%endTable
-			;
+				space* '}' %endTable;
 			
 			main := 
 				(space* '{')? <: table space*
@@ -152,7 +201,10 @@ class TableLayoutParser {
 
 	%% write data;
 
-	static private void setTableValues (BaseTableLayout table, String name, ArrayList<String> values) {
+	static public void setTableProperty (BaseTableLayout table, String name, ArrayList<String> values) {
+		name = name.toLowerCase();
+		for (int i = 0, n = values.size(); i < n; i++)
+			values.set(i, values.get(i).toLowerCase());
 		try {
 			String value;
 			if (name.equals("size")) {
@@ -258,7 +310,10 @@ class TableLayoutParser {
 		values.clear();
 	}
 
-	static private void setCellValues (Cell c, String name, ArrayList<String> values) {
+	static public void setCellProperty (Cell c, String name, ArrayList<String> values) {
+		name = name.toLowerCase();
+		for (int i = 0, n = values.size(); i < n; i++)
+			values.set(i, values.get(i).toLowerCase());
 		try {
 			String value;
 			if (name.equals("expand")) {
@@ -473,10 +528,11 @@ class TableLayoutParser {
 		BaseTableLayout table = new BaseTableLayout();
 		table.set("button", 123);
 		table.set("textbox", 345);
-		table.parse("" //
+		table.set("textbox2", 345);
+		table.parse("<Meow>" //
 			+ "width:400 height:400 " //
-			+ "[button]size:80,80 align:left spacing:10 \n " //
-			+ "{ width:12 [textbox] fill:x } align:bottom,right fill:xy " //
+			+ "[button:java.lang.String] <Booyah> size:80,80 align:left spacing:10 ( bean:true [button] 'moo' ) \n " //
+			+ "{ [textbox] [textbox] } " //
 			+ "[textbox]\nalign:right,bottom \n ");
 	}
 }
