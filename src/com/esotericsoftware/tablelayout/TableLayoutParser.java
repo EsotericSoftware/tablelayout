@@ -4,6 +4,8 @@
 
 package com.esotericsoftware.tablelayout;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import com.esotericsoftware.tablelayout.BaseTableLayout.Cell;
@@ -17,8 +19,14 @@ class TableLayoutParser {
 		int s = 0;
 		String name = null;
 		ArrayList<String> values = new ArrayList(4);
-		ArrayList<BaseTableLayout> tables = new ArrayList(8);
-		Cell rowDefaults = null;
+		ArrayList<Object> parents = new ArrayList(8);
+		Cell rowDefaults = null, columnDefaults = null;
+		Object parent = table, widget = null;
+		String widgetLayoutString = null;
+
+		if (cell != null) {
+			// BOZO - Set cell state.
+		}
 
 		RuntimeException parseRuntimeEx = null;
 		try {
@@ -109,109 +117,128 @@ case 1:
 			switch ( _tableLayout_actions[_acts++] )
 			{
 	case 0:
-// line 34 "TableLayoutParser.rl"
+// line 42 "TableLayoutParser.rl"
 	{ s = p; }
 	break;
 	case 1:
-// line 35 "TableLayoutParser.rl"
+// line 43 "TableLayoutParser.rl"
 	{
 				name = new String(data, s, p - s);
 				s = p;
 			}
 	break;
 	case 2:
-// line 39 "TableLayoutParser.rl"
+// line 47 "TableLayoutParser.rl"
 	{
 				values.add(new String(data, s, p - s));
 			}
 	break;
 	case 3:
-// line 42 "TableLayoutParser.rl"
+// line 50 "TableLayoutParser.rl"
 	{
 				System.out.println("tableProperty: " + name + " = " + values);
-				setTableProperty(table, name, values);
+				setTableProperty((BaseTableLayout)parent, name, values);
 			}
 	break;
 	case 4:
-// line 46 "TableLayoutParser.rl"
+// line 54 "TableLayoutParser.rl"
 	{
 				System.out.println("cellDefaultProperty: " + name + " = " + values);
-				setCellProperty(table.getCellDefaults(), name, values);
+				setCellProperty(((BaseTableLayout)parent).getCellDefaults(), name, values);
 			}
 	break;
 	case 5:
-// line 50 "TableLayoutParser.rl"
+// line 58 "TableLayoutParser.rl"
 	{
-				table.getColumnDefaults(table.getColumnDefaults().size());
+				int column = ((BaseTableLayout)parent).getColumnDefaults().size();
+				columnDefaults = ((BaseTableLayout)parent).getColumnDefaults(column);
 			}
 	break;
 	case 6:
-// line 53 "TableLayoutParser.rl"
+// line 62 "TableLayoutParser.rl"
 	{
 				System.out.println("columnDefaultProperty: " + name + " = " + values);
-				setCellProperty(table.getColumnDefaults(table.getColumnDefaults().size() - 1), name, values);
+				setCellProperty(columnDefaults, name, values);
 			}
 	break;
 	case 7:
-// line 57 "TableLayoutParser.rl"
+// line 66 "TableLayoutParser.rl"
 	{
 				System.out.println("startRow");
-				rowDefaults = table.startRow();
+				rowDefaults = ((BaseTableLayout)parent).startRow();
 			}
 	break;
 	case 8:
-// line 61 "TableLayoutParser.rl"
+// line 70 "TableLayoutParser.rl"
 	{
 				System.out.println("rowDefaultValue: " + name + " = " + values);
 				setCellProperty(rowDefaults, name, values);
 			}
 	break;
 	case 9:
-// line 65 "TableLayoutParser.rl"
-	{
-				String className = p > s ? new String(data, s, p - s) : null;
-				System.out.println("addWidget: " + name + " " + className);
-				Object widget = null;
-				if (className == null) {
-					if (!name.isEmpty()) {
-						widget = table.getWidget(name);
-						if (widget == null) throw new IllegalArgumentException("Widget not found with name: " + name);
-					}
-				} else {
-					try {
-						widget = Class.forName(className).newInstance();
-					} catch (Exception ex) {
-						throw new RuntimeException("Error creating instance of class: " + className, ex);
-					}
-					table.set(name, widget);
-				}
-				cell = table.add(widget);
-			}
-	break;
-	case 10:
-// line 84 "TableLayoutParser.rl"
-	{
-				System.out.println("addLabel: " + new String(data, s, p - s));
-				Object widget = table.newLabel(new String(data, s, p - s));
-				cell = table.add(widget);
-			}
-	break;
-	case 11:
-// line 89 "TableLayoutParser.rl"
+// line 74 "TableLayoutParser.rl"
 	{
 				System.out.println("cellProperty: " + name + " = " + values);
 				setCellProperty(cell, name, values);
 			}
 	break;
+	case 10:
+// line 78 "TableLayoutParser.rl"
+	{
+				System.out.println("setTitle: " + new String(data, s, p - s));
+				table.setTitle(parent, new String(data, s, p - s));
+			}
+	break;
+	case 11:
+// line 82 "TableLayoutParser.rl"
+	{
+				System.out.println("widgetLayoutString: " + new String(data, s, p - s));
+				widgetLayoutString = new String(data, s, p - s);
+			}
+	break;
 	case 12:
-// line 93 "TableLayoutParser.rl"
+// line 86 "TableLayoutParser.rl"
+	{
+				String className = p > s ? new String(data, s, p - s) : null;
+				System.out.println("newWidget: " + name + " " + className);
+				widget = null;
+				if (className == null) {
+					if (!name.isEmpty()) {
+						widget = table.getWidget(name);
+						if (widget == null) {
+							// Try the widget name as a class name.
+							try {
+								widget = table.wrap(newWidget(name));
+							} catch (Exception ex) {
+								throw new IllegalArgumentException("Widget not found with name: " + name);
+							}
+						}
+					}
+				} else {
+					try {
+						widget = table.wrap(newWidget(className));
+					} catch (Exception ex) {
+						throw new RuntimeException("Error creating instance of class: " + className, ex);
+					}
+					if (!name.isEmpty()) table.setName(name, widget);
+				}
+			}
+	break;
+	case 13:
+// line 111 "TableLayoutParser.rl"
+	{
+				System.out.println("newLabel: " + new String(data, s, p - s));
+				widget = table.newLabel(new String(data, s, p - s));
+			}
+	break;
+	case 14:
+// line 115 "TableLayoutParser.rl"
 	{
 				System.out.println("startTable");
+				parents.add(parent);
+				parent = table.newTableLayout();
 				cell = null;
-				BaseTableLayout parentTable = table;
-				tables.add(parentTable);
-				table = parentTable.newTableLayout();
-				table.setAll(parentTable.nameToWidget);
+				widget = null;
 				{
 				if (top == stack.length) {
 					int[] newStack = new int[stack.length * 2];
@@ -221,53 +248,79 @@ case 1:
 			{stack[top++] = cs; cs = 3; _goto_targ = 2; if (true) continue _goto;}}
 			}
 	break;
-	case 13:
-// line 102 "TableLayoutParser.rl"
+	case 15:
+// line 123 "TableLayoutParser.rl"
 	{
-				if (!tables.isEmpty()) {
+				if (!parents.isEmpty()) {
 					System.out.println("endTable");
-					BaseTableLayout childTable = table;
-					table = tables.remove(tables.size() - 1);
-					cell = table.add(childTable);
+					widget = parent;
+					parent = parents.remove(parents.size() - 1);
 					{cs = stack[--top];_goto_targ = 2; if (true) continue _goto;}
 				}
 			}
 	break;
-	case 14:
-// line 111 "TableLayoutParser.rl"
-	{
-				System.out.println("setTitle: " + new String(data, s, p - s));
-				// BOZO
-			}
-	break;
-	case 15:
-// line 115 "TableLayoutParser.rl"
-	{
-				System.out.println("widgetProperty: " + name + " = " + values);
-				values.clear();
-			}
-	break;
 	case 16:
-// line 119 "TableLayoutParser.rl"
+// line 131 "TableLayoutParser.rl"
 	{
-				System.out.println("widgetLayoutString: " + new String(data, s, p - s));
-			}
-	break;
-	case 17:
-// line 135 "TableLayoutParser.rl"
-	{ {
+				System.out.println("startWidgetSection");
+				parents.add(parent);
+				parent = widget;
+				widget = null;
+				{
 				if (top == stack.length) {
 					int[] newStack = new int[stack.length * 2];
 					System.arraycopy(stack, 0, newStack, 0, stack.length);
 					stack = newStack;
 				}
-			{stack[top++] = cs; cs = 69; _goto_targ = 2; if (true) continue _goto;}} }
+			{stack[top++] = cs; cs = 81; _goto_targ = 2; if (true) continue _goto;}}
+			}
+	break;
+	case 17:
+// line 138 "TableLayoutParser.rl"
+	{
+				System.out.println("endWidgetSection");
+				widget = parent;
+				parent = parents.remove(parents.size() - 1);
+				{cs = stack[--top];_goto_targ = 2; if (true) continue _goto;}
+			}
 	break;
 	case 18:
-// line 153 "TableLayoutParser.rl"
-	{ {cs = stack[--top];_goto_targ = 2; if (true) continue _goto;} }
+// line 144 "TableLayoutParser.rl"
+	{
+				System.out.println("addCell");
+				cell = ((BaseTableLayout)parent).add(widget);
+			}
 	break;
-// line 246 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+	case 19:
+// line 148 "TableLayoutParser.rl"
+	{
+				System.out.println("addWidget");
+				table.addChild(parent, table.wrap(widget), widgetLayoutString);
+			}
+	break;
+	case 20:
+// line 152 "TableLayoutParser.rl"
+	{
+				System.out.println("widgetProperty: " + name + " = " + values);
+				try {
+					invokeMethod(parent, name, values);
+				} catch (Exception ex1) {
+					try {
+						invokeMethod(parent, "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1), values);
+					} catch (Exception ex2) {
+						try {
+							Field field = parent.getClass().getField(name);
+							Object value = convertType(parent, values.get(0), field.getType());
+							if (value != null) field.set(parent, value);
+						} catch (Exception ex3) {
+							throw new RuntimeException("No method, bean property, or field: " + name + "\nClass: " + parent.getClass() + "\nValues: " + values);
+						}
+					}
+				}
+				values.clear();
+			}
+	break;
+// line 291 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 			}
 		}
 	}
@@ -288,19 +341,18 @@ case 4:
 	int __nacts = (int) _tableLayout_actions[__acts++];
 	while ( __nacts-- > 0 ) {
 		switch ( _tableLayout_actions[__acts++] ) {
-	case 13:
-// line 102 "TableLayoutParser.rl"
+	case 15:
+// line 123 "TableLayoutParser.rl"
 	{
-				if (!tables.isEmpty()) {
+				if (!parents.isEmpty()) {
 					System.out.println("endTable");
-					BaseTableLayout childTable = table;
-					table = tables.remove(tables.size() - 1);
-					cell = table.add(childTable);
+					widget = parent;
+					parent = parents.remove(parents.size() - 1);
 					{cs = stack[--top];_goto_targ = 2; if (true) continue _goto;}
 				}
 			}
 	break;
-// line 279 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+// line 323 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 		}
 	}
 	}
@@ -310,7 +362,7 @@ case 5:
 	break; }
 	}
 
-// line 186 "TableLayoutParser.rl"
+// line 230 "TableLayoutParser.rl"
 
 		} catch (RuntimeException ex) {
 			parseRuntimeEx = ex;
@@ -319,32 +371,33 @@ case 5:
 		if (p < pe) {
 			throw new IllegalArgumentException("Error parsing layout near: " + new String(data, p, pe - p), parseRuntimeEx);
 		} else if (top > 0) 
-			throw new IllegalArgumentException("Error parsing layout, missing closing curly brace: " + input, parseRuntimeEx);
+			throw new IllegalArgumentException("Error parsing layout (possibly an unmatched brace or quote): " + input, parseRuntimeEx);
 	}
 
 	
-// line 289 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+// line 333 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 private static byte[] init__tableLayout_actions_0()
 {
 	return new byte [] {
-	    0,    1,    0,    1,    1,    1,    2,    1,    5,    1,    7,    1,
-	    9,    1,   10,    1,   12,    1,   13,    1,   14,    1,   16,    1,
-	   17,    1,   18,    2,    0,    1,    2,    0,    2,    2,    0,   10,
-	    2,    0,   14,    2,    1,    3,    2,    1,    4,    2,    1,    6,
-	    2,    1,    8,    2,    1,    9,    2,    1,   11,    2,    2,    3,
-	    2,    2,    4,    2,    2,    6,    2,    2,    8,    2,    2,   11,
-	    2,    2,   15,    2,    5,    0,    2,    7,    0,    2,    7,   12,
-	    2,   10,   16,    2,   16,   12,    2,   16,   17,    2,   16,   18,
-	    3,    0,    1,    9,    3,    0,    2,    3,    3,    0,    2,    4,
-	    3,    0,    2,    6,    3,    0,    2,    8,    3,    0,    2,   11,
-	    3,    0,   10,   16,    3,    1,    3,   12,    3,    1,    4,   12,
-	    3,    1,    6,   12,    3,    1,    8,   12,    3,    1,   11,   12,
-	    3,    1,   11,   17,    3,    2,    3,   12,    3,    2,    4,   12,
-	    3,    2,    6,   12,    3,    2,    8,   12,    3,    2,   11,   12,
-	    3,    2,   11,   17,    3,    2,   15,   12,    3,    2,   15,   18,
-	    4,    0,    2,    3,   12,    4,    0,    2,    4,   12,    4,    0,
-	    2,    6,   12,    4,    0,    2,    8,   12,    4,    0,    2,   11,
-	   12,    4,    0,    2,   11,   17
+	    0,    1,    0,    1,    1,    1,    2,    1,    3,    1,    4,    1,
+	    5,    1,    6,    1,    7,    1,    8,    1,    9,    1,   10,    1,
+	   11,    1,   12,    1,   13,    1,   14,    1,   15,    1,   16,    1,
+	   17,    1,   18,    1,   19,    1,   20,    2,    0,    1,    2,    0,
+	    2,    2,    0,   10,    2,    0,   13,    2,    1,    3,    2,    1,
+	    4,    2,    1,    6,    2,    1,    8,    2,    1,    9,    2,    1,
+	   12,    2,    1,   20,    2,    2,    3,    2,    2,    4,    2,    2,
+	    6,    2,    2,    8,    2,    2,    9,    2,    2,   20,    2,    3,
+	   14,    2,    4,   14,    2,    5,    0,    2,    6,   14,    2,    7,
+	    0,    2,    7,   14,    2,    8,   14,    2,    9,   14,    2,    9,
+	   16,    2,   11,   19,    2,   18,    0,    2,   18,   14,    2,   18,
+	   16,    2,   19,   14,    2,   19,   16,    2,   19,   17,    2,   20,
+	   14,    2,   20,   17,    3,    0,    1,   12,    3,    1,    3,   14,
+	    3,    1,    4,   14,    3,    1,    6,   14,    3,    1,    8,   14,
+	    3,    1,    9,   14,    3,    1,    9,   16,    3,    1,   20,   14,
+	    3,    1,   20,   17,    3,    2,    3,   14,    3,    2,    4,   14,
+	    3,    2,    6,   14,    3,    2,    8,   14,    3,    2,    9,   14,
+	    3,    2,    9,   16,    3,    2,   20,   14,    3,    2,   20,   17,
+	    3,   11,   19,   14,    3,   11,   19,   16,    3,   11,   19,   17
 	};
 }
 
@@ -354,14 +407,16 @@ private static final byte _tableLayout_actions[] = init__tableLayout_actions_0()
 private static short[] init__tableLayout_key_offsets_0()
 {
 	return new short [] {
-	    0,    0,   16,   20,   36,   37,   38,   54,   62,   63,   64,   76,
-	   88,  101,  114,  124,  130,  144,  151,  164,  177,  179,  181,  182,
-	  183,  199,  215,  225,  231,  248,  263,  273,  289,  305,  306,  307,
-	  316,  331,  346,  356,  362,  378,  392,  401,  410,  425,  440,  450,
-	  456,  472,  486,  500,  514,  523,  538,  553,  562,  577,  592,  608,
-	  624,  634,  640,  657,  672,  682,  698,  714,  715,  716,  729,  730,
-	  731,  746,  747,  748,  755,  759,  761,  763,  764,  765,  779,  780,
-	  781,  795,  805,  809,  818,  831,  834,  837
+	    0,    0,   16,   20,   36,   37,   38,   54,   70,   78,   79,   80,
+	   92,  104,  117,  130,  141,  142,  143,  150,  158,  164,  178,  185,
+	  190,  195,  199,  200,  204,  220,  236,  247,  248,  249,  259,  274,
+	  282,  288,  305,  315,  316,  317,  326,  341,  356,  367,  368,  369,
+	  378,  392,  401,  410,  425,  440,  451,  452,  453,  462,  476,  490,
+	  504,  512,  518,  534,  543,  551,  557,  573,  582,  598,  614,  625,
+	  626,  627,  637,  652,  660,  666,  683,  693,  694,  695,  708,  709,
+	  710,  725,  732,  737,  742,  746,  747,  751,  765,  773,  774,  775,
+	  789,  803,  817,  828,  829,  830,  838,  846,  852,  867,  875,  878,
+	  881
 	};
 }
 
@@ -375,72 +430,76 @@ private static char[] init__tableLayout_trans_keys_0()
 	   65,   90,   97,  122,   32,  123,    9,   13,   32,   39,   42,   45,
 	   60,   91,  123,  124,    9,   13,   48,   57,   65,   90,   97,  122,
 	   39,   39,   32,   39,   40,   45,   60,   91,  123,  125,    9,   13,
-	   48,   57,   65,   90,   97,  122,   32,   39,   45,   91,  123,  125,
-	    9,   13,   45,   45,   32,   39,   91,  123,    9,   13,   48,   57,
-	   65,   90,   97,  122,   32,   39,   91,  123,    9,   13,   48,   57,
-	   65,   90,   97,  122,   32,   39,   58,   91,  123,    9,   13,   48,
-	   57,   65,   90,   97,  122,   32,   39,   58,   91,  123,    9,   13,
-	   48,   57,   65,   90,   97,  122,   32,   45,    9,   13,   48,   57,
-	   65,   90,   97,  122,   48,   57,   65,   90,   97,  122,   32,   37,
-	   39,   44,   91,  123,    9,   13,   48,   57,   65,   90,   97,  122,
-	   32,   39,   44,   91,  123,    9,   13,   32,   39,   44,   91,  123,
-	    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,   44,   91,
-	  123,    9,   13,   48,   57,   65,   90,   97,  122,   58,   93,   58,
-	   93,   93,   93,   32,   39,   40,   45,   58,   91,  123,  125,    9,
-	   13,   48,   57,   65,   90,   97,  122,   32,   39,   40,   45,   58,
-	   91,  123,  125,    9,   13,   48,   57,   65,   90,   97,  122,   32,
-	   45,    9,   13,   48,   57,   65,   90,   97,  122,   48,   57,   65,
-	   90,   97,  122,   32,   37,   39,   40,   44,   45,   91,  123,  125,
-	    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,   40,   45,
-	   91,  123,  125,    9,   13,   48,   57,   65,   90,   97,  122,   32,
-	   39,   40,   44,   45,   91,  123,  125,    9,   13,   32,   39,   40,
-	   44,   45,   91,  123,  125,    9,   13,   48,   57,   65,   90,   97,
-	  122,   32,   39,   40,   44,   45,   91,  123,  125,    9,   13,   48,
-	   57,   65,   90,   97,  122,   62,   62,   32,    9,   13,   48,   57,
-	   65,   90,   97,  122,   32,   39,   45,   58,   91,  123,  124,    9,
-	   13,   48,   57,   65,   90,   97,  122,   32,   39,   45,   58,   91,
-	  123,  124,    9,   13,   48,   57,   65,   90,   97,  122,   32,   45,
-	    9,   13,   48,   57,   65,   90,   97,  122,   48,   57,   65,   90,
-	   97,  122,   32,   37,   39,   44,   45,   91,  123,  124,    9,   13,
-	   48,   57,   65,   90,   97,  122,   32,   39,   45,   91,  123,  124,
+	   48,   57,   65,   90,   97,  122,   32,   39,   40,   45,   60,   91,
+	  123,  125,    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,
+	   45,   91,  123,  125,    9,   13,   45,   45,   32,   39,   91,  123,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,   91,  123,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,   58,   91,
+	  123,    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,   58,
+	   91,  123,    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,
+	   45,    9,   13,   48,   57,   65,   90,   97,  122,   39,   39,   32,
+	   39,   44,   91,  123,    9,   13,   39,   45,   48,   57,   65,   90,
+	   97,  122,   48,   57,   65,   90,   97,  122,   32,   37,   39,   44,
+	   91,  123,    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,
+	   44,   91,  123,    9,   13,   32,   58,   93,    9,   13,   32,   58,
+	   93,    9,   13,   32,   93,    9,   13,   93,   32,   93,    9,   13,
+	   32,   39,   40,   45,   58,   91,  123,  125,    9,   13,   48,   57,
+	   65,   90,   97,  122,   32,   39,   40,   45,   58,   91,  123,  125,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,   45,    9,
+	   13,   48,   57,   65,   90,   97,  122,   39,   39,   32,   39,   40,
+	   44,   45,   91,  123,  125,    9,   13,   32,   39,   40,   45,   91,
+	  123,  125,    9,   13,   48,   57,   65,   90,   97,  122,   39,   45,
+	   48,   57,   65,   90,   97,  122,   48,   57,   65,   90,   97,  122,
+	   32,   37,   39,   40,   44,   45,   91,  123,  125,    9,   13,   48,
+	   57,   65,   90,   97,  122,   32,   39,   40,   44,   45,   91,  123,
+	  125,    9,   13,   62,   62,   32,    9,   13,   48,   57,   65,   90,
+	   97,  122,   32,   39,   45,   58,   91,  123,  124,    9,   13,   48,
+	   57,   65,   90,   97,  122,   32,   39,   45,   58,   91,  123,  124,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,   45,    9,
+	   13,   48,   57,   65,   90,   97,  122,   39,   39,   32,   39,   44,
+	   45,   91,  123,  124,    9,   13,   32,   39,   45,   91,  123,  124,
 	    9,   13,   48,   57,   65,   90,   97,  122,   32,    9,   13,   48,
 	   57,   65,   90,   97,  122,   32,    9,   13,   48,   57,   65,   90,
 	   97,  122,   32,   39,   45,   58,   91,  123,  124,    9,   13,   48,
 	   57,   65,   90,   97,  122,   32,   39,   45,   58,   91,  123,  124,
-	    9,   13,   48,   57,   65,   90,   97,  122,   32,   45,    9,   13,
-	   48,   57,   65,   90,   97,  122,   48,   57,   65,   90,   97,  122,
-	   32,   37,   39,   44,   45,   91,  123,  124,    9,   13,   48,   57,
-	   65,   90,   97,  122,   32,   39,   45,   91,  123,  124,    9,   13,
-	   48,   57,   65,   90,   97,  122,   32,   39,   45,   91,  123,  124,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,   45,    9,
+	   13,   48,   57,   65,   90,   97,  122,   39,   39,   32,   39,   44,
+	   45,   91,  123,  124,    9,   13,   32,   39,   45,   91,  123,  124,
 	    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,   45,   91,
 	  123,  124,    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,
-	   44,   45,   91,  123,  124,    9,   13,   32,   39,   44,   45,   91,
-	  123,  124,    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,
-	   44,   45,   91,  123,  124,    9,   13,   48,   57,   65,   90,   97,
-	  122,   32,   39,   44,   45,   91,  123,  124,    9,   13,   32,   39,
-	   44,   45,   91,  123,  124,    9,   13,   48,   57,   65,   90,   97,
-	  122,   32,   39,   44,   45,   91,  123,  124,    9,   13,   48,   57,
-	   65,   90,   97,  122,   32,   39,   42,   45,   58,   91,  123,  124,
-	    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,   42,   45,
-	   58,   91,  123,  124,    9,   13,   48,   57,   65,   90,   97,  122,
-	   32,   45,    9,   13,   48,   57,   65,   90,   97,  122,   48,   57,
-	   65,   90,   97,  122,   32,   37,   39,   42,   44,   45,   91,  123,
-	  124,    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,   42,
 	   45,   91,  123,  124,    9,   13,   48,   57,   65,   90,   97,  122,
-	   32,   39,   42,   44,   45,   91,  123,  124,    9,   13,   32,   39,
-	   42,   44,   45,   91,  123,  124,    9,   13,   48,   57,   65,   90,
-	   97,  122,   32,   39,   42,   44,   45,   91,  123,  124,    9,   13,
-	   48,   57,   65,   90,   97,  122,   62,   62,   32,   39,   41,   91,
-	  123,    9,   13,   48,   57,   65,   90,   97,  122,   39,   39,   32,
-	   39,   40,   41,   60,   91,  123,    9,   13,   48,   57,   65,   90,
-	   97,  122,   39,   39,   32,   39,   41,   91,  123,    9,   13,   32,
-	   41,    9,   13,   58,   93,   58,   93,   93,   93,   32,   39,   40,
-	   41,   91,  123,    9,   13,   48,   57,   65,   90,   97,  122,   62,
-	   62,   32,   39,   40,   41,   91,  123,    9,   13,   48,   57,   65,
-	   90,   97,  122,   32,   58,    9,   13,   48,   57,   65,   90,   97,
-	  122,   32,   58,    9,   13,   32,    9,   13,   48,   57,   65,   90,
-	   97,  122,   32,   39,   41,   91,  123,    9,   13,   48,   57,   65,
-	   90,   97,  122,   32,    9,   13,   32,    9,   13,    0
+	   39,   45,   48,   57,   65,   90,   97,  122,   48,   57,   65,   90,
+	   97,  122,   32,   37,   39,   44,   45,   91,  123,  124,    9,   13,
+	   48,   57,   65,   90,   97,  122,   32,   39,   44,   45,   91,  123,
+	  124,    9,   13,   39,   45,   48,   57,   65,   90,   97,  122,   48,
+	   57,   65,   90,   97,  122,   32,   37,   39,   44,   45,   91,  123,
+	  124,    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,   44,
+	   45,   91,  123,  124,    9,   13,   32,   39,   42,   45,   58,   91,
+	  123,  124,    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,
+	   42,   45,   58,   91,  123,  124,    9,   13,   48,   57,   65,   90,
+	   97,  122,   32,   39,   45,    9,   13,   48,   57,   65,   90,   97,
+	  122,   39,   39,   32,   39,   42,   44,   45,   91,  123,  124,    9,
+	   13,   32,   39,   42,   45,   91,  123,  124,    9,   13,   48,   57,
+	   65,   90,   97,  122,   39,   45,   48,   57,   65,   90,   97,  122,
+	   48,   57,   65,   90,   97,  122,   32,   37,   39,   42,   44,   45,
+	   91,  123,  124,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   39,   42,   44,   45,   91,  123,  124,    9,   13,   62,   62,   32,
+	   39,   41,   91,  123,    9,   13,   48,   57,   65,   90,   97,  122,
+	   39,   39,   32,   39,   40,   41,   60,   91,  123,    9,   13,   48,
+	   57,   65,   90,   97,  122,   32,   39,   41,   91,  123,    9,   13,
+	   32,   58,   93,    9,   13,   32,   58,   93,    9,   13,   32,   93,
+	    9,   13,   93,   32,   93,    9,   13,   32,   39,   40,   41,   91,
+	  123,    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,   40,
+	   41,   91,  123,    9,   13,   62,   62,   32,   39,   40,   41,   91,
+	  123,    9,   13,   48,   57,   65,   90,   97,  122,   32,   39,   41,
+	   58,   91,  123,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   39,   41,   58,   91,  123,    9,   13,   48,   57,   65,   90,   97,
+	  122,   32,   39,   45,    9,   13,   48,   57,   65,   90,   97,  122,
+	   39,   39,   32,   39,   41,   44,   91,  123,    9,   13,   39,   45,
+	   48,   57,   65,   90,   97,  122,   48,   57,   65,   90,   97,  122,
+	   32,   37,   39,   41,   44,   91,  123,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,   39,   41,   44,   91,  123,    9,   13,   32,
+	    9,   13,   32,    9,   13,    0
 	};
 }
 
@@ -450,14 +509,16 @@ private static final char _tableLayout_trans_keys[] = init__tableLayout_trans_ke
 private static byte[] init__tableLayout_single_lengths_0()
 {
 	return new byte [] {
-	    0,    8,    2,    8,    1,    1,    8,    6,    1,    1,    4,    4,
-	    5,    5,    2,    0,    6,    5,    5,    5,    2,    2,    1,    1,
-	    8,    8,    2,    0,    9,    7,    8,    8,    8,    1,    1,    1,
-	    7,    7,    2,    0,    8,    6,    1,    1,    7,    7,    2,    0,
-	    8,    6,    6,    6,    7,    7,    7,    7,    7,    7,    8,    8,
-	    2,    0,    9,    7,    8,    8,    8,    1,    1,    5,    1,    1,
-	    7,    1,    1,    5,    2,    2,    2,    1,    1,    6,    1,    1,
-	    6,    2,    2,    1,    5,    1,    1,    0
+	    0,    8,    2,    8,    1,    1,    8,    8,    6,    1,    1,    4,
+	    4,    5,    5,    3,    1,    1,    5,    2,    0,    6,    5,    3,
+	    3,    2,    1,    2,    8,    8,    3,    1,    1,    8,    7,    2,
+	    0,    9,    8,    1,    1,    1,    7,    7,    3,    1,    1,    7,
+	    6,    1,    1,    7,    7,    3,    1,    1,    7,    6,    6,    6,
+	    2,    0,    8,    7,    2,    0,    8,    7,    8,    8,    3,    1,
+	    1,    8,    7,    2,    0,    9,    8,    1,    1,    5,    1,    1,
+	    7,    5,    3,    3,    2,    1,    2,    6,    6,    1,    1,    6,
+	    6,    6,    3,    1,    1,    6,    2,    0,    7,    6,    1,    1,
+	    0
 	};
 }
 
@@ -467,14 +528,16 @@ private static final byte _tableLayout_single_lengths[] = init__tableLayout_sing
 private static byte[] init__tableLayout_range_lengths_0()
 {
 	return new byte [] {
-	    0,    4,    1,    4,    0,    0,    4,    1,    0,    0,    4,    4,
-	    4,    4,    4,    3,    4,    1,    4,    4,    0,    0,    0,    0,
-	    4,    4,    4,    3,    4,    4,    1,    4,    4,    0,    0,    4,
-	    4,    4,    4,    3,    4,    4,    4,    4,    4,    4,    4,    3,
-	    4,    4,    4,    4,    1,    4,    4,    1,    4,    4,    4,    4,
-	    4,    3,    4,    4,    1,    4,    4,    0,    0,    4,    0,    0,
-	    4,    0,    0,    1,    1,    0,    0,    0,    0,    4,    0,    0,
-	    4,    4,    1,    4,    4,    1,    1,    0
+	    0,    4,    1,    4,    0,    0,    4,    4,    1,    0,    0,    4,
+	    4,    4,    4,    4,    0,    0,    1,    3,    3,    4,    1,    1,
+	    1,    1,    0,    1,    4,    4,    4,    0,    0,    1,    4,    3,
+	    3,    4,    1,    0,    0,    4,    4,    4,    4,    0,    0,    1,
+	    4,    4,    4,    4,    4,    4,    0,    0,    1,    4,    4,    4,
+	    3,    3,    4,    1,    3,    3,    4,    1,    4,    4,    4,    0,
+	    0,    1,    4,    3,    3,    4,    1,    0,    0,    4,    0,    0,
+	    4,    1,    1,    1,    1,    0,    1,    4,    1,    0,    0,    4,
+	    4,    4,    4,    0,    0,    1,    3,    3,    4,    1,    1,    1,
+	    0
 	};
 }
 
@@ -484,14 +547,16 @@ private static final byte _tableLayout_range_lengths[] = init__tableLayout_range
 private static short[] init__tableLayout_index_offsets_0()
 {
 	return new short [] {
-	    0,    0,   13,   17,   30,   32,   34,   47,   55,   57,   59,   68,
-	   77,   87,   97,  104,  108,  119,  126,  136,  146,  149,  152,  154,
-	  156,  169,  182,  189,  193,  207,  219,  229,  242,  255,  257,  259,
-	  265,  277,  289,  296,  300,  313,  324,  330,  336,  348,  360,  367,
-	  371,  384,  395,  406,  417,  426,  438,  450,  459,  471,  483,  496,
-	  509,  516,  520,  534,  546,  556,  569,  582,  584,  586,  596,  598,
-	  600,  612,  614,  616,  623,  627,  630,  633,  635,  637,  648,  650,
-	  652,  663,  670,  674,  680,  690,  693,  696
+	    0,    0,   13,   17,   30,   32,   34,   47,   60,   68,   70,   72,
+	   81,   90,  100,  110,  118,  120,  122,  129,  135,  139,  150,  157,
+	  162,  167,  171,  173,  177,  190,  203,  211,  213,  215,  225,  237,
+	  243,  247,  261,  271,  273,  275,  281,  293,  305,  313,  315,  317,
+	  326,  337,  343,  349,  361,  373,  381,  383,  385,  394,  405,  416,
+	  427,  433,  437,  450,  459,  465,  469,  482,  491,  504,  517,  525,
+	  527,  529,  539,  551,  557,  561,  575,  585,  587,  589,  599,  601,
+	  603,  615,  622,  627,  632,  636,  638,  642,  653,  661,  663,  665,
+	  676,  687,  698,  706,  708,  710,  718,  724,  728,  740,  748,  751,
+	  754
 	};
 }
 
@@ -501,65 +566,69 @@ private static final short _tableLayout_index_offsets[] = init__tableLayout_inde
 private static byte[] init__tableLayout_trans_targs_0()
 {
 	return new byte [] {
-	    2,    4,   35,    8,   67,   20,    3,   42,    2,   58,   58,   58,
-	    0,    2,    3,    2,    0,    3,    4,   35,    8,   67,   20,    6,
-	   42,    3,   58,   58,   58,    0,    6,    5,    6,    5,    6,    4,
-	    7,    8,   33,   20,    6,   89,    6,   24,   24,   24,    0,    7,
-	    4,    8,   20,    6,   89,    7,    0,    9,    0,   10,    0,   11,
-	    4,   20,    6,   11,   12,   12,   12,    0,   11,    4,   20,    6,
-	   11,   12,   12,   12,    0,   13,    4,   14,   20,    6,   13,   12,
-	   12,   12,    0,   13,    4,   14,   20,    6,   13,   12,   12,   12,
-	    0,   14,   15,   14,   16,   16,   16,    0,   16,   16,   16,    0,
-	   11,   17,    4,   18,   20,    6,   11,   16,   16,   16,    0,   11,
-	    4,   18,   20,    6,   11,    0,   11,    4,   18,   20,    6,   11,
-	   19,   19,   19,    0,   11,    4,   18,   20,    6,   11,   19,   19,
-	   19,    0,   22,    6,   21,   22,    6,   21,    0,   23,    6,   23,
-	   25,    4,    7,    8,   26,   20,    6,   89,   25,   24,   24,   24,
-	    0,   25,    4,    7,    8,   26,   20,    6,   89,   25,   24,   24,
-	   24,    0,   26,   27,   26,   28,   28,   28,    0,   28,   28,   28,
-	    0,   29,   30,    4,    7,   31,    8,   20,    6,   89,   29,   28,
-	   28,   28,    0,   29,    4,    7,    8,   20,    6,   89,   29,   24,
-	   24,   24,    0,   29,    4,    7,   31,    8,   20,    6,   89,   29,
-	    0,   29,    4,    7,   31,    8,   20,    6,   89,   29,   32,   32,
-	   32,    0,   29,    4,    7,   31,    8,   20,    6,   89,   29,   32,
-	   32,   32,    0,   29,   34,   29,   34,   35,   35,   36,   36,   36,
-	    0,   37,    4,    8,   38,   20,    6,   42,   37,   36,   36,   36,
-	    0,   37,    4,    8,   38,   20,    6,   42,   37,   36,   36,   36,
-	    0,   38,   39,   38,   40,   40,   40,    0,   40,   40,   40,    0,
-	   41,   55,    4,   56,    8,   20,    6,   42,   41,   40,   40,   40,
-	    0,   41,    4,    8,   20,    6,   42,   41,   36,   36,   36,    0,
-	   43,   43,   44,   44,   44,    0,   43,   43,   44,   44,   44,    0,
-	   45,    4,    8,   46,   20,    6,   50,   45,   44,   44,   44,    0,
-	   45,    4,    8,   46,   20,    6,   50,   45,   44,   44,   44,    0,
-	   46,   47,   46,   48,   48,   48,    0,   48,   48,   48,    0,   49,
-	   52,    4,   53,    8,   20,    6,   50,   49,   48,   48,   48,    0,
-	   49,    4,    8,   20,    6,   50,   49,   44,   44,   44,    0,   51,
-	    4,    8,   20,    6,   42,   51,   44,   44,   44,    0,   51,    4,
-	    8,   20,    6,   42,   51,   44,   44,   44,    0,   49,    4,   53,
-	    8,   20,    6,   50,   49,    0,   49,    4,   53,    8,   20,    6,
-	   50,   49,   54,   54,   54,    0,   49,    4,   53,    8,   20,    6,
-	   50,   49,   54,   54,   54,    0,   41,    4,   56,    8,   20,    6,
-	   42,   41,    0,   41,    4,   56,    8,   20,    6,   42,   41,   57,
-	   57,   57,    0,   41,    4,   56,    8,   20,    6,   42,   41,   57,
-	   57,   57,    0,   59,    4,   35,    8,   60,   20,    6,   42,   59,
-	   58,   58,   58,    0,   59,    4,   35,    8,   60,   20,    6,   42,
-	   59,   58,   58,   58,    0,   60,   61,   60,   62,   62,   62,    0,
-	   62,   62,   62,    0,   63,   64,    4,   35,   65,    8,   20,    6,
-	   42,   63,   62,   62,   62,    0,   63,    4,   35,    8,   20,    6,
-	   42,   63,   58,   58,   58,    0,   63,    4,   35,   65,    8,   20,
-	    6,   42,   63,    0,   63,    4,   35,   65,    8,   20,    6,   42,
-	   63,   66,   66,   66,    0,   63,    4,   35,   65,    8,   20,    6,
-	   42,   63,   66,   66,   66,    0,   63,   68,   63,   68,   69,   70,
-	   91,   77,   72,   69,   85,   85,   85,    0,   72,   71,   72,   71,
-	   72,   73,   75,   91,   82,   77,   72,   72,   81,   81,   81,    0,
-	   72,   74,   72,   74,   76,   70,   91,   77,   72,   76,    0,   76,
-	   91,   76,    0,   79,   72,   78,   79,   72,   78,    0,   80,   72,
-	   80,   76,   70,   75,   91,   77,   72,   76,   81,   81,   81,    0,
-	   84,   83,   84,   83,   84,   73,   75,   91,   77,   72,   84,   81,
-	   81,   81,    0,   86,   87,   86,   85,   85,   85,    0,   86,   87,
-	   86,    0,   87,   87,   88,   88,   88,    0,   69,   70,   91,   77,
-	   72,   69,   88,   88,   88,    0,   90,   90,    0,   90,   90,    0,
-	    0,    0
+	    2,    4,   41,    9,   79,   23,    3,   49,    2,   68,   68,   68,
+	    0,    2,    3,    2,    0,    3,    4,   41,    9,   79,   23,    6,
+	   49,    3,   68,   68,   68,    0,    6,    5,    6,    5,    7,    4,
+	    8,    9,   39,   23,    6,  106,    7,   28,   28,   28,    0,    7,
+	    4,    8,    9,   39,   23,    6,  106,    7,   28,   28,   28,    0,
+	    8,    4,    9,   23,    6,  106,    8,    0,   10,    0,   11,    0,
+	   12,    4,   23,    6,   12,   13,   13,   13,    0,   12,    4,   23,
+	    6,   12,   13,   13,   13,    0,   14,    4,   15,   23,    6,   14,
+	   13,   13,   13,    0,   14,    4,   15,   23,    6,   14,   13,   13,
+	   13,    0,   15,   16,   20,   15,   21,   21,   21,    0,   18,   17,
+	   18,   17,   12,    4,   19,   23,    6,   12,    0,   16,   20,   21,
+	   21,   21,    0,   21,   21,   21,    0,   12,   22,    4,   19,   23,
+	    6,   12,   21,   21,   21,    0,   12,    4,   19,   23,    6,   12,
+	    0,   23,   25,    6,   23,   24,   24,   25,    6,   24,   24,   27,
+	    0,   27,   26,    6,   26,   27,    6,   27,   26,   29,    4,    8,
+	    9,   30,   23,    6,  106,   29,   28,   28,   28,    0,   29,    4,
+	    8,    9,   30,   23,    6,  106,   29,   28,   28,   28,    0,   30,
+	   31,   36,   30,   37,   37,   37,    0,   33,   32,   33,   32,   34,
+	    4,    8,   35,    9,   23,    6,  106,   34,    0,   34,    4,    8,
+	    9,   23,    6,  106,   34,   28,   28,   28,    0,   31,   36,   37,
+	   37,   37,    0,   37,   37,   37,    0,   34,   38,    4,    8,   35,
+	    9,   23,    6,  106,   34,   37,   37,   37,    0,   34,    4,    8,
+	   35,    9,   23,    6,  106,   34,    0,   34,   40,   34,   40,   41,
+	   41,   42,   42,   42,    0,   43,    4,    9,   44,   23,    6,   49,
+	   43,   42,   42,   42,    0,   43,    4,    9,   44,   23,    6,   49,
+	   43,   42,   42,   42,    0,   44,   45,   65,   44,   66,   66,   66,
+	    0,   47,   46,   47,   46,   48,    4,   64,    9,   23,    6,   49,
+	   48,    0,   48,    4,    9,   23,    6,   49,   48,   42,   42,   42,
+	    0,   50,   50,   51,   51,   51,    0,   50,   50,   51,   51,   51,
+	    0,   52,    4,    9,   53,   23,    6,   58,   52,   51,   51,   51,
+	    0,   52,    4,    9,   53,   23,    6,   58,   52,   51,   51,   51,
+	    0,   53,   54,   61,   53,   62,   62,   62,    0,   56,   55,   56,
+	   55,   57,    4,   60,    9,   23,    6,   58,   57,    0,   57,    4,
+	    9,   23,    6,   58,   57,   51,   51,   51,    0,   59,    4,    9,
+	   23,    6,   49,   59,   51,   51,   51,    0,   59,    4,    9,   23,
+	    6,   49,   59,   51,   51,   51,    0,   54,   61,   62,   62,   62,
+	    0,   62,   62,   62,    0,   57,   63,    4,   60,    9,   23,    6,
+	   58,   57,   62,   62,   62,    0,   57,    4,   60,    9,   23,    6,
+	   58,   57,    0,   45,   65,   66,   66,   66,    0,   66,   66,   66,
+	    0,   48,   67,    4,   64,    9,   23,    6,   49,   48,   66,   66,
+	   66,    0,   48,    4,   64,    9,   23,    6,   49,   48,    0,   69,
+	    4,   41,    9,   70,   23,    6,   49,   69,   68,   68,   68,    0,
+	   69,    4,   41,    9,   70,   23,    6,   49,   69,   68,   68,   68,
+	    0,   70,   71,   76,   70,   77,   77,   77,    0,   73,   72,   73,
+	   72,   74,    4,   41,   75,    9,   23,    6,   49,   74,    0,   74,
+	    4,   41,    9,   23,    6,   49,   74,   68,   68,   68,    0,   71,
+	   76,   77,   77,   77,    0,   77,   77,   77,    0,   74,   78,    4,
+	   41,   75,    9,   23,    6,   49,   74,   77,   77,   77,    0,   74,
+	    4,   41,   75,    9,   23,    6,   49,   74,    0,   74,   80,   74,
+	   80,   81,   82,  108,   86,   84,   81,   96,   96,   96,    0,   84,
+	   83,   84,   83,   84,   82,   85,  108,   93,   86,   84,   84,   91,
+	   91,   91,    0,   85,   82,  108,   86,   84,   85,    0,   86,   88,
+	   84,   86,   87,   87,   88,   84,   87,   87,   90,    0,   90,   89,
+	   84,   89,   90,   84,   90,   89,   92,   82,   85,  108,   86,   84,
+	   92,   91,   91,   91,    0,   92,   82,   85,  108,   86,   84,   92,
+	    0,   95,   94,   95,   94,   95,   82,   85,  108,   86,   84,   95,
+	   91,   91,   91,    0,   97,   82,  108,   98,   86,   84,   97,   96,
+	   96,   96,    0,   97,   82,  108,   98,   86,   84,   97,   96,   96,
+	   96,    0,   98,   99,  103,   98,  104,  104,  104,    0,  101,  100,
+	  101,  100,   81,   82,  108,  102,   86,   84,   81,    0,   99,  103,
+	  104,  104,  104,    0,  104,  104,  104,    0,   81,  105,   82,  108,
+	  102,   86,   84,   81,  104,  104,  104,    0,   81,   82,  108,  102,
+	   86,   84,   81,    0,  107,  107,    0,  107,  107,    0,    0,    0
 	};
 }
 
@@ -570,64 +639,68 @@ private static short[] init__tableLayout_trans_actions_0()
 {
 	return new short [] {
 	    0,    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    1,
-	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,   15,
-	    0,    0,    1,    1,    1,    0,   33,    1,   13,    0,    0,    0,
-	   23,    0,    0,    0,   15,    0,    0,    1,    1,    1,    0,    0,
-	    0,    0,    0,   15,    0,    0,    0,    0,    0,    0,    0,    9,
-	    9,    9,   81,    9,   78,   78,   78,    0,    0,    0,    0,   15,
-	    0,    1,    1,    1,    0,   48,   48,    3,   48,  136,   48,    0,
-	    0,    0,    0,    0,    0,    0,    0,   15,    0,    1,    1,    1,
-	    0,    0,    1,    0,    1,    1,    1,    0,    0,    0,    0,    0,
-	   66,    0,   66,    5,   66,  160,   66,    0,    0,    0,    0,   66,
-	   66,    5,   66,  160,   66,    0,  112,  112,   30,  112,  195,  112,
-	    1,    1,    1,    0,   66,   66,    5,   66,  160,   66,    0,    0,
-	    0,    0,   27,   96,    1,    3,   51,    0,    0,    1,   11,    0,
-	   54,   54,  144,   54,    3,   54,  140,   54,   54,    0,    0,    0,
-	    0,    0,    0,   23,    0,    0,    0,   15,    0,    0,    1,    1,
-	    1,    0,    0,    1,    0,    1,    1,    1,    0,    0,    0,    0,
-	    0,   69,    0,   69,  168,    5,   69,   69,  164,   69,   69,    0,
-	    0,    0,    0,    0,    0,   23,    0,    0,   15,    0,    0,    1,
-	    1,    1,    0,   69,   69,  168,    5,   69,   69,  164,   69,   69,
-	    0,  116,  116,  205,   30,  116,  116,  200,  116,  116,    1,    1,
-	    1,    0,   69,   69,  168,    5,   69,   69,  164,   69,   69,    0,
-	    0,    0,    0,   36,    1,   19,    0,    0,    0,    1,    1,    1,
-	    0,   42,   42,   42,    3,   42,  128,   42,   42,    0,    0,    0,
-	    0,    0,    0,    0,    0,    0,   15,    0,    0,    1,    1,    1,
-	    0,    0,    1,    0,    1,    1,    1,    0,    0,    0,    0,    0,
-	   60,    0,   60,    5,   60,   60,  152,   60,   60,    0,    0,    0,
-	    0,    0,    0,    0,    0,   15,    0,    0,    1,    1,    1,    0,
-	    7,    7,   75,   75,   75,    0,    0,    0,    1,    1,    1,    0,
-	   45,   45,   45,    3,   45,  132,   45,   45,    0,    0,    0,    0,
-	    0,    0,    0,    0,    0,   15,    0,    0,    1,    1,    1,    0,
-	    0,    1,    0,    1,    1,    1,    0,    0,    0,    0,    0,   63,
-	    0,   63,    5,   63,   63,  156,   63,   63,    0,    0,    0,    0,
-	    0,    0,    0,    0,   15,    0,    0,    1,    1,    1,    0,    7,
-	    0,    0,    0,   15,    0,    7,   75,   75,   75,    0,    0,    0,
-	    0,    0,   15,    0,    0,    1,    1,    1,    0,   63,   63,    5,
-	   63,   63,  156,   63,   63,    0,  108,  108,   30,  108,  108,  190,
-	  108,  108,    1,    1,    1,    0,   63,   63,    5,   63,   63,  156,
-	   63,   63,    0,    0,    0,    0,   60,   60,    5,   60,   60,  152,
-	   60,   60,    0,  104,  104,   30,  104,  104,  185,  104,  104,    1,
-	    1,    1,    0,   60,   60,    5,   60,   60,  152,   60,   60,    0,
-	    0,    0,    0,   39,   39,   39,   39,    3,   39,  124,   39,   39,
-	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,   15,    0,
-	    0,    1,    1,    1,    0,    0,    1,    0,    1,    1,    1,    0,
-	    0,    0,    0,    0,   57,    0,   57,   57,    5,   57,   57,  148,
-	   57,   57,    0,    0,    0,    0,    0,    0,    0,    0,    0,   15,
-	    0,    0,    1,    1,    1,    0,   57,   57,   57,    5,   57,   57,
-	  148,   57,   57,    0,  100,  100,  100,   30,  100,  100,  180,  100,
-	  100,    1,    1,    1,    0,   57,   57,   57,    5,   57,   57,  148,
-	   57,   57,    0,    0,    0,    0,   36,    1,   19,    0,    0,    0,
-	   25,    0,   15,    0,    1,    1,    1,    0,   33,    1,   13,    0,
-	    0,    0,   23,   25,    0,    0,   15,    0,    1,    1,    1,    0,
-	  120,    1,   84,    0,    0,    0,   25,    0,   15,    0,    0,    0,
-	   25,    0,    0,   27,   96,    1,    3,   51,    0,    0,    1,   11,
-	    0,   21,   21,   90,   93,   21,   87,   21,    0,    0,    0,    0,
-	   36,    1,   19,    0,    0,    0,   23,   25,    0,   15,    0,    1,
-	    1,    1,    0,    3,    3,    3,    0,    0,    0,    0,    0,    0,
-	    0,    0,    0,    0,    1,    1,    1,    0,   72,   72,  176,   72,
-	  172,   72,    0,    0,    0,    0,   17,   17,    0,    0,    0,    0,
-	    0,    0
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,   29,
+	    0,    0,    1,    1,    1,    0,   52,    1,   27,    0,   37,   37,
+	  130,   37,   37,   37,  127,   37,   37,  124,  124,  124,    0,    0,
+	    0,   33,    0,    0,    0,   29,    0,    0,    1,    1,    1,    0,
+	    0,    0,    0,    0,   29,    0,    0,    0,    0,    0,    0,    0,
+	   15,   15,   15,  109,   15,  106,  106,  106,    0,    0,    0,    0,
+	   29,    0,    1,    1,    1,    0,   64,   64,    3,   64,  164,   64,
+	    0,    0,    0,    0,    0,    0,    0,    0,   29,    0,    1,    1,
+	    1,    0,    0,    0,    1,    0,    1,    1,    1,    0,   46,    1,
+	    5,    0,   17,   17,    0,   17,  112,   17,    0,    0,    1,    1,
+	    1,    1,    0,    0,    0,    0,    0,   85,    0,   85,    5,   85,
+	  196,   85,    0,    0,    0,    0,   85,   85,    5,   85,  196,   85,
+	    0,   43,   43,  148,   43,    1,    3,    3,   70,    3,    0,    1,
+	    0,    1,    1,   25,    0,    1,   25,    1,    1,   67,   67,  172,
+	   67,    3,   67,  168,   67,   67,    0,    0,    0,    0,    0,    0,
+	   33,    0,    0,    0,   29,    0,    0,    1,    1,    1,    0,    0,
+	    0,    1,    0,    1,    1,    1,    0,   46,    1,    5,    0,   19,
+	   19,  118,    0,   19,   19,  115,   19,   19,    0,    0,    0,   33,
+	    0,    0,   29,    0,    0,    1,    1,    1,    0,    0,    1,    1,
+	    1,    1,    0,    0,    0,    0,    0,   88,    0,   88,  204,    5,
+	   88,   88,  200,   88,   88,    0,    0,    0,    0,   88,   88,  204,
+	    5,   88,   88,  200,   88,   88,    0,   49,    1,   21,    0,    0,
+	    0,    1,    1,    1,    0,   58,   58,   58,    3,   58,  156,   58,
+	   58,    0,    0,    0,    0,    0,    0,    0,    0,    0,   29,    0,
+	    0,    1,    1,    1,    0,    0,    0,    1,    0,    1,    1,    1,
+	    0,   46,    1,    5,    0,    9,    9,    0,    9,    9,   97,    9,
+	    9,    0,    0,    0,    0,    0,   29,    0,    0,    1,    1,    1,
+	    0,   11,   11,  100,  100,  100,    0,    0,    0,    1,    1,    1,
+	    0,   61,   61,   61,    3,   61,  160,   61,   61,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,   29,    0,    0,    1,    1,    1,
+	    0,    0,    0,    1,    0,    1,    1,    1,    0,   46,    1,    5,
+	    0,   13,   13,    0,   13,   13,  103,   13,   13,    0,    0,    0,
+	    0,    0,   29,    0,    0,    1,    1,    1,    0,   11,    0,    0,
+	    0,   29,    0,   11,  100,  100,  100,    0,    0,    0,    0,    0,
+	   29,    0,    0,    1,    1,    1,    0,    0,    1,    1,    1,    1,
+	    0,    0,    0,    0,    0,   82,    0,   82,    5,   82,   82,  192,
+	   82,   82,    0,    0,    0,    0,   82,   82,    5,   82,   82,  192,
+	   82,   82,    0,    0,    1,    1,    1,    1,    0,    0,    0,    0,
+	    0,   79,    0,   79,    5,   79,   79,  188,   79,   79,    0,    0,
+	    0,    0,   79,   79,    5,   79,   79,  188,   79,   79,    0,   55,
+	   55,   55,   55,    3,   55,  152,   55,   55,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,   29,    0,    0,    1,    1,    1,
+	    0,    0,    0,    1,    0,    1,    1,    1,    0,   46,    1,    5,
+	    0,    7,    7,    7,    0,    7,    7,   94,    7,    7,    0,    0,
+	    0,    0,    0,    0,   29,    0,    0,    1,    1,    1,    0,    0,
+	    1,    1,    1,    1,    0,    0,    0,    0,    0,   76,    0,   76,
+	   76,    5,   76,   76,  184,   76,   76,    0,    0,    0,    0,   76,
+	   76,   76,    5,   76,   76,  184,   76,   76,    0,   49,    1,   21,
+	    0,    0,    0,   35,    0,   29,    0,    1,    1,    1,    0,   52,
+	    1,   27,    0,    0,   39,  136,  139,    0,   39,  133,    0,    1,
+	    1,    1,    0,    0,    0,   35,    0,   29,    0,    0,   43,   43,
+	  148,   43,    1,    3,    3,   70,    3,    0,    1,    0,    1,    1,
+	   25,    0,    1,   25,    1,    1,   23,  121,  220,  224,  121,  216,
+	   23,    0,    0,    0,    0,    0,   39,  136,  139,   39,  133,    0,
+	    0,   49,    1,   21,    0,    0,   39,  136,  139,   39,  133,    0,
+	    1,    1,    1,    0,   73,   73,  180,    3,   73,  176,   73,    0,
+	    0,    0,    0,    0,    0,   35,    0,    0,   29,    0,    1,    1,
+	    1,    0,    0,    0,    1,    0,    1,    1,    1,    0,   46,    1,
+	    5,    0,   41,   41,  145,    0,   41,  142,   41,    0,    0,    1,
+	    1,    1,    1,    0,    0,    0,    0,    0,   91,    0,   91,  212,
+	    5,   91,  208,   91,    0,    0,    0,    0,   91,   91,  212,    5,
+	   91,  208,   91,    0,   31,   31,    0,    0,    0,    0,    0,    0
 	};
 }
 
@@ -644,7 +717,9 @@ private static short[] init__tableLayout_eof_actions_0()
 	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
 	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
 	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-	    0,    0,    0,    0,    0,   17,    0,    0
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,   31,    0,
+	    0
 	};
 }
 
@@ -652,15 +727,15 @@ private static final short _tableLayout_eof_actions[] = init__tableLayout_eof_ac
 
 
 static final int tableLayout_start = 1;
-static final int tableLayout_first_final = 89;
+static final int tableLayout_first_final = 106;
 static final int tableLayout_error = 0;
 
-static final int tableLayout_en_widgetProperties = 69;
+static final int tableLayout_en_widgetSection = 81;
 static final int tableLayout_en_main = 1;
 static final int tableLayout_en_main_table = 3;
 
 
-// line 198 "TableLayoutParser.rl"
+// line 242 "TableLayoutParser.rl"
 
 	static public void setTableProperty (BaseTableLayout table, String name, ArrayList<String> values) {
 		name = name.toLowerCase();
@@ -985,14 +1060,75 @@ static final int tableLayout_en_main_table = 3;
 		values.clear();
 	}
 
-	public static void main (String args[]) {
+	static private Object invokeMethod (Object object, String name, ArrayList<String> values) throws NoSuchMethodException {
+		Method[] methods = object.getClass().getMethods();
+		outer:
+		for (int i = 0, n = methods.length; i < n; i++) {
+			Method method = methods[i];
+			if (!method.getName().equals(name)) continue;
+			Object[] params = values.toArray();
+			Class[] paramTypes = method.getParameterTypes();
+			for (int ii = 0, nn = paramTypes.length; ii < nn; ii++) {
+				Object value = convertType(object, (String)params[ii], paramTypes[ii]);
+				if (value == null) continue outer;
+				params[ii] = value;
+			}
+			try {
+				return method.invoke(object, params);
+			} catch (Exception ex) {
+				throw new RuntimeException("Error invoking method: " + name, ex);
+			}
+		}
+		throw new NoSuchMethodException();
+	}
+
+	static private Object convertType (Object parentObject, String value, Class paramType) throws NoSuchMethodException {
+		if (paramType == String.class) return value;
+		if (paramType == int.class || paramType == Integer.class) return Integer.valueOf(value);
+		if (paramType == float.class || paramType == Float.class) return Float.valueOf(value);
+		if (paramType == boolean.class || paramType == Boolean.class) return Boolean.valueOf(value);
+		if (paramType == long.class || paramType == Long.class) return Long.valueOf(value);
+		if (paramType == Double.class || paramType == Double.class) return Double.valueOf(value);
+		if (paramType == char.class || paramType == Character.class) return value.charAt(0);
+		if (paramType == short.class || paramType == Short.class) return Short.valueOf(value);
+		if (paramType == byte.class || paramType == Byte.class) return Byte.valueOf(value);
+		// Look for a static field.
+		try {
+			Field field = paramType.getField(value);
+			if (paramType == field.getType()) return field.get(null);
+		} catch (Exception ignored) {
+		}
+		try {
+			Field field = parentObject.getClass().getField(value);
+			if (paramType == field.getType()) return field.get(null);
+		} catch (Exception ignored) {
+		}
+		return null;
+	}
+
+	static private Object newWidget (String className) throws Exception {
+		try {
+			return Class.forName(className).newInstance();
+		} catch (Exception ex) {
+			for (int i = 0, n = BaseTableLayout.classPrefixes.size(); i < n; i++) {
+				String prefix = BaseTableLayout.classPrefixes.get(i);
+				try {
+					return Class.forName(prefix + className).newInstance();
+				} catch (Exception ignored) {
+				}
+			}
+			throw ex;
+		}
+	}
+
+	static public void main (String args[]) {
 		BaseTableLayout table = new BaseTableLayout();
-		table.set("button", 123);
-		table.set("textbox", 345);
-		table.set("textbox2", 345);
+		table.setName("button", 123);
+		table.setName("textbox", 345);
+		table.setName("textbox2", 345);
 		table.parse("<Meow>" //
 			+ "width:400 height:400 " //
-			+ "[button:java.lang.String] <Booyah> size:80,80 align:left spacing:10 ( bean:true [button] 'moo' ) \n " //
+			+ "[boom:java.lang.String] <Booyah> size:80,80 align:left spacing:10 ( bean:true [button] moo (yagga:yo) 'sweet' ) \n " //
 			+ "{ [textbox] [textbox] } " //
 			+ "[textbox]\nalign:right,bottom \n ");
 	}

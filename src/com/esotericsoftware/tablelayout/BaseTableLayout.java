@@ -8,23 +8,28 @@ import java.util.HashMap;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-// BOZO - Set state when parsing only cell text.
 // BOZO - Align percent?
 // BOZO - Shrink priority?
 // BOZO - When merging alignment, clear only the flags necessary?
-// BOZO - Compute min, pref, max size for table layout.
+// BOZO - Line numbers for errors.
+// BOZO - Error if widget already in layout?
+// BOZO - Name label? 'moo' vs [moo: 'moo']
+// BOZO - Avoid allocation.
 
 public class BaseTableLayout<T> {
-	public static final int CENTER = 1 << 0;
-	public static final int TOP = 1 << 1;
-	public static final int BOTTOM = 1 << 2;
-	public static final int LEFT = 1 << 3;
-	public static final int RIGHT = 1 << 4;
-	public static final int X = 1 << 5;
-	public static final int Y = 1 << 6;
+	static public final int CENTER = 1 << 0;
+	static public final int TOP = 1 << 1;
+	static public final int BOTTOM = 1 << 2;
+	static public final int LEFT = 1 << 3;
+	static public final int RIGHT = 1 << 4;
+	static public final int X = 1 << 5;
+	static public final int Y = 1 << 6;
 
-	public int tableLayoutX, tableLayoutY;
-	public int tableLayoutWidth, tableLayoutHeight;
+	static public final int MIN = -1;
+	static public final int PREF = -2;
+	static public final int MAX = -3;
+
+	static final ArrayList<String> classPrefixes = new ArrayList();
 
 	public int width, height;
 	public int padTop, padLeft, padBottom, padRight;
@@ -32,16 +37,24 @@ public class BaseTableLayout<T> {
 	public String debug;
 	public float fillX, fillY; // BOZO - Use?
 
-	protected final ArrayList<Cell> cells = new ArrayList();
+	protected int tableLayoutWidth, tableLayoutHeight;
+	protected int totalMinWidth, totalMinHeight;
+	protected int totalPrefWidth, totalPrefHeight;
 
-	final HashMap<String, T> nameToWidget = new HashMap();
+	final HashMap<String, T> nameToWidget;
 
+	private final ArrayList<Cell> cells = new ArrayList();
 	private final Cell cellDefaults = Cell.defaults();
 	private final ArrayList<Cell> columnDefaults = new ArrayList(4);
 	private Cell rowDefaults;
 	private int columns, rows;
 
 	public BaseTableLayout () {
+		nameToWidget = new HashMap();
+	}
+
+	public BaseTableLayout (BaseTableLayout parent) {
+		nameToWidget = parent.nameToWidget;
 	}
 
 	public BaseTableLayout (String tableText) {
@@ -49,13 +62,11 @@ public class BaseTableLayout<T> {
 		parse(tableText);
 	}
 
-	public T set (String name, T widget) {
-		nameToWidget.put(name.toLowerCase(), widget);
+	public T setName (String name, T widget) {
+		name = name.toLowerCase();
+		if (nameToWidget.containsKey(name)) throw new IllegalArgumentException("Name is already used: " + name);
+		nameToWidget.put(name, widget);
 		return widget;
-	}
-
-	public void setAll (HashMap<String, T> nameToWidget) {
-		nameToWidget.putAll(nameToWidget);
 	}
 
 	public void parse (String tableText) {
@@ -124,18 +135,6 @@ public class BaseTableLayout<T> {
 		cells.get(cells.size() - 1).endRow = true;
 	}
 
-	protected BaseTableLayout newTableLayout () {
-		return new BaseTableLayout();
-	}
-
-	protected T newLabel (String text) {
-		return (T)text;
-	}
-
-	protected T newSplitPane (boolean horizontal, T first, T second) {
-		return (T)(first + (horizontal ? "|" : "-") + second);
-	}
-
 	public T getWidget (String name) {
 		return nameToWidget.get(name);
 	}
@@ -175,6 +174,10 @@ public class BaseTableLayout<T> {
 		return columnDefaults;
 	}
 
+	public ArrayList<Cell> getCells () {
+		return cells;
+	}
+
 	public void layout () {
 		if (cells.size() > 0 && !cells.get(cells.size() - 1).endRow) endRow();
 
@@ -187,39 +190,35 @@ public class BaseTableLayout<T> {
 			if (c.ignore) continue;
 
 			// Spacing between widgets isn't additive, the larger is used. Also, no spacing around edges.
-			int spaceLeft = c.spaceLeft, spaceTop = c.spaceTop, spaceRight = c.spaceRight, spaceBottom = c.spaceBottom;
-			if (c.column > 0) {
-				spaceLeft = Math.max(0, spaceLeft - spaceRightLast);
-				if (c.column == columns - 1) spaceRight = 0;
-			} else
-				spaceLeft = 0;
-			spaceRightLast = spaceRight;
-			if (c.row > 0) {
-				if (c.cellAboveIndex != -1) spaceTop = Math.max(0, spaceTop - cells.get(c.cellAboveIndex).spaceBottom);
-				if (c.row == rows - 1) spaceBottom = 0;
-			} else
-				spaceTop = 0;
-			c.padLeftTemp = c.padLeft + spaceLeft;
-			c.padTopTemp = c.padTop + spaceTop;
-			c.padRightTemp = c.padRight + spaceRight;
-			c.padBottomTemp = c.padBottom + spaceBottom;
+			c.padLeftTemp = c.column == 0 ? 0 : Math.max(0, c.spaceLeft - spaceRightLast);
+			c.padTopTemp = c.cellAboveIndex == -1 ? 0 : Math.max(0, c.spaceTop - cells.get(c.cellAboveIndex).spaceBottom);
+			c.padRightTemp = c.column == columns - 1 ? 0 : c.spaceRight;
+			c.padBottomTemp = c.row == rows - 1 ? 0 : c.spaceBottom;
+			spaceRightLast = c.padRightTemp;
 
-			if (c.prefWidth < c.minWidth) c.prefWidth = c.minWidth;
-			if (c.prefHeight < c.minHeight) c.prefHeight = c.minHeight;
+			if (c.minHeight == -2) System.out.println();
+			int prefWidth = getWidth((T)c.widget, c.prefWidth);
+			int prefHeight = getHeight((T)c.widget, c.prefHeight);
+			int minWidth = getWidth((T)c.widget, c.minWidth);
+			int minHeight = getHeight((T)c.widget, c.minHeight);
+			if (prefWidth < minWidth) prefWidth = minWidth;
+			if (prefHeight < minHeight) prefHeight = minHeight;
 
 			if (c.colspan == 1) {
 				int padLeftRight = c.padLeftTemp + c.padRightTemp;
-				columnPrefWidth[c.column] = Math.max(columnPrefWidth[c.column], c.prefWidth + padLeftRight);
-				columnMinWidth[c.column] = Math.max(columnMinWidth[c.column], c.minWidth + padLeftRight);
+				columnPrefWidth[c.column] = Math.max(columnPrefWidth[c.column], prefWidth + padLeftRight);
+				columnMinWidth[c.column] = Math.max(columnMinWidth[c.column], minWidth + padLeftRight);
 			}
 			int padTopBottom = c.padTopTemp + c.padBottomTemp;
-			rowPrefHeight[c.row] = Math.max(rowPrefHeight[c.row], c.prefHeight + padTopBottom);
-			rowMinHeight[c.row] = Math.max(rowMinHeight[c.row], c.minHeight + padTopBottom);
+			rowPrefHeight[c.row] = Math.max(rowPrefHeight[c.row], prefHeight + padTopBottom);
+			rowMinHeight[c.row] = Math.max(rowMinHeight[c.row], minHeight + padTopBottom);
 		}
 
 		// Determine maximum cell sizes using preferred size ratios to distribute space beyond min size.
-		int totalMinWidth = 0, totalMinHeight = 0;
-		int totalPrefWidth = 0, totalPrefHeight = 0;
+		totalMinWidth = 0;
+		totalMinHeight = 0;
+		totalPrefWidth = 0;
+		totalPrefHeight = 0;
 		for (int i = 0; i < columns; i++) {
 			totalMinWidth += columnMinWidth[i];
 			totalPrefWidth += columnPrefWidth[i];
@@ -269,8 +268,8 @@ public class BaseTableLayout<T> {
 				totalExpandHeight += c.expandHeight;
 			}
 
-			c.widgetWidth = Math.min(spannedCellMaxWidth, c.prefWidth);
-			c.widgetHeight = Math.min(rowMaxHeight[c.row] - c.padTopTemp - c.padBottomTemp, c.prefHeight);
+			c.widgetWidth = Math.min(spannedCellMaxWidth, getWidth((T)c.widget, c.prefWidth));
+			c.widgetHeight = Math.min(rowMaxHeight[c.row] - c.padTopTemp - c.padBottomTemp, getHeight((T)c.widget, c.prefHeight));
 
 			if (c.colspan == 1)
 				columnWidth[c.column] = Math.max(columnWidth[c.column], c.widgetWidth + c.padLeftTemp + c.padRightTemp);
@@ -319,7 +318,7 @@ public class BaseTableLayout<T> {
 			tableHeight += rowHeight[i];
 		tableHeight = Math.max(tableHeight, height);
 
-		int x = tableLayoutX + padLeft, y = tableLayoutY + padTop;
+		int x = padLeft, y = padTop;
 		if ((align & RIGHT) != 0)
 			x += tableLayoutWidth - tableWidth;
 		else if ((align & CENTER) != 0) //
@@ -345,12 +344,15 @@ public class BaseTableLayout<T> {
 			currentX += c.padLeftTemp;
 
 			if (c.fillWidth > 0) {
-				c.widgetWidth = Math.max((int)(spannedCellWidth * c.fillWidth), c.minWidth);
-				if (c.maxWidth > 0) c.widgetWidth = Math.min(c.widgetWidth, c.maxWidth);
+				c.widgetWidth = Math.max((int)(spannedCellWidth * c.fillWidth), getWidth((T)c.widget, c.minWidth));
+				int maxWidth = getWidth((T)c.widget, c.maxWidth);
+				if (maxWidth > 0) c.widgetWidth = Math.min(c.widgetWidth, maxWidth);
 			}
 			if (c.fillHeight > 0) {
-				c.widgetHeight = Math.max((int)(rowHeight[c.row] * c.fillHeight) - c.padTopTemp - c.padBottomTemp, c.minHeight);
-				if (c.maxHeight > 0) c.widgetHeight = Math.min(c.widgetHeight, c.maxHeight);
+				c.widgetHeight = Math.max((int)(rowHeight[c.row] * c.fillHeight) - c.padTopTemp - c.padBottomTemp,
+					getHeight((T)c.widget, c.minHeight));
+				int maxHeight = getHeight((T)c.widget, c.maxHeight);
+				if (maxHeight > 0) c.widgetHeight = Math.min(c.widgetHeight, maxHeight);
 			}
 
 			if ((c.align & LEFT) != 0)
@@ -367,16 +369,6 @@ public class BaseTableLayout<T> {
 			else
 				c.widgetY = currentY + (rowHeight[c.row] - c.widgetHeight + c.padTopTemp - c.padBottomTemp) / 2;
 
-			// BOZO - Needed?
-			if (c.widget instanceof BaseTableLayout) {
-				BaseTableLayout table = (BaseTableLayout)c.widget;
-				table.tableLayoutX = c.widgetX;
-				table.tableLayoutY = c.widgetY;
-				table.tableLayoutWidth = c.widgetWidth;
-				table.tableLayoutHeight = c.widgetHeight;
-				table.layout();
-			}
-
 			if (c.endRow) {
 				currentX = x;
 				currentY += rowHeight[c.row];
@@ -389,7 +381,7 @@ public class BaseTableLayout<T> {
 		currentX = x;
 		currentY = y;
 		if (debug.contains("table,") || debug.contains("all,")) {
-			drawDebugRect(true, tableLayoutX + padLeft, tableLayoutY + padTop, tableLayoutWidth - 1, tableLayoutHeight - 1);
+			drawDebugRect(true, padLeft, padTop, tableLayoutWidth - 1, tableLayoutHeight - 1);
 			drawDebugRect(true, x, y, tableWidth - 1, tableHeight - 1);
 		}
 		for (int i = 0, n = cells.size(); i < n; i++) {
@@ -415,6 +407,72 @@ public class BaseTableLayout<T> {
 			} else
 				currentX += spannedCellWidth + c.padRightTemp;
 		}
+	}
+
+	private int getWidth (T widget, int value) {
+		switch (value) {
+		case MIN:
+			return getMinWidth(widget);
+		case PREF:
+			return getPrefWidth(widget);
+		case MAX:
+			return getMaxWidth(widget);
+		}
+		return value;
+	}
+
+	private int getHeight (T widget, int value) {
+		switch (value) {
+		case MIN:
+			return getMinHeight(widget);
+		case PREF:
+			return getPrefHeight(widget);
+		case MAX:
+			return getMaxHeight(widget);
+		}
+		return value;
+	}
+
+	protected BaseTableLayout newTableLayout () {
+		return new BaseTableLayout(this);
+	}
+
+	protected T newLabel (String text) {
+		return (T)text;
+	}
+
+	protected void setTitle (T parent, String string) {
+	}
+
+	protected void addChild (T parent, T child, String layoutString) {
+	}
+
+	protected T wrap (Object object) {
+		return (T)object;
+	}
+
+	protected int getMinWidth (T widget) {
+		return 0;
+	}
+
+	protected int getMinHeight (T widget) {
+		return 0;
+	}
+
+	protected int getPrefWidth (T widget) {
+		return 0;
+	}
+
+	protected int getPrefHeight (T widget) {
+		return 0;
+	}
+
+	protected int getMaxWidth (T widget) {
+		return 0;
+	}
+
+	protected int getMaxHeight (T widget) {
+		return 0;
 	}
 
 	protected void drawDebugRect (boolean dash, int x, int y, int w, int h) {
@@ -500,12 +558,12 @@ public class BaseTableLayout<T> {
 
 		static Cell defaults () {
 			Cell defaults = new Cell();
-			defaults.minWidth = 0;
-			defaults.minHeight = 0;
-			defaults.prefWidth = 0;
-			defaults.prefHeight = 0;
-			defaults.maxWidth = 0;
-			defaults.maxHeight = 0;
+			defaults.minWidth = MIN;
+			defaults.minHeight = MIN;
+			defaults.prefWidth = PREF;
+			defaults.prefHeight = PREF;
+			defaults.maxWidth = MAX;
+			defaults.maxHeight = MAX;
 			defaults.spaceTop = 0;
 			defaults.spaceLeft = 0;
 			defaults.spaceBottom = 0;
@@ -521,10 +579,12 @@ public class BaseTableLayout<T> {
 			defaults.expandHeight = 0;
 			defaults.ignore = false;
 			defaults.colspan = 1;
-			defaults.uniformWidth = null;
-			defaults.uniformHeight = null;
 			return defaults;
 		}
+	}
+
+	static public void addClassPrefix (String prefix) {
+		classPrefixes.add(prefix);
 	}
 
 	static public void main (String[] args) {
@@ -534,16 +594,16 @@ public class BaseTableLayout<T> {
 		frame.setLocationRelativeTo(null);
 
 		final BaseTableLayout table = new BaseTableLayout();
-		table.set("1", 1);
-		table.set("2", 2);
-		table.set("3", 3);
-		table.set("4", 4);
-		table.set("5", 5);
-		table.set("6", 6);
-		table.set("7", 7);
-		table.set("8", 8);
-		table.set("9", 9);
-		table.set("10", 10);
+		table.setName("1", 1);
+		table.setName("2", 2);
+		table.setName("3", 3);
+		table.setName("4", 4);
+		table.setName("5", 5);
+		table.setName("6", 6);
+		table.setName("7", 7);
+		table.setName("8", 8);
+		table.setName("9", 9);
+		table.setName("10", 10);
 
 		// table.parse("align:center padding:10" //
 		// + "* height:140 expand" //

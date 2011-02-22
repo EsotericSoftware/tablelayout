@@ -17,15 +17,18 @@ import java.util.TimerTask;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.JTextField;
-
 import com.esotericsoftware.tablelayout.BaseTableLayout;
+import com.esotericsoftware.tablelayout.BaseTableLayout.Cell;
 
 // BOZO - Handle removing components.
 // BOZO - * for colspan?
 
 public class TableLayout extends BaseTableLayout<Component> implements LayoutManager {
+	static {
+		addClassPrefix("javax.swing.");
+	}
+
 	static private Timer timer;
 	static ArrayList<TableLayout> debugLayouts = new ArrayList(0);
 	static BasicStroke debugDash = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] {3}, 0);
@@ -34,6 +37,8 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 	Container debugParent;
 	ArrayList<DebugRect> debugRects;
 
+	private Dimension minSize = new Dimension(), prefSize = new Dimension();
+
 	public TableLayout () {
 	}
 
@@ -41,34 +46,8 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 		super(tableText);
 	}
 
-	public Cell add (Component widget) {
-		Cell cell = super.add(widget);
-		Dimension minSize = widget.getMinimumSize();
-		cell.minWidth = minSize.width;
-		cell.minHeight = minSize.height;
-		Dimension prefSize = widget.getMinimumSize();
-		cell.prefWidth = prefSize.width;
-		cell.prefHeight = prefSize.height;
-		Dimension maxSize = widget.getMaximumSize();
-		cell.maxWidth = maxSize.width;
-		cell.maxHeight = maxSize.height;
-		return cell;
-	}
-
-	protected TableLayout newTableLayout () {
-		return new TableLayout();
-	}
-
-	protected Component newLabel (String text) {
-		return new JLabel(text);
-	}
-
-	protected Component newSplitPane (boolean horizontal, Component first, Component second) {
-		JSplitPane split = new JSplitPane();
-		split.add(first, JSplitPane.LEFT);
-		split.add(second, JSplitPane.RIGHT);
-
-		return super.newSplitPane(horizontal, first, second);
+	private TableLayout (TableLayout parent) {
+		super(parent);
 	}
 
 	public void addLayoutComponent (String text, Component comp) {
@@ -80,11 +59,17 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 	}
 
 	public Dimension preferredLayoutSize (Container parent) {
-		return new Dimension();
+		layout(); // BOZO - Cache layout.
+		prefSize.width = totalPrefWidth;
+		prefSize.height = totalPrefHeight;
+		return prefSize;
 	}
 
 	public Dimension minimumLayoutSize (Container parent) {
-		return new Dimension();
+		layout(); // BOZO - Cache layout.
+		minSize.width = totalMinWidth;
+		minSize.height = totalMinHeight;
+		return minSize;
 	}
 
 	public void layoutContainer (Container parent) {
@@ -100,6 +85,7 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 		tableLayoutWidth = parent.getWidth();
 		tableLayoutHeight = parent.getHeight();
 		layout();
+		ArrayList<Cell> cells = getCells();
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
@@ -130,6 +116,52 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 		}
 	}
 
+	protected TableLayout newTableLayout () {
+		return new TableLayout(this);
+	}
+
+	protected Component newLabel (String text) {
+		return new JLabel(text);
+	}
+
+	protected void setTitle (Component parent, String string) {
+		super.setTitle(parent, string);
+	}
+
+	protected void addChild (Component parent, Component child, String layoutString) {
+		((Container)parent).add(child, layoutString);
+	}
+
+	protected Component wrap (Object object) {
+		if (object instanceof Component) return (Component)object;
+		if (object instanceof LayoutManager) return new JPanel((LayoutManager)object);
+		throw new IllegalArgumentException("Unknown object: " + object);
+	}
+
+	protected int getMinWidth (Component widget) {
+		return widget.getMinimumSize().width;
+	}
+
+	protected int getMinHeight (Component widget) {
+		return widget.getMinimumSize().height;
+	}
+
+	protected int getPrefWidth (Component widget) {
+		return widget.getPreferredSize().width;
+	}
+
+	protected int getPrefHeight (Component widget) {
+		return widget.getPreferredSize().height;
+	}
+
+	protected int getMaxWidth (Component widget) {
+		return widget.getMaximumSize().width;
+	}
+
+	protected int getMaxHeight (Component widget) {
+		return widget.getMaximumSize().height;
+	}
+
 	void drawDebug () {
 		Graphics2D g = (Graphics2D)debugParent.getGraphics();
 		if (g == null) return;
@@ -142,7 +174,7 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 	}
 
 	protected void drawDebugRect (boolean dash, int x, int y, int w, int h) {
-		debugRects.add(new DebugRect(dash, x, y, w, h));
+		if (debugRects != null) debugRects.add(new DebugRect(dash, x, y, w, h));
 	}
 
 	static private class DebugRect extends Rectangle {
@@ -157,7 +189,7 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 	static public void main (String[] args) {
 		TableLayout table = new TableLayout();
 		for (int i = 1; i <= 10; i++)
-			table.set(i + "", new JTextField(i + ""));
+			table.setName(i + "", new JTextField(i + ""));
 
 		// table.parse("align:center padding:10" //
 		// + "* height:140 expand" //
@@ -182,15 +214,19 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 		// + "[10] size:20,20" //
 		// );
 
-		table.parse("padding:10 debug " //
-			+ "* align:left padding:10 uniform" //
-			+ "|  | align:right " //
-			+ "--- align:bottom,right" //
-			+ "'Name:' align:top" //
-			+ "[1] fill " //
-			+ "--- " //
-			+ "'Stuff:'" //
-			+ "[2] size:100,200 " //
+		// table.parse("padding:10 debug " //
+		// + "* align:left padding:10 uniform" //
+		// + "|  | align:right " //
+		// + "--- align:bottom,right" //
+		// + "'Name:' align:top" //
+		// + "[1] fill " //
+		// + "--- " //
+		// + "'Stuff:'" //
+		// + "[2] size:100,200 " //
+		// );
+
+		table.parse("debug * space:10" //
+			+ "'moo' 'cow'" //
 		);
 
 		// table.parse("padding:10 " //

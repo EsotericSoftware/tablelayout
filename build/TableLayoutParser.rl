@@ -2,6 +2,8 @@
 
 package com.esotericsoftware.tablelayout;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import com.esotericsoftware.tablelayout.BaseTableLayout.Cell;
@@ -15,8 +17,10 @@ class TableLayoutParser {
 		int s = 0;
 		String name = null;
 		ArrayList<String> values = new ArrayList(4);
-		ArrayList<BaseTableLayout> tables = new ArrayList(8);
-		Cell rowDefaults = null;
+		ArrayList<Object> parents = new ArrayList(8);
+		Cell rowDefaults = null, columnDefaults = null;
+		Object parent = table, widget = null;
+		String widgetLayoutString = null;
 
 		if (cell != null) {
 			// BOZO - Set cell state.
@@ -45,117 +49,152 @@ class TableLayoutParser {
 			}
 			action tableProperty {
 				System.out.println("tableProperty: " + name + " = " + values);
-				setTableProperty(table, name, values);
+				setTableProperty((BaseTableLayout)parent, name, values);
 			}
 			action cellDefaultProperty {
 				System.out.println("cellDefaultProperty: " + name + " = " + values);
-				setCellProperty(table.getCellDefaults(), name, values);
+				setCellProperty(((BaseTableLayout)parent).getCellDefaults(), name, values);
 			}
 			action startColumn {
-				table.getColumnDefaults(table.getColumnDefaults().size());
+				int column = ((BaseTableLayout)parent).getColumnDefaults().size();
+				columnDefaults = ((BaseTableLayout)parent).getColumnDefaults(column);
 			}
 			action columnDefaultProperty {
 				System.out.println("columnDefaultProperty: " + name + " = " + values);
-				setCellProperty(table.getColumnDefaults(table.getColumnDefaults().size() - 1), name, values);
+				setCellProperty(columnDefaults, name, values);
 			}
 			action startRow {
 				System.out.println("startRow");
-				rowDefaults = table.startRow();
+				rowDefaults = ((BaseTableLayout)parent).startRow();
 			}
 			action rowDefaultValue {
 				System.out.println("rowDefaultValue: " + name + " = " + values);
 				setCellProperty(rowDefaults, name, values);
 			}
-			action addWidget {
-				String className = p > s ? new String(data, s, p - s) : null;
-				System.out.println("addWidget: " + name + " " + className);
-				Object widget = null;
-				if (className == null) {
-					if (!name.isEmpty()) {
-						widget = table.getWidget(name);
-						if (widget == null) throw new IllegalArgumentException("Widget not found with name: " + name);
-					}
-				} else {
-					try {
-						widget = Class.forName(className).newInstance();
-					} catch (Exception ex) {
-						throw new RuntimeException("Error creating instance of class: " + className, ex);
-					}
-					table.set(name, widget);
-				}
-				cell = table.add(widget);
-			}
-			action addLabel {
-				System.out.println("addLabel: " + new String(data, s, p - s));
-				Object widget = table.newLabel(new String(data, s, p - s));
-				cell = table.add(widget);
-			}
 			action cellProperty {
 				System.out.println("cellProperty: " + name + " = " + values);
 				setCellProperty(cell, name, values);
 			}
-			action startTable {
-				System.out.println("startTable");
-				cell = null;
-				BaseTableLayout parentTable = table;
-				tables.add(parentTable);
-				table = parentTable.newTableLayout();
-				table.setAll(parentTable.nameToWidget);
-				fcall table;
-			}
-			action endTable {
-				if (!tables.isEmpty()) {
-					System.out.println("endTable");
-					BaseTableLayout childTable = table;
-					table = tables.remove(tables.size() - 1);
-					cell = table.add(childTable);
-					fret;
-				}
-			}
 			action setTitle {
 				System.out.println("setTitle: " + new String(data, s, p - s));
-				// BOZO
-			}
-			action widgetProperty {
-				System.out.println("widgetProperty: " + name + " = " + values);
-				C
-				values.clear();
+				table.setTitle(parent, new String(data, s, p - s));
 			}
 			action widgetLayoutString {
 				System.out.println("widgetLayoutString: " + new String(data, s, p - s));
+				widgetLayoutString = new String(data, s, p - s);
+			}
+			action newWidget {
+				String className = p > s ? new String(data, s, p - s) : null;
+				System.out.println("newWidget: " + name + " " + className);
+				widget = null;
+				if (className == null) {
+					if (!name.isEmpty()) {
+						widget = table.getWidget(name);
+						if (widget == null) {
+							// Try the widget name as a class name.
+							try {
+								widget = table.wrap(newWidget(name));
+							} catch (Exception ex) {
+								throw new IllegalArgumentException("Widget not found with name: " + name);
+							}
+						}
+					}
+				} else {
+					try {
+						widget = table.wrap(newWidget(className));
+					} catch (Exception ex) {
+						throw new RuntimeException("Error creating instance of class: " + className, ex);
+					}
+					if (!name.isEmpty()) table.setName(name, widget);
+				}
+			}
+			action newLabel {
+				System.out.println("newLabel: " + new String(data, s, p - s));
+				widget = table.newLabel(new String(data, s, p - s));
+			}
+			action startTable {
+				System.out.println("startTable");
+				parents.add(parent);
+				parent = table.newTableLayout();
+				cell = null;
+				widget = null;
+				fcall table;
+			}
+			action endTable {
+				if (!parents.isEmpty()) {
+					System.out.println("endTable");
+					widget = parent;
+					parent = parents.remove(parents.size() - 1);
+					fret;
+				}
+			}
+			action startWidgetSection {
+				System.out.println("startWidgetSection");
+				parents.add(parent);
+				parent = widget;
+				widget = null;
+				fcall widgetSection;
+			}
+			action endWidgetSection {
+				System.out.println("endWidgetSection");
+				widget = parent;
+				parent = parents.remove(parents.size() - 1);
+				fret;
+			}
+			action addCell {
+				System.out.println("addCell");
+				cell = ((BaseTableLayout)parent).add(widget);
+			}
+			action addWidget {
+				System.out.println("addWidget");
+				table.addChild(parent, table.wrap(widget), widgetLayoutString);
+			}
+			action widgetProperty {
+				System.out.println("widgetProperty: " + name + " = " + values);
+				try {
+					invokeMethod(parent, name, values);
+				} catch (Exception ex1) {
+					try {
+						invokeMethod(parent, "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1), values);
+					} catch (Exception ex2) {
+						try {
+							Field field = parent.getClass().getField(name);
+							Object value = convertType(parent, values.get(0), field.getType());
+							if (value != null) field.set(parent, value);
+						} catch (Exception ex3) {
+							throw new RuntimeException("No method, bean property, or field: " + name + "\nClass: " + parent.getClass() + "\nValues: " + values);
+						}
+					}
+				}
+				values.clear();
 			}
 
-			property =
-				alnum+ >buffer %name (
-					space* ':' space* ('-'? alnum+ '%'?) >buffer %value
-					(',' alnum* >buffer %value)*
-				)?;
+			title = '<' ^'>'* >buffer %setTitle '>';
+			propertyValue = (('-'? alnum+ '%'?) >buffer %value | ('\'' ^'\''* >buffer %value '\''));
+			property = alnum+ >buffer %name (space* ':' space* propertyValue (',' propertyValue)* )?;
 
-			widget = '[' ^[\]:]* >buffer %name (':' ^[\]]+ >buffer)? ']' @addWidget;
-			label = '\'' ^'\''* >buffer %addLabel '\'';
+			widget = '[' space* ^[\]:]* >buffer %name (space* ':' space* ^[\]]+ >buffer)? space* ']' @newWidget;
+			label = '\'' ^'\''* >buffer %newLabel '\'';
 			startTable = '{' @startTable;
 
-			title = '<' ^'>'* >buffer %setTitle '>';
-
-			startWidgetProperties = '(' @{ fcall widgetProperties; };
-			widgetProperty = alnum+ >buffer %name space* ':' space* alnum+ >buffer %value;
-			widgetProperties := space*
+			startWidgetSection = '(' @startWidgetSection;
+			widgetSection := space*
 				# Widget properties.
-				(widgetProperty %widgetProperty (space+ widgetProperty %widgetProperty)* space*)?
+				(property %widgetProperty (space+ property %widgetProperty)* space*)?
 				(
-					# Widget contents.
-					(widget | label | startTable) space*
-					# Contents title.
-					(title space*)?
-					# Contents layout string.
 					(
-						(alnum+ >buffer %widgetLayoutString) |
-						('\'' (^'\''* >buffer %widgetLayoutString) '\'')
-					)?
+						# Widget contents.
+						(widget | label | startTable) space*
+						# Contents title.
+						(title space*)?
+						# Contents layout string.
+						(space* <: (alnum | ' ')+ >buffer %widgetLayoutString :> space*)?
+					) %addWidget <:
 					# Contents properties.
-					startWidgetProperties?
+					startWidgetSection?
+					space*
 				)*
-				space* ')' @{ fret; };
+				space* ')' @endWidgetSection;
 
 			table = space*
 				# Table title.
@@ -171,13 +210,13 @@ class TableLayoutParser {
 					('---' %startRow space* (property %rowDefaultValue (space+ property %rowDefaultValue)* )? )?
 					(
 						# Cell contents.
-						space* (widget | label | startTable) space*
+						space* (widget | label | startTable) %addCell space*
 						# Contents title.
 						(title space*)?
 						# Cell properties.
 						(property %cellProperty (space+ property %cellProperty)* space*)?
 						# Contents properties.
-						startWidgetProperties? space*
+						startWidgetSection? space*
 					)+
 				)+
 				space* '}' %endTable;
@@ -196,7 +235,7 @@ class TableLayoutParser {
 		if (p < pe) {
 			throw new IllegalArgumentException("Error parsing layout near: " + new String(data, p, pe - p), parseRuntimeEx);
 		} else if (top > 0) 
-			throw new IllegalArgumentException("Error parsing layout, missing closing curly brace: " + input, parseRuntimeEx);
+			throw new IllegalArgumentException("Error parsing layout (possibly an unmatched brace or quote): " + input, parseRuntimeEx);
 	}
 
 	%% write data;
@@ -524,14 +563,75 @@ class TableLayoutParser {
 		values.clear();
 	}
 
-	public static void main (String args[]) {
+	static private Object invokeMethod (Object object, String name, ArrayList<String> values) throws NoSuchMethodException {
+		Method[] methods = object.getClass().getMethods();
+		outer:
+		for (int i = 0, n = methods.length; i < n; i++) {
+			Method method = methods[i];
+			if (!method.getName().equals(name)) continue;
+			Object[] params = values.toArray();
+			Class[] paramTypes = method.getParameterTypes();
+			for (int ii = 0, nn = paramTypes.length; ii < nn; ii++) {
+				Object value = convertType(object, (String)params[ii], paramTypes[ii]);
+				if (value == null) continue outer;
+				params[ii] = value;
+			}
+			try {
+				return method.invoke(object, params);
+			} catch (Exception ex) {
+				throw new RuntimeException("Error invoking method: " + name, ex);
+			}
+		}
+		throw new NoSuchMethodException();
+	}
+
+	static private Object convertType (Object parentObject, String value, Class paramType) throws NoSuchMethodException {
+		if (paramType == String.class) return value;
+		if (paramType == int.class || paramType == Integer.class) return Integer.valueOf(value);
+		if (paramType == float.class || paramType == Float.class) return Float.valueOf(value);
+		if (paramType == boolean.class || paramType == Boolean.class) return Boolean.valueOf(value);
+		if (paramType == long.class || paramType == Long.class) return Long.valueOf(value);
+		if (paramType == Double.class || paramType == Double.class) return Double.valueOf(value);
+		if (paramType == char.class || paramType == Character.class) return value.charAt(0);
+		if (paramType == short.class || paramType == Short.class) return Short.valueOf(value);
+		if (paramType == byte.class || paramType == Byte.class) return Byte.valueOf(value);
+		// Look for a static field.
+		try {
+			Field field = paramType.getField(value);
+			if (paramType == field.getType()) return field.get(null);
+		} catch (Exception ignored) {
+		}
+		try {
+			Field field = parentObject.getClass().getField(value);
+			if (paramType == field.getType()) return field.get(null);
+		} catch (Exception ignored) {
+		}
+		return null;
+	}
+
+	static private Object newWidget (String className) throws Exception {
+		try {
+			return Class.forName(className).newInstance();
+		} catch (Exception ex) {
+			for (int i = 0, n = BaseTableLayout.classPrefixes.size(); i < n; i++) {
+				String prefix = BaseTableLayout.classPrefixes.get(i);
+				try {
+					return Class.forName(prefix + className).newInstance();
+				} catch (Exception ignored) {
+				}
+			}
+			throw ex;
+		}
+	}
+
+	static public void main (String args[]) {
 		BaseTableLayout table = new BaseTableLayout();
-		table.set("button", 123);
-		table.set("textbox", 345);
-		table.set("textbox2", 345);
+		table.setName("button", 123);
+		table.setName("textbox", 345);
+		table.setName("textbox2", 345);
 		table.parse("<Meow>" //
 			+ "width:400 height:400 " //
-			+ "[button:java.lang.String] <Booyah> size:80,80 align:left spacing:10 ( bean:true [button] 'moo' ) \n " //
+			+ "[boom:java.lang.String] <Booyah> size:80,80 align:left spacing:10 ( bean:true [button] moo (yagga:yo) 'sweet' ) \n " //
 			+ "{ [textbox] [textbox] } " //
 			+ "[textbox]\nalign:right,bottom \n ");
 	}
