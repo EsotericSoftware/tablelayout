@@ -44,7 +44,7 @@ public class BaseTableLayout<T> {
 	final HashMap<String, T> nameToWidget;
 
 	private final ArrayList<Cell> cells = new ArrayList();
-	private final Cell cellDefaults = Cell.defaults();
+	private Cell cellDefaults = Cell.defaults();
 	private final ArrayList<Cell> columnDefaults = new ArrayList(4);
 	private Cell rowDefaults;
 	private int columns, rows;
@@ -135,8 +135,19 @@ public class BaseTableLayout<T> {
 		cells.get(cells.size() - 1).endRow = true;
 	}
 
+	public void clear () {
+		cells.clear();
+		columnDefaults.clear();
+		nameToWidget.clear();
+		cellDefaults = Cell.defaults();
+		debug = null;
+		rows = 0;
+		columns = 0;
+		rowDefaults = null;
+	}
+
 	public T getWidget (String name) {
-		return nameToWidget.get(name);
+		return nameToWidget.get(name.toLowerCase());
 	}
 
 	public Cell getCell (T widget) {
@@ -190,13 +201,13 @@ public class BaseTableLayout<T> {
 			if (c.ignore) continue;
 
 			// Spacing between widgets isn't additive, the larger is used. Also, no spacing around edges.
-			c.padLeftTemp = c.column == 0 ? 0 : Math.max(0, c.spaceLeft - spaceRightLast);
-			c.padTopTemp = c.cellAboveIndex == -1 ? 0 : Math.max(0, c.spaceTop - cells.get(c.cellAboveIndex).spaceBottom);
-			c.padRightTemp = c.column == columns - 1 ? 0 : c.spaceRight;
-			c.padBottomTemp = c.row == rows - 1 ? 0 : c.spaceBottom;
-			spaceRightLast = c.padRightTemp;
+			c.padLeftTemp = c.column == 0 ? c.padLeft : c.padLeft + Math.max(0, c.spaceLeft - spaceRightLast);
+			c.padTopTemp = c.cellAboveIndex == -1 ? c.padTop : c.padTop
+				+ Math.max(0, c.spaceTop - cells.get(c.cellAboveIndex).spaceBottom);
+			c.padRightTemp = c.column + c.colspan == columns ? c.padRight : c.padRight + c.spaceRight;
+			c.padBottomTemp = c.row == rows - 1 ? c.padBottom : c.padBottom + c.spaceBottom;
+			spaceRightLast = c.spaceRight;
 
-			if (c.minHeight == -2) System.out.println();
 			int prefWidth = getWidth((T)c.widget, c.prefWidth);
 			int prefHeight = getHeight((T)c.widget, c.prefHeight);
 			int minWidth = getWidth((T)c.widget, c.minWidth);
@@ -227,22 +238,35 @@ public class BaseTableLayout<T> {
 			totalMinHeight += rowMinHeight[i];
 			totalPrefHeight += Math.max(rowMinHeight[i], rowPrefHeight[i]);
 		}
-		int[] columnMaxWidth = new int[columns], rowMaxHeight = new int[rows];
+
+		int[] columnMaxWidth;
 		int tableLayoutWidth = this.tableLayoutWidth - padLeft - padRight;
-		int extraWidth = Math.max(0, tableLayoutWidth - totalMinWidth);
 		int totalGrowWidth = totalPrefWidth - totalMinWidth;
-		for (int i = 0; i < columns; i++) {
-			int growWidth = columnPrefWidth[i] - columnMinWidth[i];
-			float growRatio = growWidth / (float)totalGrowWidth;
-			columnMaxWidth[i] = columnMinWidth[i] + (int)(extraWidth * growRatio);
+		if (totalGrowWidth == 0)
+			columnMaxWidth = columnMinWidth;
+		else {
+			int extraWidth = Math.max(0, tableLayoutWidth - totalMinWidth);
+			columnMaxWidth = new int[columns];
+			for (int i = 0; i < columns; i++) {
+				int growWidth = columnPrefWidth[i] - columnMinWidth[i];
+				float growRatio = growWidth / (float)totalGrowWidth;
+				columnMaxWidth[i] = columnMinWidth[i] + (int)(extraWidth * growRatio);
+			}
 		}
-		int totalGrowHeight = totalPrefHeight - totalMinHeight;
+
+		int[] rowMaxHeight;
 		int tableLayoutHeight = this.tableLayoutHeight - padTop - padBottom;
-		int extraHeight = Math.max(0, tableLayoutHeight - padTop - padBottom - totalMinHeight);
-		for (int i = 0; i < rows; i++) {
-			int growHeight = rowPrefHeight[i] - rowMinHeight[i];
-			float growRatio = growHeight / (float)totalGrowHeight;
-			rowMaxHeight[i] = rowMinHeight[i] + (int)(extraHeight * growRatio);
+		int totalGrowHeight = totalPrefHeight - totalMinHeight;
+		if (totalGrowHeight == 0)
+			rowMaxHeight = rowMinHeight;
+		else {
+			int extraHeight = Math.max(0, tableLayoutHeight - padTop - padBottom - totalMinHeight);
+			rowMaxHeight = new int[rows];
+			for (int i = 0; i < rows; i++) {
+				int growHeight = rowPrefHeight[i] - rowMinHeight[i];
+				float growRatio = growHeight / (float)totalGrowHeight;
+				rowMaxHeight[i] = rowMinHeight[i] + (int)(extraHeight * growRatio);
+			}
 		}
 
 		// Determine widget and cell sizes (before uniform/expand/fill). Also collect columns/rows that expand.
@@ -257,7 +281,7 @@ public class BaseTableLayout<T> {
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++) {
 				spannedCellMaxWidth += columnMaxWidth[column];
 
-				if (c.expandWidth != 0 && expandWidth[column] == 0) {
+				if (c.colspan == 1 && c.expandWidth != 0 && expandWidth[column] == 0) {
 					expandWidth[column] = c.expandWidth / (float)c.colspan;
 					totalExpandWidth += c.expandWidth / (float)c.colspan;
 				}
@@ -268,8 +292,15 @@ public class BaseTableLayout<T> {
 				totalExpandHeight += c.expandHeight;
 			}
 
-			c.widgetWidth = Math.min(spannedCellMaxWidth, getWidth((T)c.widget, c.prefWidth));
-			c.widgetHeight = Math.min(rowMaxHeight[c.row] - c.padTopTemp - c.padBottomTemp, getHeight((T)c.widget, c.prefHeight));
+			int prefWidth = getWidth((T)c.widget, c.prefWidth);
+			int prefHeight = getHeight((T)c.widget, c.prefHeight);
+			int minWidth = getWidth((T)c.widget, c.minWidth);
+			int minHeight = getHeight((T)c.widget, c.minHeight);
+			if (prefWidth < minWidth) prefWidth = minWidth;
+			if (prefHeight < minHeight) prefHeight = minHeight;
+
+			c.widgetWidth = Math.min(spannedCellMaxWidth, prefWidth);
+			c.widgetHeight = Math.min(rowMaxHeight[c.row] - c.padTopTemp - c.padBottomTemp, prefHeight);
 
 			if (c.colspan == 1)
 				columnWidth[c.column] = Math.max(columnWidth[c.column], c.widgetWidth + c.padLeftTemp + c.padRightTemp);
@@ -321,12 +352,12 @@ public class BaseTableLayout<T> {
 		int x = padLeft, y = padTop;
 		if ((align & RIGHT) != 0)
 			x += tableLayoutWidth - tableWidth;
-		else if ((align & CENTER) != 0) //
+		else if ((align & LEFT) == 0) // Center
 			x += (tableLayoutWidth - tableWidth) / 2;
 
 		if ((align & BOTTOM) != 0)
 			y += tableLayoutHeight - tableHeight;
-		else if ((align & CENTER) != 0) //
+		else if ((align & TOP) == 0) // Center
 			y += (tableLayoutHeight - tableHeight) / 2;
 
 		// Position widgets within cells.

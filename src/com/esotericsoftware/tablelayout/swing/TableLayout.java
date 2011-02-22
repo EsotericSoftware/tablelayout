@@ -2,6 +2,7 @@
 package com.esotericsoftware.tablelayout.swing;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -23,10 +24,12 @@ import com.esotericsoftware.tablelayout.BaseTableLayout.Cell;
 
 // BOZO - Handle removing components.
 // BOZO - * for colspan?
+// BOZO - Nede min/pref/max for table layout itself?
 
 public class TableLayout extends BaseTableLayout<Component> implements LayoutManager {
 	static {
 		addClassPrefix("javax.swing.");
+		addClassPrefix("java.awt.");
 	}
 
 	static private Timer timer;
@@ -55,7 +58,7 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 	}
 
 	public void removeLayoutComponent (Component comp) {
-		throw new UnsupportedOperationException();
+		clear();
 	}
 
 	public Dimension preferredLayoutSize (Container parent) {
@@ -80,6 +83,9 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 				debugLayouts.add(this);
 			} else
 				debugRects.clear();
+		} else if (debugRects != null) {
+			debugLayouts.remove(this);
+			debugRects = null;
 		}
 
 		tableLayoutWidth = parent.getWidth();
@@ -225,9 +231,11 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 		// + "[2] size:100,200 " //
 		// );
 
-		table.parse("debug * space:10" //
-			+ "'moo' 'cow'" //
-		);
+//		table.parse("debug * space:10" //
+//			+ "'moo' 'cow'" //
+//		);
+		
+		table.parse("'asd' {'moo1' 'moo2'}");
 
 		// table.parse("padding:10 " //
 		// + "[1] size:150,250 fill" //

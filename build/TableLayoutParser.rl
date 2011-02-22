@@ -10,7 +10,7 @@ import com.esotericsoftware.tablelayout.BaseTableLayout.Cell;
 
 class TableLayoutParser {
 	static public void parse (BaseTableLayout table, Cell cell, String input) {
-		char[] data = (input + " ").toCharArray();
+		char[] data = (input + "  ").toCharArray();
 		int cs, p = 0, pe = data.length, eof = pe, top = 0;
 		int[] stack = new int[4];
 
@@ -143,7 +143,7 @@ class TableLayoutParser {
 			}
 			action addCell {
 				System.out.println("addCell");
-				cell = ((BaseTableLayout)parent).add(widget);
+				cell = ((BaseTableLayout)parent).add(table.wrap(widget));
 			}
 			action addWidget {
 				System.out.println("addWidget");
@@ -152,25 +152,31 @@ class TableLayoutParser {
 			action widgetProperty {
 				System.out.println("widgetProperty: " + name + " = " + values);
 				try {
-					invokeMethod(parent, name, values);
-				} catch (Exception ex1) {
 					try {
-						invokeMethod(parent, "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1), values);
-					} catch (Exception ex2) {
+						invokeMethod(parent, name, values);
+					} catch (NoSuchMethodException ex1) {
 						try {
-							Field field = parent.getClass().getField(name);
-							Object value = convertType(parent, values.get(0), field.getType());
-							if (value != null) field.set(parent, value);
-						} catch (Exception ex3) {
-							throw new RuntimeException("No method, bean property, or field: " + name + "\nClass: " + parent.getClass() + "\nValues: " + values);
+							invokeMethod(parent, "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1),
+								values);
+						} catch (NoSuchMethodException ex2) {
+							try {
+								Field field = parent.getClass().getField(name);
+								Object value = convertType(parent, values.get(0), field.getType());
+								if (value != null) field.set(parent, value);
+							} catch (Exception ex3) {
+								throw new RuntimeException("No method, bean property, or field found.");
+							}
 						}
 					}
+				} catch (RuntimeException ex) {
+					throw new RuntimeException("Error setting property: " + name + "\nClass: " + parent.getClass()
+						+ "\nValues: " + values, ex);
 				}
 				values.clear();
 			}
 
 			title = '<' ^'>'* >buffer %setTitle '>';
-			propertyValue = (('-'? alnum+ '%'?) >buffer %value | ('\'' ^'\''* >buffer %value '\''));
+			propertyValue = (('-'? (alnum | '.')+ '%'?) >buffer %value | ('\'' ^'\''* >buffer %value '\''));
 			property = alnum+ >buffer %name (space* ':' space* propertyValue (',' propertyValue)* )?;
 
 			widget = '[' space* ^[\]:]* >buffer %name (space* ':' space* ^[\]]+ >buffer)? space* ']' @newWidget;
@@ -204,7 +210,7 @@ class TableLayoutParser {
 				# Default cell properties.
 				('*' space* property %cellDefaultProperty (space+ property %cellDefaultProperty)* space*)?
 				# Default column properties.
-				('|' %startColumn space* property %columnDefaultProperty (space+ property %columnDefaultProperty)* space* '|'? space*)*
+				('|' %startColumn space* (property %columnDefaultProperty (space+ property %columnDefaultProperty)* space*)? '|'? space*)*
 				(
 					# Start row and default row properties.
 					('---' %startRow space* (property %rowDefaultValue (space+ property %rowDefaultValue)* )? )?
@@ -222,7 +228,7 @@ class TableLayoutParser {
 				space* '}' %endTable;
 			
 			main := 
-				(space* '{')? <: table space*
+				space* ('{')? <: table space*
 			;
 
 			write init;
@@ -585,13 +591,13 @@ class TableLayoutParser {
 		throw new NoSuchMethodException();
 	}
 
-	static private Object convertType (Object parentObject, String value, Class paramType) throws NoSuchMethodException {
+	static private Object convertType (Object parentObject, String value, Class paramType) {
 		if (paramType == String.class) return value;
 		if (paramType == int.class || paramType == Integer.class) return Integer.valueOf(value);
 		if (paramType == float.class || paramType == Float.class) return Float.valueOf(value);
 		if (paramType == boolean.class || paramType == Boolean.class) return Boolean.valueOf(value);
 		if (paramType == long.class || paramType == Long.class) return Long.valueOf(value);
-		if (paramType == Double.class || paramType == Double.class) return Double.valueOf(value);
+		if (paramType == double.class || paramType == Double.class) return Double.valueOf(value);
 		if (paramType == char.class || paramType == Character.class) return value.charAt(0);
 		if (paramType == short.class || paramType == Short.class) return Short.valueOf(value);
 		if (paramType == byte.class || paramType == Byte.class) return Byte.valueOf(value);
