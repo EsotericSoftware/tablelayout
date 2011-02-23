@@ -77,7 +77,10 @@ class TableLayoutParser {
 			}
 			action setTitle {
 				System.out.println("setTitle: " + new String(data, s, p - s));
-				table.setTitle(parent, new String(data, s, p - s));
+				if (widget instanceof BaseTableLayout)
+					((BaseTableLayout)widget).setTitle(new String(data, s, p - s));
+				else
+					table.setTitle(widget, new String(data, s, p - s));
 			}
 			action widgetLayoutString {
 				System.out.println("widgetLayoutString: " + new String(data, s, p - s));
@@ -121,9 +124,9 @@ class TableLayoutParser {
 				fcall table;
 			}
 			action endTable {
+				widget = parent;
 				if (!parents.isEmpty()) {
 					System.out.println("endTable");
-					widget = parent;
 					parent = parents.remove(parents.size() - 1);
 					fret;
 				}
@@ -192,7 +195,7 @@ class TableLayoutParser {
 						# Widget contents.
 						(widget | label | startTable) space*
 						# Contents title.
-						(title space*)?
+						(title space*)? <:
 						# Contents layout string.
 						(space* <: (alnum | ' ')+ >buffer %widgetLayoutString :> space*)?
 					) %addWidget <:
@@ -204,7 +207,7 @@ class TableLayoutParser {
 
 			table = space*
 				# Table title.
-				(title space*)?
+				(title space*)? <:
 				# Table properties.
 				(property %tableProperty (space+ property %tableProperty)* space*)?
 				# Default cell properties.
@@ -228,7 +231,7 @@ class TableLayoutParser {
 				space* '}' %endTable;
 			
 			main := 
-				space* ('{')? <: table space*
+				space* ('{')? <: table (space* title)? <: space*
 			;
 
 			write init;

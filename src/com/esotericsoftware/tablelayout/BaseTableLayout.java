@@ -37,6 +37,7 @@ public class BaseTableLayout<T> {
 	public String debug;
 	public float fillX, fillY; // BOZO - Use?
 
+	protected int tableLayoutX, tableLayoutY;
 	protected int tableLayoutWidth, tableLayoutHeight;
 	protected int totalMinWidth, totalMinHeight;
 	protected int totalPrefWidth, totalPrefHeight;
@@ -48,6 +49,7 @@ public class BaseTableLayout<T> {
 	private final ArrayList<Cell> columnDefaults = new ArrayList(4);
 	private Cell rowDefaults;
 	private int columns, rows;
+	private String title;
 
 	public BaseTableLayout () {
 		nameToWidget = new HashMap();
@@ -349,12 +351,13 @@ public class BaseTableLayout<T> {
 			tableHeight += rowHeight[i];
 		tableHeight = Math.max(tableHeight, height);
 
-		int x = padLeft, y = padTop;
+		int x = tableLayoutX + padLeft;
 		if ((align & RIGHT) != 0)
 			x += tableLayoutWidth - tableWidth;
 		else if ((align & LEFT) == 0) // Center
 			x += (tableLayoutWidth - tableWidth) / 2;
 
+		int y = tableLayoutY + padTop;
 		if ((align & BOTTOM) != 0)
 			y += tableLayoutHeight - tableHeight;
 		else if ((align & TOP) == 0) // Center
@@ -412,7 +415,7 @@ public class BaseTableLayout<T> {
 		currentX = x;
 		currentY = y;
 		if (debug.contains("table,") || debug.contains("all,")) {
-			drawDebugRect(true, padLeft, padTop, tableLayoutWidth - 1, tableLayoutHeight - 1);
+			drawDebugRect(true, tableLayoutX + padLeft, tableLayoutY + padTop, tableLayoutWidth - 1, tableLayoutHeight - 1);
 			drawDebugRect(true, x, y, tableWidth - 1, tableHeight - 1);
 		}
 		for (int i = 0, n = cells.size(); i < n; i++) {
@@ -464,6 +467,14 @@ public class BaseTableLayout<T> {
 		return value;
 	}
 
+	public String getTitle () {
+		return title;
+	}
+
+	public void setTitle (String title) {
+		this.title = title;
+	}
+
 	protected BaseTableLayout newTableLayout () {
 		return new BaseTableLayout(this);
 	}
@@ -504,6 +515,10 @@ public class BaseTableLayout<T> {
 
 	protected int getMaxHeight (T widget) {
 		return 0;
+	}
+
+	protected BaseTableLayout getTableLayout (Object object) {
+		return (BaseTableLayout)object;
 	}
 
 	protected void drawDebugRect (boolean dash, int x, int y, int w, int h) {

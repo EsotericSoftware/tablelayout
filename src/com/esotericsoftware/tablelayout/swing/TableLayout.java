@@ -2,27 +2,30 @@
 package com.esotericsoftware.tablelayout.swing;
 
 import java.awt.BasicStroke;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import com.esotericsoftware.tablelayout.BaseTableLayout;
-import com.esotericsoftware.tablelayout.BaseTableLayout.Cell;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
-// BOZO - Handle removing components.
+import com.esotericsoftware.tablelayout.BaseTableLayout;
+
 // BOZO - * for colspan?
 // BOZO - Nede min/pref/max for table layout itself?
 
@@ -58,7 +61,7 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 	}
 
 	public void removeLayoutComponent (Component comp) {
-		clear();
+		clear(); // BOZO - Handle removing components.
 	}
 
 	public Dimension preferredLayoutSize (Container parent) {
@@ -88,8 +91,20 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 			debugRects = null;
 		}
 
-		tableLayoutWidth = parent.getWidth();
-		tableLayoutHeight = parent.getHeight();
+		String title = getTitle();
+		if (title != null && parent instanceof JComponent) {
+			JComponent component = (JComponent)parent;
+			Border border = component.getBorder();
+			System.out.println(((TitledBorder)border).getTitle());
+			if (border == null || !(border instanceof TitledBorder) || !((TitledBorder)border).getTitle().equals(title))
+				setTitle(component, title);
+		}
+
+		Insets insets = parent.getInsets();
+		tableLayoutX = insets.left;
+		tableLayoutY = insets.top;
+		tableLayoutWidth = parent.getWidth() - insets.left - insets.right;
+		tableLayoutHeight = parent.getHeight() - insets.top - insets.bottom;
 		layout();
 		ArrayList<Cell> cells = getCells();
 		for (int i = 0, n = cells.size(); i < n; i++) {
@@ -130,8 +145,9 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 		return new JLabel(text);
 	}
 
-	protected void setTitle (Component parent, String string) {
-		super.setTitle(parent, string);
+	protected void setTitle (Component parent, String title) {
+		if (!(parent instanceof JComponent)) return;
+		((JComponent)parent).setBorder(BorderFactory.createTitledBorder(title));
 	}
 
 	protected void addChild (Component parent, Component child, String layoutString) {
@@ -166,6 +182,12 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 
 	protected int getMaxHeight (Component widget) {
 		return widget.getMaximumSize().height;
+	}
+
+	protected TableLayout getTableLayout (Object object) {
+		if (object instanceof TableLayout) return (TableLayout)object;
+		if (object instanceof JComponent) return (TableLayout)((JComponent)object).getLayout();
+		return null;
 	}
 
 	void drawDebug () {
@@ -231,10 +253,10 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 		// + "[2] size:100,200 " //
 		// );
 
-//		table.parse("debug * space:10" //
-//			+ "'moo' 'cow'" //
-//		);
-		
+		// table.parse("debug * space:10" //
+		// + "'moo' 'cow'" //
+		// );
+
 		table.parse("'asd' {'moo1' 'moo2'}");
 
 		// table.parse("padding:10 " //
