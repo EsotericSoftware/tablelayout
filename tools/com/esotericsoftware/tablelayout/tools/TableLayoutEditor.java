@@ -4,6 +4,7 @@ package com.esotericsoftware.tablelayout.tools;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -23,13 +24,15 @@ import com.esotericsoftware.tablelayout.swing.TableLayout;
 // BOZO - Add class prefixes.
 // BOZO - Support adding a layout, which gets wrapped in a panel.
 
-public class TableLayoutViewer extends JFrame {
+public class TableLayoutEditor extends JFrame {
 	JTextArea textArea;
 	TableLayout outputTable;
 	JPanel outputPanel;
 	Border redBorder, emptyBorder;
 
-	public TableLayoutViewer () {
+	public TableLayoutEditor () {
+		super("TableLayout Editor");
+
 		outputTable = new TableLayout() {
 			public Component getWidget (String name) {
 				Component widget = super.getWidget(name);
@@ -39,7 +42,6 @@ public class TableLayoutViewer extends JFrame {
 				return new JLabel(name);
 			}
 		};
-
 		outputPanel = new JPanel(outputTable);
 
 		redBorder = BorderFactory.createMatteBorder(1, 1, 1, 1, Color.red);
@@ -54,6 +56,20 @@ public class TableLayoutViewer extends JFrame {
 			+ "[outputPanel] right" //
 			+ ")");
 
+		textArea.setText("[split:JSplitPane] expand fill (\n" //
+			+ "   dividerSize:25\n" //
+			+ "   orientation:VERTICAL_SPLIT\n" //
+			+ "   'Top widget' top\n" //
+			+ "   {\n" //
+			+ "      debug\n" //
+			+ "      'Table on the bottom!'\n" //
+			+ "      ---\n" //
+			+ "      [someEdit] fill\n" //
+			+ "   } bottom\n" //
+			+ ")");
+		outputTable.parse(textArea.getText());
+
+		textArea.setFont(Font.decode("monospaced"));
 		textArea.addKeyListener(new KeyAdapter() {
 			public void keyTyped (KeyEvent e) {
 				EventQueue.invokeLater(new Runnable() {
@@ -85,7 +101,7 @@ public class TableLayoutViewer extends JFrame {
 	public static void main (String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run () {
-				new TableLayoutViewer();
+				new TableLayoutEditor();
 			}
 		});
 	}

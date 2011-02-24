@@ -179,7 +179,7 @@ class TableLayoutParser {
 			}
 
 			title = '<' ^'>'* >buffer %setTitle '>';
-			propertyValue = (('-'? (alnum | '.')+ '%'?) >buffer %value | ('\'' ^'\''* >buffer %value '\''));
+			propertyValue = (('-'? (alnum | '.' | '_')+ '%'?) >buffer %value | ('\'' ^'\''* >buffer %value '\''));
 			property = alnum+ >buffer %name (space* ':' space* propertyValue (',' propertyValue)* )?;
 
 			widget = '[' space* ^[\]:]* >buffer %name (space* ':' space* ^[\]]+ >buffer)? space* ']' @newWidget;
@@ -596,11 +596,14 @@ class TableLayoutParser {
 
 	static private Object convertType (Object parentObject, String value, Class paramType) {
 		if (paramType == String.class) return value;
-		if (paramType == int.class || paramType == Integer.class) return Integer.valueOf(value);
-		if (paramType == float.class || paramType == Float.class) return Float.valueOf(value);
+		try {
+			if (paramType == int.class || paramType == Integer.class) return Integer.valueOf(value);
+			if (paramType == float.class || paramType == Float.class) return Float.valueOf(value);
+			if (paramType == long.class || paramType == Long.class) return Long.valueOf(value);
+			if (paramType == double.class || paramType == Double.class) return Double.valueOf(value);
+		} catch (NumberFormatException ignored) {
+		}
 		if (paramType == boolean.class || paramType == Boolean.class) return Boolean.valueOf(value);
-		if (paramType == long.class || paramType == Long.class) return Long.valueOf(value);
-		if (paramType == double.class || paramType == Double.class) return Double.valueOf(value);
 		if (paramType == char.class || paramType == Character.class) return value.charAt(0);
 		if (paramType == short.class || paramType == Short.class) return Short.valueOf(value);
 		if (paramType == byte.class || paramType == Byte.class) return Byte.valueOf(value);
