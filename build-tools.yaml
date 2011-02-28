@@ -1,6 +1,7 @@
 name: tablelayout-editor
 source:
 - src|**/*.java 
+- toolkits/swing/src|**/*.java 
 - tools|**/*.java 
 main: com.esotericsoftware.tablelayout.tools.TableLayoutEditor
 ---
