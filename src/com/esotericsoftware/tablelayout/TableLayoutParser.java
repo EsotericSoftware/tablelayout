@@ -950,19 +950,15 @@ class TableLayoutParser {
 		if (paramType == short.class || paramType == Short.class) return Short.valueOf(value);
 		if (paramType == byte.class || paramType == Byte.class) return Byte.valueOf(value);
 		// Look for a static field.
-		Field field = getField(paramType, value);
-		if (field != null && paramType == field.getType()) {
-			try {
-				return field.get(null);
-			} catch (Exception ignored) {
-			}
+		try {
+			Field field = getField(paramType, value);
+			if (field != null && paramType == field.getType()) return field.get(null);
+		} catch (Exception ignored) {
 		}
-		field = getField(parentObject.getClass(), value);
-		if (field != null && paramType == field.getType()) {
-			try {
-				return field.get(null);
-			} catch (Exception ignored) {
-			}
+		try {
+			Field field = getField(parentObject.getClass(), value);
+			if (field != null && paramType == field.getType()) return field.get(null);
+		} catch (Exception ignored) {
 		}
 		return null;
 	}
