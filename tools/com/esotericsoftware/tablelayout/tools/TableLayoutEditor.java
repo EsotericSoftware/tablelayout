@@ -20,10 +20,6 @@ import javax.swing.border.Border;
 
 import com.esotericsoftware.tablelayout.swing.TableLayout;
 
-// BOZO - No spaces in layout string!
-// BOZO - Add class prefixes.
-// BOZO - Support adding a layout, which gets wrapped in a panel.
-
 public class TableLayoutEditor extends JFrame {
 	JTextArea textArea;
 	TableLayout outputTable;

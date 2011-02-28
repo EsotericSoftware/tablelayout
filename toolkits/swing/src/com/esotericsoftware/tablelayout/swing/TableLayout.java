@@ -17,17 +17,12 @@ import java.util.TimerTask;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import com.esotericsoftware.tablelayout.BaseTableLayout;
-
-// BOZO - * for colspan?
-// BOZO - Nede min/pref/max for table layout itself?
 
 public class TableLayout extends BaseTableLayout<Component> implements LayoutManager {
 	static {
@@ -57,22 +52,22 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 	}
 
 	public void addLayoutComponent (String text, Component comp) {
-		add(comp, text);
+		add(comp);
 	}
 
 	public void removeLayoutComponent (Component comp) {
-		clear(); // BOZO - Handle removing components.
+		clear();
 	}
 
 	public Dimension preferredLayoutSize (Container parent) {
-		layout(); // BOZO - Cache layout.
+		layout(); // BOZO - Cache layout?
 		prefSize.width = totalPrefWidth;
 		prefSize.height = totalPrefHeight;
 		return prefSize;
 	}
 
 	public Dimension minimumLayoutSize (Container parent) {
-		layout(); // BOZO - Cache layout.
+		layout(); // BOZO - Cache layout?
 		minSize.width = totalMinWidth;
 		minSize.height = totalMinHeight;
 		return minSize;
@@ -212,94 +207,5 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 			super(x, y, width, height);
 			this.dash = dash;
 		}
-	}
-
-	static public void main (String[] args) {
-		TableLayout table = new TableLayout();
-		for (int i = 1; i <= 10; i++)
-			table.setName(i + "", new JTextField(i + ""));
-
-		// table.parse("align:center padding:10" //
-		// + "* height:140 expand" //
-		// + "[1] width:180 fill:50,50" //
-		// + "'2' size:200,20 colspan:2" //
-		// + "---" //
-		// + "[1] size:40,120" //
-		// + "[4] size:180,20" //
-		// + "[5] size:20,20" //
-		// + "---" //
-		// + "[6] size:40,20" //
-		// + "[7] size:180,20" //
-		// + "---" //
-		// + "[8] size:40,20" //
-		// + "{padding:10" //
-		// + "'Name:' size:50" //
-		// + "'111' size:25 " //
-		// + "--- " //
-		// + "'Stuff:' width:100" //
-		// + "'moo' size:25 } fill " //
-		// + "[2] size:100,200 " //
-		// + "[10] size:20,20" //
-		// );
-
-		// table.parse("padding:10 debug " //
-		// + "* align:left padding:10 uniform" //
-		// + "|  | align:right " //
-		// + "--- align:bottom,right" //
-		// + "'Name:' align:top" //
-		// + "[1] fill " //
-		// + "--- " //
-		// + "'Stuff:'" //
-		// + "[2] size:100,200 " //
-		// );
-
-		// table.parse("debug * space:10" //
-		// + "'moo' 'cow'" //
-		// );
-
-		table.parse("'asd' {'moo1' 'moo2'}");
-
-		// table.parse("padding:10 " //
-		// + "[1] size:150,250 fill" //
-		// + "[2] size:100,200 expand:50" //
-		// + "{ * expand" //
-		// + "	[3] size:50,200" //
-		// + "	---" //
-		// + "	[4] size:40,100" //
-		// + "} size:70,300" //
-		// );
-
-		// // BOZO - Shit broke?
-		// table.parse("width:640 height:480" //
-		// + "---" //
-		// + "'logo'" //
-		// + "{ width:200 height:200" //
-		// // + "* fill" //
-		// + "| align:right | align:left" //
-		// + "'Name:' size:40" //
-		// + "'nameEdit' size:200 colspan:2" //
-		// + "---" //
-		// + "'File' size:40" //
-		// + "'fileEdit' size:40 expand:x" //
-		// + "'browseButton' size:40" //
-		// + "} width:200 height:200 fill" //
-		// );
-
-		// table.parse("padding:10" //
-		// + "---" //
-		// + "[1] size:40 align:right,top" //
-		// + "[2] size:80 align:right" //
-		// + "---" //
-		// + "[3] size:20 align:left" //
-		// + "[4] fill" //
-		// );
-
-		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.setSize(800, 600);
-		frame.setLocationRelativeTo(null);
-		JPanel panel = new JPanel(table);
-		frame.setContentPane(panel);
-		frame.setVisible(true);
 	}
 }
