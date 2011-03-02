@@ -4,8 +4,3 @@ source:
 - toolkits/swing/src|**/*.java 
 - tools|**/*.java 
 main: com.esotericsoftware.tablelayout.tools.TableLayoutEditor
----
-build(project);
-keystore("keystore", "tablelayout", "luoyalelbat", "Esoteric Software", "TableLayout Editor");
-jws(project, false, "keystore", "tablelayout", "luoyalelbat");
-jnlp(project, "http://table-layout.googlecode.com/svn/wiki/jws/editor.jnlp", "Esoteric Software", "TableLayout Editor", null);
