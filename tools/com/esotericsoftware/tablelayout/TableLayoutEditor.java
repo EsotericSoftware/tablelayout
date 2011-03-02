@@ -1,5 +1,5 @@
 
-package com.esotericsoftware.tablelayout.tools;
+package com.esotericsoftware.tablelayout;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -7,6 +7,10 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -17,14 +21,15 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.esotericsoftware.tablelayout.swing.TableLayout;
 
 public class TableLayoutEditor extends JFrame {
-	JTextArea textArea;
+	JTextArea codeArea, errorArea;
 	TableLayout outputTable;
 	JPanel outputPanel;
-	Border redBorder, emptyBorder;
 
 	public TableLayoutEditor () {
 		super("TableLayout Editor");
@@ -33,6 +38,10 @@ public class TableLayoutEditor extends JFrame {
 			public Component getWidget (String name) {
 				Component widget = super.getWidget(name);
 				if (widget != null) return widget;
+				try {
+					return (Component)TableLayoutParser.newWidget(name);
+				} catch (Exception ignored) {
+				}
 				if (name.endsWith("Edit")) return new JTextField();
 				if (name.endsWith("Button")) return new JButton("Center");
 				return new JLabel(name);
@@ -40,43 +49,72 @@ public class TableLayoutEditor extends JFrame {
 		};
 		outputPanel = new JPanel(outputTable);
 
-		redBorder = BorderFactory.createMatteBorder(1, 1, 1, 1, Color.red);
-		emptyBorder = BorderFactory.createEmptyBorder();
-
 		TableLayout table = new TableLayout();
-		table.setName("textArea", textArea = new JTextArea());
 		table.setName("outputPanel", outputPanel);
 		table.parse("padding:10 " //
 			+ "[JSplitPane] expand fill ( "//
-			+ "{ [textArea] width:300 expand fill } left" //
-			+ "[outputPanel] right" //
+			+ "{" //
+			+ "[JScrollPane] size:300,0 expand fill ([codeArea:JTextArea])" //
+			+ "---" //
+			+ "[JScrollPane] size:300,0 expand fill ([errorArea:JTextArea])" //
+			+ "}" //
+			+ "[outputPanel]" //
 			+ ")");
 
-		textArea.setText("[split:JSplitPane] expand fill (\n" //
+		errorArea = (JTextArea)table.getWidget("errorArea");
+		errorArea.setFont(Font.decode("monospaced"));
+		errorArea.setWrapStyleWord(true);
+		errorArea.setLineWrap(true);
+		errorArea.setForeground(Color.red);
+
+		codeArea = (JTextArea)table.getWidget("codeArea");
+		codeArea.setText("[split:JSplitPane] expand fill (\n" //
 			+ "   dividerSize:25\n" //
+			+ "   setResizeWeight:0.4\n" //
 			+ "   orientation:VERTICAL_SPLIT\n" //
-			+ "   'Top widget' top\n" //
 			+ "   {\n" //
 			+ "      debug\n" //
 			+ "      'Table on the bottom!'\n" //
 			+ "      ---\n" //
 			+ "      [someEdit] fill\n" //
 			+ "   } bottom\n" //
+			+ "   {\n" //
+			+ "   	'Top widget'\n" //
+			+ "   	[JScrollPane] size:100,0 expand fill ([JTextArea])\n" //
+			+ "   } top\n" //
 			+ ")");
-		outputTable.parse(textArea.getText());
+		outputTable.parse(codeArea.getText());
 
-		textArea.setFont(Font.decode("monospaced"));
-		textArea.addKeyListener(new KeyAdapter() {
-			public void keyTyped (KeyEvent e) {
+		codeArea.setFont(Font.decode("monospaced"));
+		codeArea.getDocument().addDocumentListener(new DocumentListener() {
+			public void removeUpdate (DocumentEvent e) {
+				changed();
+			}
+
+			public void insertUpdate (DocumentEvent e) {
+				changed();
+			}
+
+			public void changedUpdate (DocumentEvent e) {
+				changed();
+			}
+
+			private void changed () {
 				EventQueue.invokeLater(new Runnable() {
 					public void run () {
 						outputPanel.removeAll();
+						errorArea.setText("");
 						try {
-							outputTable.parse(textArea.getText());
-							textArea.setBorder(emptyBorder);
-						} catch (Exception ex) {
-							ex.printStackTrace();
-							textArea.setBorder(redBorder);
+							outputTable.parse(codeArea.getText());
+						} catch (Throwable ex) {
+							StringWriter buffer = new StringWriter(1024);
+							if (ex.getCause() != null) ex = ex.getCause();
+							while (ex != null) {
+								buffer.append(ex.getMessage());
+								buffer.append('\n');
+								ex = ex.getCause();
+							}
+							errorArea.setText(buffer.toString());
 							outputPanel.removeAll();
 							outputTable.clear();
 						}

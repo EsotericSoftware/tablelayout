@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import com.esotericsoftware.tablelayout.BaseTableLayout.Cell;
+import com.esotericsoftware.tablelayout.BaseTableLayout.WidgetFactory;
 
 class TableLayoutParser {
 	static public void parse (BaseTableLayout table, String input) {
@@ -163,6 +164,7 @@ class TableLayoutParser {
 			action addWidget {
 				if (debug) System.out.println("addWidget");
 				table.addChild(parent, table.wrap(widget), widgetLayoutString);
+				widgetLayoutString = null;
 			}
 			action widgetProperty {
 				if (debug) System.out.println("widgetProperty: " + name + " = " + values);
@@ -224,9 +226,8 @@ class TableLayoutParser {
 						(space* <: (alnum | ' ')+ >buffer %widgetLayoutString )?
 					) %addWidget <:
 					# Contents properties.
-					startWidgetSection?
-					space*
-				)*
+					startWidgetSection? space*
+				)* <:
 				space* ')' @endWidgetSection;
 
 			table = space*
@@ -252,7 +253,7 @@ class TableLayoutParser {
 						startWidgetSection? space*
 					)+
 				)+
-				space* '}' %endTable;
+				space* '}' @endTable;
 			
 			main := 
 				space* '{'? <: table (space* title)? <: space*
@@ -667,6 +668,8 @@ class TableLayoutParser {
 	}
 
 	static private Object newWidget (String className) throws Exception {
+		WidgetFactory factory = BaseTableLayout.widgetFactories.get(className);
+		if (factory != null) return factory.newInstance();
 		try {
 			return Class.forName(className).newInstance();
 		} catch (Exception ex) {

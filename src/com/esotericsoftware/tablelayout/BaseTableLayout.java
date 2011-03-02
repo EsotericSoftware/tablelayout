@@ -18,6 +18,7 @@ public class BaseTableLayout<T> {
 	static public final int MAX = -3;
 
 	static final ArrayList<String> classPrefixes = new ArrayList();
+	static final HashMap<String, WidgetFactory> widgetFactories = new HashMap();
 
 	static private final int[][] intArrays = new int[10][];
 	static private final int INT_columnMinWidth = 0;
@@ -532,6 +533,10 @@ public class BaseTableLayout<T> {
 		classPrefixes.add(prefix);
 	}
 
+	static public void setWidgetFactory (String name, WidgetFactory factory) {
+		widgetFactories.put(name, factory);
+	}
+
 	static private int[] intArray (int index, int size, boolean zero) {
 		if (true) return new int[size];
 		int[] array = intArrays[index];
@@ -556,6 +561,12 @@ public class BaseTableLayout<T> {
 				array[i] = 0;
 		}
 		return array;
+	}
+
+	static public interface WidgetFactory<T> {
+		public T newInstance ();
+
+		public void set (T widget, String name, String value);
 	}
 
 	static public class Cell {

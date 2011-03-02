@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import com.esotericsoftware.tablelayout.BaseTableLayout.Cell;
+import com.esotericsoftware.tablelayout.BaseTableLayout.WidgetFactory;
 
 class TableLayoutParser {
 	static public void parse (BaseTableLayout table, String input) {
@@ -32,13 +33,13 @@ class TableLayoutParser {
 
 		try {
 
-			// line 3 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+// line 3 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 			{
 				cs = tableLayout_start;
 				top = 0;
 			}
 
-			// line 8 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+// line 8 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 			{
 				int _klen;
 				int _trans = 0;
@@ -116,75 +117,75 @@ class TableLayoutParser {
 							while (_nacts-- > 0) {
 								switch (_tableLayout_actions[_acts++]) {
 								case 0:
-									// line 44 "TableLayoutParser.rl"
+// line 45 "TableLayoutParser.rl"
 								{
 									s = p;
 								}
 									break;
 								case 1:
-									// line 45 "TableLayoutParser.rl"
+// line 46 "TableLayoutParser.rl"
 								{
 									name = new String(data, s, p - s);
 									s = p;
 								}
 									break;
 								case 2:
-									// line 49 "TableLayoutParser.rl"
+// line 50 "TableLayoutParser.rl"
 								{
 									values.add(new String(data, s, p - s));
 								}
 									break;
 								case 3:
-									// line 52 "TableLayoutParser.rl"
+// line 53 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("tableProperty: " + name + " = " + values);
 									setTableProperty((BaseTableLayout)parent, name, values);
 								}
 									break;
 								case 4:
-									// line 56 "TableLayoutParser.rl"
+// line 57 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("cellDefaultProperty: " + name + " = " + values);
 									setCellProperty(((BaseTableLayout)parent).getCellDefaults(), name, values);
 								}
 									break;
 								case 5:
-									// line 60 "TableLayoutParser.rl"
+// line 61 "TableLayoutParser.rl"
 								{
 									int column = ((BaseTableLayout)parent).getColumnDefaults().size();
 									columnDefaults = ((BaseTableLayout)parent).getColumnDefaults(column);
 								}
 									break;
 								case 6:
-									// line 64 "TableLayoutParser.rl"
+// line 65 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("columnDefaultProperty: " + name + " = " + values);
 									setCellProperty(columnDefaults, name, values);
 								}
 									break;
 								case 7:
-									// line 68 "TableLayoutParser.rl"
+// line 69 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("startRow");
 									rowDefaults = ((BaseTableLayout)parent).startRow();
 								}
 									break;
 								case 8:
-									// line 72 "TableLayoutParser.rl"
+// line 73 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("rowDefaultValue: " + name + " = " + values);
 									setCellProperty(rowDefaults, name, values);
 								}
 									break;
 								case 9:
-									// line 76 "TableLayoutParser.rl"
+// line 77 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("cellProperty: " + name + " = " + values);
 									setCellProperty(cell, name, values);
 								}
 									break;
 								case 10:
-									// line 80 "TableLayoutParser.rl"
+// line 81 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("setTitle: " + new String(data, s, p - s));
 									if (widget instanceof BaseTableLayout)
@@ -194,26 +195,26 @@ class TableLayoutParser {
 								}
 									break;
 								case 11:
-									// line 87 "TableLayoutParser.rl"
+// line 88 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("widgetLayoutString: " + new String(data, s, p - s).trim());
 									widgetLayoutString = new String(data, s, p - s).trim();
 								}
 									break;
 								case 12:
-									// line 91 "TableLayoutParser.rl"
+// line 92 "TableLayoutParser.rl"
 								{
 									className = new String(data, s, p - s);
 								}
 									break;
 								case 13:
-									// line 94 "TableLayoutParser.rl"
+// line 95 "TableLayoutParser.rl"
 								{
 									label = table.newLabel(new String(data, s, p - s));
 								}
 									break;
 								case 14:
-									// line 97 "TableLayoutParser.rl"
+// line 98 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("newWidget: " + name + " " + className + " " + label);
 									widget = null;
@@ -245,14 +246,14 @@ class TableLayoutParser {
 								}
 									break;
 								case 15:
-									// line 126 "TableLayoutParser.rl"
+// line 127 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("newLabel: " + new String(data, s, p - s));
 									widget = table.newLabel(new String(data, s, p - s));
 								}
 									break;
 								case 16:
-									// line 130 "TableLayoutParser.rl"
+// line 131 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("startTable");
 									parents.add(parent);
@@ -275,7 +276,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 17:
-									// line 138 "TableLayoutParser.rl"
+// line 139 "TableLayoutParser.rl"
 								{
 									widget = parent;
 									if (!parents.isEmpty()) {
@@ -290,7 +291,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 18:
-									// line 146 "TableLayoutParser.rl"
+// line 147 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("startWidgetSection");
 									parents.add(parent);
@@ -312,7 +313,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 19:
-									// line 153 "TableLayoutParser.rl"
+// line 154 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("endWidgetSection");
 									widget = parent;
@@ -325,21 +326,22 @@ class TableLayoutParser {
 								}
 									break;
 								case 20:
-									// line 159 "TableLayoutParser.rl"
+// line 160 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("addCell");
 									cell = ((BaseTableLayout)parent).add(table.wrap(widget));
 								}
 									break;
 								case 21:
-									// line 163 "TableLayoutParser.rl"
+// line 164 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("addWidget");
 									table.addChild(parent, table.wrap(widget), widgetLayoutString);
+									widgetLayoutString = null;
 								}
 									break;
 								case 22:
-									// line 167 "TableLayoutParser.rl"
+// line 169 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("widgetProperty: " + name + " = " + values);
 									try {
@@ -366,7 +368,7 @@ class TableLayoutParser {
 									values.clear();
 								}
 									break;
-								// line 316 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+// line 317 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 								}
 							}
 						}
@@ -381,38 +383,13 @@ class TableLayoutParser {
 							continue _goto;
 						}
 					case 4:
-						if (p == eof) {
-							int __acts = _tableLayout_eof_actions[cs];
-							int __nacts = (int)_tableLayout_actions[__acts++];
-							while (__nacts-- > 0) {
-								switch (_tableLayout_actions[__acts++]) {
-								case 17:
-									// line 138 "TableLayoutParser.rl"
-								{
-									widget = parent;
-									if (!parents.isEmpty()) {
-										if (debug) System.out.println("endTable");
-										parent = parents.remove(parents.size() - 1);
-										{
-											cs = stack[--top];
-											_goto_targ = 2;
-											if (true) continue _goto;
-										}
-									}
-								}
-									break;
-								// line 348 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
-								}
-							}
-						}
-
 					case 5:
 					}
 					break;
 				}
 			}
 
-			// line 263 "TableLayoutParser.rl"
+// line 264 "TableLayoutParser.rl"
 
 		} catch (RuntimeException ex) {
 			parseRuntimeEx = ex;
@@ -429,15 +406,16 @@ class TableLayoutParser {
 				parseRuntimeEx);
 	}
 
-	// line 358 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+// line 337 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 	private static byte[] init__tableLayout_actions_0 () {
 		return new byte[] {0, 1, 0, 1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 1, 8, 1, 9, 1, 10, 1, 12, 1, 13, 1, 14, 1, 15, 1, 16,
 			1, 17, 1, 18, 1, 19, 1, 20, 1, 21, 1, 22, 2, 0, 1, 2, 0, 2, 2, 0, 10, 2, 0, 12, 2, 0, 13, 2, 0, 15, 2, 1, 3, 2, 1, 4, 2,
 			1, 6, 2, 1, 8, 2, 1, 9, 2, 1, 14, 2, 1, 22, 2, 2, 3, 2, 2, 4, 2, 2, 6, 2, 2, 8, 2, 2, 9, 2, 2, 22, 2, 3, 16, 2, 4, 16,
-			2, 5, 0, 2, 5, 16, 2, 6, 16, 2, 7, 0, 2, 7, 16, 2, 8, 16, 2, 9, 16, 2, 9, 18, 2, 11, 21, 2, 12, 14, 2, 20, 0, 2, 20, 16,
-			2, 20, 18, 2, 21, 16, 2, 21, 18, 2, 21, 19, 2, 22, 16, 2, 22, 19, 3, 0, 1, 14, 3, 1, 3, 16, 3, 1, 4, 16, 3, 1, 6, 16, 3,
-			1, 8, 16, 3, 1, 9, 16, 3, 1, 9, 18, 3, 1, 22, 16, 3, 1, 22, 19, 3, 2, 3, 16, 3, 2, 4, 16, 3, 2, 6, 16, 3, 2, 8, 16, 3,
-			2, 9, 16, 3, 2, 9, 18, 3, 2, 22, 16, 3, 2, 22, 19, 3, 11, 21, 16, 3, 11, 21, 18, 3, 11, 21, 19};
+			2, 5, 0, 2, 5, 16, 2, 6, 16, 2, 7, 0, 2, 7, 16, 2, 8, 16, 2, 9, 16, 2, 9, 17, 2, 9, 18, 2, 11, 21, 2, 12, 14, 2, 20, 0,
+			2, 20, 16, 2, 20, 17, 2, 20, 18, 2, 21, 16, 2, 21, 18, 2, 21, 19, 2, 22, 16, 2, 22, 19, 3, 0, 1, 14, 3, 1, 3, 16, 3, 1,
+			4, 16, 3, 1, 6, 16, 3, 1, 8, 16, 3, 1, 9, 16, 3, 1, 9, 17, 3, 1, 9, 18, 3, 1, 22, 16, 3, 1, 22, 19, 3, 2, 3, 16, 3, 2,
+			4, 16, 3, 2, 6, 16, 3, 2, 8, 16, 3, 2, 9, 16, 3, 2, 9, 17, 3, 2, 9, 18, 3, 2, 22, 16, 3, 2, 22, 19, 3, 11, 21, 16, 3,
+			11, 21, 18, 3, 11, 21, 19};
 	}
 
 	private static final byte _tableLayout_actions[] = init__tableLayout_actions_0();
@@ -547,40 +525,32 @@ class TableLayoutParser {
 	private static final byte _tableLayout_trans_targs[] = init__tableLayout_trans_targs_0();
 
 	private static short[] init__tableLayout_trans_actions_0 () {
-		return new short[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 60, 1, 29, 0, 39, 39, 144, 39, 39, 39, 141, 39, 39, 138, 138,
-			138, 0, 0, 0, 35, 0, 0, 0, 31, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 120, 15, 117, 117,
-			117, 0, 0, 0, 0, 31, 0, 1, 1, 1, 0, 72, 72, 3, 72, 178, 72, 0, 0, 0, 0, 0, 0, 0, 0, 31, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0,
+		return new short[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 60, 1, 29, 0, 39, 39, 150, 39, 39, 39, 144, 147, 39, 141, 141,
+			141, 0, 0, 0, 35, 0, 0, 0, 31, 33, 0, 1, 1, 1, 0, 0, 0, 0, 0, 31, 33, 0, 0, 0, 0, 0, 0, 15, 15, 15, 120, 15, 117, 117,
+			117, 0, 0, 0, 0, 31, 0, 1, 1, 1, 0, 72, 72, 3, 72, 184, 72, 0, 0, 0, 0, 0, 0, 0, 0, 31, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0,
 			1, 1, 1, 0, 48, 1, 5, 0, 17, 17, 0, 17, 123, 17, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 93, 0, 93, 5, 0, 93, 0,
-			210, 93, 0, 0, 0, 0, 93, 93, 5, 93, 210, 93, 0, 1, 45, 162, 1, 1, 3, 78, 0, 1, 0, 0, 1, 1, 23, 0, 135, 23, 0, 54, 0,
-			135, 54, 1, 57, 1, 25, 0, 0, 27, 0, 0, 0, 0, 0, 0, 51, 1, 21, 0, 75, 75, 186, 75, 3, 75, 182, 75, 75, 0, 0, 0, 0, 0, 0,
-			35, 0, 0, 0, 31, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 48, 1, 5, 0, 19, 19, 129, 0, 19, 19, 126, 19, 19, 0, 0,
-			0, 35, 0, 0, 31, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 96, 0, 96, 218, 5, 96, 0, 96, 0, 214, 96,
-			96, 0, 0, 0, 0, 96, 96, 218, 5, 96, 96, 214, 96, 96, 0, 51, 1, 21, 0, 0, 0, 1, 1, 1, 0, 66, 66, 66, 3, 66, 170, 66, 66,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 31, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 48, 1, 5, 0, 9, 9, 0, 9, 9, 105, 9, 9, 0,
-			0, 0, 0, 0, 31, 0, 0, 1, 1, 1, 0, 11, 11, 11, 11, 111, 11, 11, 108, 108, 108, 0, 0, 0, 0, 0, 31, 0, 0, 1, 1, 1, 0, 69,
-			69, 69, 3, 69, 174, 69, 69, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 48, 1, 5, 0,
-			13, 13, 0, 13, 13, 114, 13, 13, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 90, 0, 90, 5, 90, 0, 90, 0, 206, 90, 90, 0,
-			0, 0, 0, 90, 90, 5, 90, 90, 206, 90, 90, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 87, 0, 87, 5, 87, 0, 87, 0, 202,
-			87, 87, 0, 0, 0, 0, 87, 87, 5, 87, 87, 202, 87, 87, 0, 63, 63, 63, 63, 3, 63, 166, 63, 63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			31, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 48, 1, 5, 0, 7, 7, 7, 0, 7, 7, 102, 7, 7, 0, 0, 0, 0, 0, 0, 31, 0,
-			0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 84, 0, 84, 84, 5, 84, 0, 84, 0, 198, 84, 84, 0, 0, 0, 0, 84,
-			84, 84, 5, 84, 84, 198, 84, 84, 0, 51, 1, 21, 0, 0, 0, 0, 0, 0, 0, 31, 0, 0, 1, 1, 1, 0, 0, 0, 37, 0, 31, 0, 1, 1, 1, 0,
-			60, 1, 29, 0, 0, 41, 150, 153, 0, 41, 147, 0, 1, 1, 1, 0, 0, 0, 37, 0, 31, 0, 0, 1, 45, 162, 1, 1, 3, 78, 0, 1, 0, 0, 1,
-			1, 23, 0, 135, 23, 0, 54, 0, 135, 54, 1, 57, 1, 25, 0, 0, 27, 0, 0, 0, 132, 234, 238, 132, 230, 132, 0, 0, 0, 0, 51, 1,
-			21, 0, 0, 41, 150, 153, 41, 147, 0, 1, 1, 1, 0, 81, 81, 194, 3, 81, 190, 81, 0, 0, 0, 0, 0, 0, 37, 0, 0, 31, 0, 1, 1, 1,
-			0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 48, 1, 5, 0, 43, 43, 159, 0, 43, 156, 43, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-			99, 0, 99, 226, 5, 0, 99, 0, 222, 99, 0, 0, 0, 0, 99, 99, 226, 5, 99, 222, 99, 0, 33, 33, 33, 0, 0, 0, 0, 0, 0};
+			220, 93, 0, 0, 0, 0, 93, 93, 5, 93, 220, 93, 0, 1, 45, 168, 1, 1, 3, 78, 0, 1, 0, 0, 1, 1, 23, 0, 138, 23, 0, 54, 0,
+			138, 54, 1, 57, 1, 25, 0, 0, 27, 0, 0, 0, 0, 0, 0, 51, 1, 21, 0, 75, 75, 196, 75, 3, 75, 188, 192, 75, 0, 0, 0, 0, 0, 0,
+			35, 0, 0, 0, 31, 33, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 48, 1, 5, 0, 19, 19, 132, 0, 19, 19, 126, 129, 19, 0,
+			0, 0, 35, 0, 0, 31, 33, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 96, 0, 96, 232, 5, 96, 0, 96, 0, 224,
+			228, 96, 0, 0, 0, 0, 96, 96, 232, 5, 96, 96, 224, 228, 96, 0, 51, 1, 21, 0, 0, 0, 1, 1, 1, 0, 66, 66, 66, 3, 66, 176,
+			66, 66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 48, 1, 5, 0, 9, 9, 0, 9, 9, 105,
+			9, 9, 0, 0, 0, 0, 0, 31, 0, 0, 1, 1, 1, 0, 11, 11, 11, 11, 111, 11, 11, 108, 108, 108, 0, 0, 0, 0, 0, 31, 0, 0, 1, 1, 1,
+			0, 69, 69, 69, 3, 69, 180, 69, 69, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 48, 1,
+			5, 0, 13, 13, 0, 13, 13, 114, 13, 13, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 90, 0, 90, 5, 90, 0, 90, 0, 216, 90,
+			90, 0, 0, 0, 0, 90, 90, 5, 90, 90, 216, 90, 90, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 87, 0, 87, 5, 87, 0, 87, 0,
+			212, 87, 87, 0, 0, 0, 0, 87, 87, 5, 87, 87, 212, 87, 87, 0, 63, 63, 63, 63, 3, 63, 172, 63, 63, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 31, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 48, 1, 5, 0, 7, 7, 7, 0, 7, 7, 102, 7, 7, 0, 0, 0, 0, 0, 0,
+			31, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 84, 0, 84, 84, 5, 84, 0, 84, 0, 208, 84, 84, 0, 0, 0, 0,
+			84, 84, 84, 5, 84, 84, 208, 84, 84, 0, 51, 1, 21, 0, 0, 0, 0, 0, 0, 0, 31, 0, 0, 1, 1, 1, 0, 0, 0, 37, 0, 31, 0, 1, 1,
+			1, 0, 60, 1, 29, 0, 0, 41, 156, 159, 0, 41, 153, 0, 1, 1, 1, 0, 0, 0, 37, 0, 31, 0, 0, 1, 45, 168, 1, 1, 3, 78, 0, 1, 0,
+			0, 1, 1, 23, 0, 138, 23, 0, 54, 0, 138, 54, 1, 57, 1, 25, 0, 0, 27, 0, 0, 0, 135, 248, 252, 135, 244, 135, 0, 0, 0, 0,
+			51, 1, 21, 0, 0, 41, 156, 159, 41, 153, 0, 1, 1, 1, 0, 81, 81, 204, 3, 81, 200, 81, 0, 0, 0, 0, 0, 0, 37, 0, 0, 31, 0,
+			1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 48, 1, 5, 0, 43, 43, 165, 0, 43, 162, 43, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+			0, 0, 0, 99, 0, 99, 240, 5, 0, 99, 0, 236, 99, 0, 0, 0, 0, 99, 99, 240, 5, 99, 236, 99, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	}
 
 	private static final short _tableLayout_trans_actions[] = init__tableLayout_trans_actions_0();
-
-	private static short[] init__tableLayout_eof_actions_0 () {
-		return new short[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 33, 0, 0};
-	}
-
-	private static final short _tableLayout_eof_actions[] = init__tableLayout_eof_actions_0();
 
 	static final int tableLayout_start = 1;
 	static final int tableLayout_first_final = 110;
@@ -590,7 +560,7 @@ class TableLayoutParser {
 	static final int tableLayout_en_main = 1;
 	static final int tableLayout_en_main_table = 82;
 
-	// line 278 "TableLayoutParser.rl"
+// line 279 "TableLayoutParser.rl"
 
 	static public void setTableProperty (BaseTableLayout table, String name, ArrayList<String> values) {
 		name = name.toLowerCase();
@@ -756,13 +726,13 @@ class TableLayoutParser {
 				switch (values.size()) {
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = Integer.parseInt(value);
+					if (value.length() > 0) c.minWidth = c.prefWidth = Integer.parseInt(value);
 					value = values.get(1);
-					if (value.length() > 0) c.minHeight = Integer.parseInt(value);
+					if (value.length() > 0) c.minHeight = c.prefHeight = Integer.parseInt(value);
 					break;
 				case 1:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = c.minHeight = Integer.parseInt(value);
+					if (value.length() > 0) c.minWidth = c.minHeight = c.prefWidth = c.prefHeight = Integer.parseInt(value);
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -950,15 +920,19 @@ class TableLayoutParser {
 		if (paramType == short.class || paramType == Short.class) return Short.valueOf(value);
 		if (paramType == byte.class || paramType == Byte.class) return Byte.valueOf(value);
 		// Look for a static field.
-		try {
-			Field field = getField(paramType, value);
-			if (field != null && paramType == field.getType()) return field.get(null);
-		} catch (Exception ignored) {
+		Field field = getField(paramType, value);
+		if (field != null && paramType == field.getType()) {
+			try {
+				return field.get(null);
+			} catch (Exception ignored) {
+			}
 		}
-		try {
-			Field field = getField(parentObject.getClass(), value);
-			if (field != null && paramType == field.getType()) return field.get(null);
-		} catch (Exception ignored) {
+		field = getField(parentObject.getClass(), value);
+		if (field != null && paramType == field.getType()) {
+			try {
+				return field.get(null);
+			} catch (Exception ignored) {
+			}
 		}
 		return null;
 	}
@@ -978,7 +952,9 @@ class TableLayoutParser {
 		return null;
 	}
 
-	static private Object newWidget (String className) throws Exception {
+	static Object newWidget (String className) throws Exception {
+		WidgetFactory factory = BaseTableLayout.widgetFactories.get(className);
+		if (factory != null) return factory.newInstance();
 		try {
 			return Class.forName(className).newInstance();
 		} catch (Exception ex) {

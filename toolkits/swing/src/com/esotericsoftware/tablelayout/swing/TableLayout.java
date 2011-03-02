@@ -16,9 +16,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
@@ -28,6 +33,36 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 	static {
 		addClassPrefix("javax.swing.");
 		addClassPrefix("java.awt.");
+
+		setWidgetFactory("button", new WidgetFactory<JButton>() {
+			public JButton newInstance () {
+				return new JButton();
+			}
+
+			public void set (JButton widget, String name, String value) {
+				if (name.equalsIgnoreCase("text")) widget.setText(value);
+			}
+		});
+
+		setWidgetFactory("text", new WidgetFactory<JTextField>() {
+			public JTextField newInstance () {
+				return new JTextField();
+			}
+
+			public void set (JTextField widget, String name, String value) {
+				if (name.equalsIgnoreCase("text")) widget.setText(value);
+			}
+		});
+
+		setWidgetFactory("password", new WidgetFactory<JPasswordField>() {
+			public JPasswordField newInstance () {
+				return new JPasswordField();
+			}
+
+			public void set (JPasswordField widget, String name, String value) {
+				if (name.equalsIgnoreCase("text")) widget.setText(value);
+			}
+		});
 	}
 
 	static private Timer timer;
@@ -146,7 +181,17 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 	}
 
 	protected void addChild (Component parent, Component child, String layoutString) {
-		((Container)parent).add(child, layoutString);
+		if (parent instanceof JSplitPane && layoutString == null) {
+			if (((JSplitPane)parent).getLeftComponent() instanceof JButton)
+				layoutString = "left";
+			else if (((JSplitPane)parent).getRightComponent() instanceof JButton) //
+				layoutString = "right";
+		}
+
+		if (parent instanceof JScrollPane)
+			((JScrollPane)parent).setViewportView(child);
+		else
+			((Container)parent).add(child, layoutString);
 	}
 
 	protected Component wrap (Object object) {
