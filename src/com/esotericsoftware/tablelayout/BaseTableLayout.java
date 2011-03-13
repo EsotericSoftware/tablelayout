@@ -41,8 +41,8 @@ public class BaseTableLayout<T> {
 
 	protected int tableLayoutX, tableLayoutY;
 	protected int tableLayoutWidth, tableLayoutHeight;
-	protected int totalMinWidth, totalMinHeight;
-	protected int totalPrefWidth, totalPrefHeight;
+	public int totalMinWidth, totalMinHeight;
+	public int totalPrefWidth, totalPrefHeight;
 
 	final HashMap<String, T> nameToWidget;
 

@@ -125,7 +125,6 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 		if (title != null && parent instanceof JComponent) {
 			JComponent component = (JComponent)parent;
 			Border border = component.getBorder();
-			System.out.println(((TitledBorder)border).getTitle());
 			if (border == null || !(border instanceof TitledBorder) || !((TitledBorder)border).getTitle().equals(title))
 				setTitle(component, title);
 		}
