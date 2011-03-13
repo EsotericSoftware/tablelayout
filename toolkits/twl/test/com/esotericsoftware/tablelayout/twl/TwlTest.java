@@ -24,10 +24,7 @@ public class TwlTest {
 
 		Widget root = new Widget() {
 			protected void layout () {
-				int width = getInnerWidth();
-				int height = getInnerHeight();
-				for (int i = 0, n = getNumChildren(); i < n; i++)
-					getChild(i).setSize(width, height);
+				layoutChildrenFullInnerArea();
 			}
 		};
 		root.setTheme("");
