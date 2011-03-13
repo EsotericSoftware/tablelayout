@@ -1,0 +1,5 @@
+name: tablelayout-twl
+classpath: toolkits/twl/lib|*.jar
+source:
+- src|**/*.java 
+- toolkits/twl/src|**/*.java 

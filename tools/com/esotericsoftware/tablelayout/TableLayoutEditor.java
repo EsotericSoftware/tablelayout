@@ -39,7 +39,7 @@ public class TableLayoutEditor extends JFrame {
 				Component widget = super.getWidget(name);
 				if (widget != null) return widget;
 				try {
-					return (Component)TableLayoutParser.newWidget(name);
+					return (Component)wrap(TableLayoutParser.newWidget(name));
 				} catch (Exception ignored) {
 				}
 				if (name.endsWith("Edit")) return new JTextField();

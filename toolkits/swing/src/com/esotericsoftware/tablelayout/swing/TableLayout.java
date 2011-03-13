@@ -196,6 +196,7 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 	protected Component wrap (Object object) {
 		if (object instanceof Component) return (Component)object;
 		if (object instanceof LayoutManager) return new JPanel((LayoutManager)object);
+		if (object == null) return new JPanel();
 		throw new IllegalArgumentException("Unknown object: " + object);
 	}
 

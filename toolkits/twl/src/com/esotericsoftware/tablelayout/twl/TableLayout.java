@@ -3,6 +3,8 @@ package com.esotericsoftware.tablelayout.twl;
 
 import java.util.ArrayList;
 
+import javax.swing.JPanel;
+
 import com.esotericsoftware.tablelayout.BaseTableLayout;
 
 import de.matthiasmann.twl.GUI;
@@ -71,6 +73,7 @@ public class TableLayout extends BaseTableLayout<Widget> {
 
 	protected Widget wrap (Object object) {
 		if (object instanceof Widget) return (Widget)object;
+		if (object == null) return new Widget();
 		throw new IllegalArgumentException("Unknown object: " + object);
 	}
 
