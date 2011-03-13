@@ -17,17 +17,12 @@ import de.matthiasmann.twl.textarea.HTMLTextAreaModel;
 import de.matthiasmann.twl.theme.ThemeManager;
 
 public class TwlTest {
-	private LWJGLRenderer renderer;
-	private ThemeManager theme;
-	private GUI gui;
-	private Widget root;
-
 	public TwlTest () throws Exception {
-		renderer = new LWJGLRenderer();
+		LWJGLRenderer renderer = new LWJGLRenderer();
 
-		theme = ThemeManager.createThemeManager(TwlTest.class.getResource("/widgets.xml"), renderer);
+		ThemeManager theme = ThemeManager.createThemeManager(TwlTest.class.getResource("/widgets.xml"), renderer);
 
-		root = new Widget() {
+		Widget root = new Widget() {
 			protected void layout () {
 				int width = getInnerWidth();
 				int height = getInnerHeight();
@@ -37,7 +32,7 @@ public class TwlTest {
 		};
 		root.setTheme("");
 
-		gui = new GUI(root, renderer);
+		GUI gui = new GUI(root, renderer);
 		gui.setSize();
 		gui.applyTheme(theme);
 
