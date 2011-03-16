@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
@@ -28,6 +29,7 @@ public class LibgdxTest implements ApplicationListener {
 	private BitmapFont font;
 	private Stage stage;
 	private TableLayout table;
+	private TextureRegion blendDownRegion;
 
 	public void create () {
 		font = new BitmapFont(true);
@@ -39,16 +41,6 @@ public class LibgdxTest implements ApplicationListener {
 		stage.addActor(group);
 		group.width = 640;
 		group.height = 480;
-
-		Texture uiTexture = new Texture(Gdx.files.internal("ui.png"));
-		TextureRegion blendRegion = new TextureRegion(uiTexture, 0, 0, 64, 32);
-		TextureRegion blendDownRegion = new TextureRegion(uiTexture, -1, -1, 64, 32);
-		TextureRegion rotateRegion = new TextureRegion(uiTexture, 64, 0, 64, 32);
-		TextureRegion rotateDownRegion = new TextureRegion(uiTexture, 63, -1, 64, 32);
-		TextureRegion scaleRegion = new TextureRegion(uiTexture, 64, 32, 64, 32);
-		TextureRegion scaleDownRegion = new TextureRegion(uiTexture, 63, 31, 64, 32);
-		TextureRegion buttonRegion = new TextureRegion(uiTexture, 0, 64, 64, 32);
-		TextureRegion buttonDownRegion = new TextureRegion(uiTexture, -1, 63, 64, 32);
 
 		Texture badlogic = new Texture(Gdx.files.internal("badlogic.jpg"));
 		TextureRegion badlogicRegion = new TextureRegion(badlogic, 0, 0, 256, 256);
