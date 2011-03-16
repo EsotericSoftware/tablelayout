@@ -189,7 +189,7 @@ class TableLayoutParser {
 								{
 									if (debug) System.out.println("setTitle: " + new String(data, s, p - s));
 									if (widget instanceof BaseTableLayout)
-										((BaseTableLayout)widget).setTitle(new String(data, s, p - s));
+										((BaseTableLayout)widget).title = new String(data, s, p - s);
 									else
 										table.setTitle(widget, new String(data, s, p - s));
 								}
@@ -660,9 +660,11 @@ class TableLayoutParser {
 				}
 
 			} else if (name.equals("debug")) {
+				table.debug = "";
 				if (values.size() == 0) table.debug = "all,";
 				for (int i = 0, n = values.size(); i < n; i++)
 					table.debug += values.get(i) + ",";
+				if (table.debug.equals("true,")) table.debug = "all,";
 
 			} else
 				throw new IllegalArgumentException("Unknown property: " + name);

@@ -37,6 +37,7 @@ public class BaseTableLayout<T> {
 	public float fillWidth, fillHeight;
 	public int padTop, padLeft, padBottom, padRight;
 	public int align = CENTER;
+	public String title;
 	public String debug;
 
 	protected int tableLayoutX, tableLayoutY;
@@ -51,7 +52,6 @@ public class BaseTableLayout<T> {
 	private final ArrayList<Cell> columnDefaults = new ArrayList(4);
 	private Cell rowDefaults;
 	private int columns, rows;
-	private String title;
 
 	public BaseTableLayout () {
 		nameToWidget = new HashMap();
@@ -470,14 +470,6 @@ public class BaseTableLayout<T> {
 			return getMaxHeight(widget);
 		}
 		return value;
-	}
-
-	public String getTitle () {
-		return title;
-	}
-
-	public void setTitle (String title) {
-		this.title = title;
 	}
 
 	protected BaseTableLayout newTableLayout () {

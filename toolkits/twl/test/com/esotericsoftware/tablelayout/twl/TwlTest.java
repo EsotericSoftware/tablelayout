@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 
 import de.matthiasmann.twl.FPSCounter;
 import de.matthiasmann.twl.GUI;
+import de.matthiasmann.twl.ProgressBar;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.TextArea;
 import de.matthiasmann.twl.Widget;
@@ -48,9 +49,11 @@ public class TwlTest {
 			+ "[scrollPane] expand fill" //
 			+ "---" //
 			+ "[fpsCounter] align:right" //
+			+ "---" //
+			+ "[ProgressBar] fill (value:0.4)" //
 		);
 		root.add(table.getWidget());
-
+		
 		while (!Display.isCloseRequested()) {
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 			gui.update();
@@ -59,7 +62,7 @@ public class TwlTest {
 	}
 
 	public static void main (String[] args) throws Exception {
-		System.setProperty("org.lwjgl.librarypath", new File("toolkits/twl/lib/lwjgl-natives").getAbsolutePath());
+		System.setProperty("org.lwjgl.librarypath", new File("lib/natives").getAbsolutePath());
 		Display.setTitle("TWL Examples");
 		Display.setDisplayMode(new DisplayMode(800, 600));
 		Display.setVSyncEnabled(true);

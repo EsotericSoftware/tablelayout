@@ -121,7 +121,6 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 			debugRects = null;
 		}
 
-		String title = getTitle();
 		if (title != null && parent instanceof JComponent) {
 			JComponent component = (JComponent)parent;
 			Border border = component.getBorder();

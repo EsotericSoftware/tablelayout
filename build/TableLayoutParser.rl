@@ -81,7 +81,7 @@ class TableLayoutParser {
 			action setTitle {
 				if (debug) System.out.println("setTitle: " + new String(data, s, p - s));
 				if (widget instanceof BaseTableLayout)
-					((BaseTableLayout)widget).setTitle(new String(data, s, p - s));
+					((BaseTableLayout)widget).title = new String(data, s, p - s);
 				else
 					table.setTitle(widget, new String(data, s, p - s));
 			}
@@ -375,9 +375,11 @@ class TableLayoutParser {
 				}
 
 			} else if (name.equals("debug")) {
+				table.debug = "";
 				if (values.size() == 0) table.debug = "all,";
 				for (int i = 0, n = values.size(); i < n; i++)
 					table.debug += values.get(i) + ",";
+				if (table.debug.equals("true,")) table.debug = "all,";
 
 			} else
 				throw new IllegalArgumentException("Unknown property: " + name);
@@ -441,13 +443,13 @@ class TableLayoutParser {
 				switch (values.size()) {
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = Integer.parseInt(value);
+					if (value.length() > 0) c.minWidth = c.prefWidth = Integer.parseInt(value);
 					value = values.get(1);
-					if (value.length() > 0) c.minHeight = Integer.parseInt(value);
+					if (value.length() > 0) c.minHeight = c.prefHeight = Integer.parseInt(value);
 					break;
 				case 1:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = c.minHeight = Integer.parseInt(value);
+					if (value.length() > 0) c.minWidth = c.minHeight = c.prefWidth = c.prefHeight = Integer.parseInt(value);
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -663,7 +665,7 @@ class TableLayoutParser {
 		return null;
 	}
 
-	static private Object newWidget (String className) throws Exception {
+	static Object newWidget (String className) throws Exception {
 		WidgetFactory factory = BaseTableLayout.widgetFactories.get(className);
 		if (factory != null) return factory.newInstance();
 		try {

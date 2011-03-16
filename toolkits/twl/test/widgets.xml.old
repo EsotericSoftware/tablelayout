@@ -61,6 +61,37 @@
             <alias ref="dotted box" if="keyboardFocus"/>
             <alias ref="none"/>
 				</select>
+        <area name="progressbar.indeterminate1" xywh="31,36,28,13" sizeOverwriteV="13" tiled="true"/>
+        <alias name="progressbar.indeterminate2" ref="progressbar.indeterminate1" inset="0,-24,0,0"/>
+        <alias name="progressbar.indeterminate3" ref="progressbar.indeterminate1" inset="0,-22,0,0"/>
+        <alias name="progressbar.indeterminate4" ref="progressbar.indeterminate1" inset="0,-20,0,0"/>
+        <alias name="progressbar.indeterminate5" ref="progressbar.indeterminate1" inset="0,-18,0,0"/>
+        <alias name="progressbar.indeterminate6" ref="progressbar.indeterminate1" inset="0,-16,0,0"/>
+        <alias name="progressbar.indeterminate7" ref="progressbar.indeterminate1" inset="0,-14,0,0"/>
+        <alias name="progressbar.indeterminate8" ref="progressbar.indeterminate1" inset="0,-12,0,0"/>
+        <alias name="progressbar.indeterminate9" ref="progressbar.indeterminate1" inset="0,-10,0,0"/>
+        <alias name="progressbar.indeterminate10" ref="progressbar.indeterminate1" inset="0,-8,0,0"/>
+        <alias name="progressbar.indeterminate11" ref="progressbar.indeterminate1" inset="0,-6,0,0"/>
+        <alias name="progressbar.indeterminate12" ref="progressbar.indeterminate1" inset="0,-4,0,0"/>
+        <alias name="progressbar.indeterminate13" ref="progressbar.indeterminate1" inset="0,-2,0,0"/>
+        <composed name="progressbar.background">
+        <animation name="progressbar.indeterminate" timeSource="hover">
+            <frame duration="50" ref="progressbar.indeterminate1"/>
+            <frame duration="50" ref="progressbar.indeterminate2"/>
+            <frame duration="50" ref="progressbar.indeterminate3"/>
+            <frame duration="50" ref="progressbar.indeterminate4"/>
+            <frame duration="50" ref="progressbar.indeterminate5"/>
+            <frame duration="50" ref="progressbar.indeterminate6"/>
+            <frame duration="50" ref="progressbar.indeterminate7"/>
+            <frame duration="50" ref="progressbar.indeterminate8"/>
+            <frame duration="50" ref="progressbar.indeterminate9"/>
+            <frame duration="50" ref="progressbar.indeterminate10"/>
+            <frame duration="50" ref="progressbar.indeterminate11"/>
+            <frame duration="50" ref="progressbar.indeterminate12"/>
+            <frame duration="50" ref="progressbar.indeterminate13"/>
+        </animation>
+            <alias ref="box"/>
+        </composed>
 				</images>
     <fontDef name="normal" filename="font.fnt" color="#FFFFFF" default="true">
         <fontParam if="error" color="red"/>
@@ -170,6 +201,5 @@
     <theme name="progressbar" ref="-defaults">
         <param name=""><image>progressbar.*</image></param>
         <param name="progressImage"><image>panel-blue</image></param>
-        <param name="background"><image>box</image></param>
     </theme>
 </themes>

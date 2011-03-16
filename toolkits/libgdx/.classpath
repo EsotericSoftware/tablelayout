@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry combineaccessrules="false" kind="src" path="/gdx"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gdx-backend-lwjgl"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="test"/>
+	<classpathentry exported="true" kind="lib" path="lib/gdx-backend-lwjgl.jar"/>
+	<classpathentry kind="lib" path="lib/gdx-natives.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gdx.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/tablelayout"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

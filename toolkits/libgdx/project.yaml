@@ -1,0 +1,4 @@
+name: tablelayout-libgdx
+source:
+- src|**/*.java 
+- ../../src|**/*.java 
