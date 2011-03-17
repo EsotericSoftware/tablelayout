@@ -162,11 +162,11 @@ public class TableLayout extends BaseTableLayout<Actor> {
 	}
 
 	protected int getMaxWidth (Actor actor) {
-		return (int)actor.width;
+		return 0;
 	}
 
 	protected int getMaxHeight (Actor actor) {
-		return (int)actor.height;
+		return 0;
 	}
 
 	protected TableLayout getTableLayout (Object object) {

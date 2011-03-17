@@ -221,9 +221,9 @@ class TableLayoutParser {
 									if (label != null) {
 										widget = label;
 										label = null;
-										if (!name.isEmpty()) table.setName(name, widget);
+										if (name.length() > 0) table.setName(name, widget);
 									} else if (className == null) {
-										if (!name.isEmpty()) {
+										if (name.length() > 0) {
 											widget = table.getWidget(name);
 											if (widget == null) {
 												// Try the widget name as a class name.
@@ -241,7 +241,7 @@ class TableLayoutParser {
 											throw new RuntimeException("Error creating instance of class: " + className, ex);
 										}
 										className = null;
-										if (!name.isEmpty()) table.setName(name, widget);
+										if (name.length() > 0) table.setName(name, widget);
 									}
 								}
 									break;

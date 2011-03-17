@@ -40,8 +40,8 @@ public class BaseTableLayout<T> {
 	public String title;
 	public String debug;
 
-	protected int tableLayoutX, tableLayoutY;
-	protected int tableLayoutWidth, tableLayoutHeight;
+	public int tableLayoutX, tableLayoutY;
+	public int tableLayoutWidth, tableLayoutHeight;
 	public int totalMinWidth, totalMinHeight;
 	public int totalPrefWidth, totalPrefHeight;
 
@@ -63,7 +63,7 @@ public class BaseTableLayout<T> {
 
 	public BaseTableLayout (String tableText) {
 		this();
-		parse(tableText);
+		if (tableText != null) parse(tableText);
 	}
 
 	public T setName (String name, T widget) {
