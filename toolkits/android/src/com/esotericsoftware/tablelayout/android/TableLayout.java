@@ -3,14 +3,14 @@ package com.esotericsoftware.tablelayout.android;
 
 import java.util.ArrayList;
 
-import android.R.layout;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.ViewParent;
 import android.widget.TextView;
 
 import com.esotericsoftware.tablelayout.BaseTableLayout;
@@ -20,8 +20,10 @@ public class TableLayout extends BaseTableLayout<View> {
 		addClassPrefix("com.badlogic.gdx.scenes.scene2d.");
 		addClassPrefix("com.badlogic.gdx.scenes.scene2d.views.");
 	}
+	static Paint paint;
 
-	private ViewGroup group;
+	ViewGroup group;
+	ArrayList<DebugRect> debugRects;
 
 	public TableLayout (Context context) {
 		this(context, null);
@@ -52,8 +54,11 @@ public class TableLayout extends BaseTableLayout<View> {
 					Cell c = cells.get(i);
 					if (c.ignore) continue;
 					View view = (View)c.widget;
-					System.out.println(c.widgetX + ", " + c.widgetY + ", " + c.widgetWidth + ", " + c.widgetHeight);
 					view.layout(c.widgetX, c.widgetY, c.widgetX + c.widgetWidth, c.widgetY + c.widgetHeight);
+				}
+				if (debug != null && debugRects != null) {
+					group.setWillNotDraw(false);
+					invalidate();
 				}
 			}
 
@@ -63,6 +68,20 @@ public class TableLayout extends BaseTableLayout<View> {
 
 			protected int getSuggestedMinimumHeight () {
 				return totalMinHeight;
+			}
+
+			protected void onDraw (Canvas canvas) {
+				if (debug == null || debugRects == null) return;
+				if (paint == null) {
+					paint = new Paint();
+					paint.setStyle(Paint.Style.STROKE);
+					paint.setStrokeWidth(1);
+				}
+				for (int i = 0, n = debugRects.size(); i < n; i++) {
+					DebugRect rect = debugRects.get(i);
+					paint.setColor(rect.dash ? Color.GREEN : Color.RED);
+					canvas.drawRect(rect.rect, paint);
+				}
 			}
 		};
 		group.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
@@ -141,9 +160,21 @@ public class TableLayout extends BaseTableLayout<View> {
 	}
 
 	protected void drawDebugRect (boolean dash, int x, int y, int w, int h) {
+		if (debugRects == null) debugRects = new ArrayList();
+		debugRects.add(new DebugRect(dash, x, y, w, h));
 	}
 
 	public ViewGroup getView () {
 		return group;
+	}
+
+	static private class DebugRect {
+		final boolean dash;
+		final Rect rect;
+
+		public DebugRect (boolean dash, int x, int y, int width, int height) {
+			rect = new Rect(x, y, x + width, y + height);
+			this.dash = dash;
+		}
 	}
 }
