@@ -1,31 +1,63 @@
 
 package com.esotericsoftware.tablelayout.android;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import android.R;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.esotericsoftware.tablelayout.BaseTableLayout;
 
 public class TableLayout extends BaseTableLayout<View> {
-	static float scale;
 	static {
 		addClassPrefix("com.badlogic.gdx.scenes.scene2d.");
 		addClassPrefix("com.badlogic.gdx.scenes.scene2d.views.");
-	}
-	static Paint paint;
 
-	ViewGroup group;
+		setWidgetFactory(new WidgetFactory<Button>() {
+			public Button newInstance (BaseTableLayout table) {
+				Button button = new Button(((TableLayout)table).context);
+				button.setBackgroundDrawable(new StateListDrawable());
+				return button;
+			}
+
+			public void set (BaseTableLayout table, Button button, String name, String value) {
+				int[] state;
+				if (name.equals("image"))
+					state = new int[0];
+				else if (name.equals("pressed"))
+					state = new int[] {R.attr.state_pressed};
+				else if (name.equals("focused"))
+					state = new int[] {R.attr.state_focused};
+				else
+					throw new RuntimeException("Invalid property: " + name);
+				StateListDrawable states = (StateListDrawable)button.getBackground();
+				states.addState(state, ((TableLayout)table).getDrawable(value));
+			}
+		}, "button", Button.class.getName());
+	}
+
+	static float scale;
+	static Paint paint;
+	static private final HashMap<String, Integer> drawableToID = new HashMap();
+
+	final Context context;
+	final ViewGroup group;
 	ArrayList<DebugRect> debugRects;
 
 	public TableLayout (Context context) {
@@ -34,8 +66,9 @@ public class TableLayout extends BaseTableLayout<View> {
 
 	public TableLayout (Context context, String tableText) {
 		super(tableText);
+		this.context = context;
 
-		this.group = new ViewGroup(context) {
+		group = new ViewGroup(context) {
 			protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec) {
 				measureChildren(widthMeasureSpec, heightMeasureSpec);
 
@@ -57,9 +90,7 @@ public class TableLayout extends BaseTableLayout<View> {
 				for (int i = 0, n = cells.size(); i < n; i++) {
 					Cell c = cells.get(i);
 					if (c.ignore) continue;
-					View view = (View)c.widget;
-					// System.out.println(c.widgetX + ", " + c.widgetY + ", " + c.widgetWidth + ", " + c.widgetHeight);
-					view.layout(c.widgetX, c.widgetY, c.widgetX + c.widgetWidth, c.widgetY + c.widgetHeight);
+					((View)c.widget).layout(c.widgetX, c.widgetY, c.widgetX + c.widgetWidth, c.widgetY + c.widgetHeight);
 				}
 				if (debug != null && debugRects != null) {
 					group.setWillNotDraw(false);
@@ -95,11 +126,29 @@ public class TableLayout extends BaseTableLayout<View> {
 
 	private TableLayout (TableLayout parent) {
 		super(parent);
+		this.context = parent.context;
 		this.group = parent.group;
+	}
+
+	Drawable getDrawable (String name) {
+		Integer id = drawableToID.get(name);
+		if (id == null) throw new IllegalArgumentException("Unknown drawable name: " + name);
+		return context.getResources().getDrawable(id);
+	}
+
+	ImageView getImageView (String name) {
+		Integer id = drawableToID.get(name);
+		if (id != null) {
+			ImageView view = new ImageView(context);
+			((ImageView)view).setImageResource(id);
+			return view;
+		}
+		return null;
 	}
 
 	public View getWidget (String name) {
 		View view = super.getWidget(name);
+		if (view == null) view = getImageView(name);
 		if (view == null) view = group.findViewWithTag(name);
 		return view;
 	}
@@ -178,10 +227,23 @@ public class TableLayout extends BaseTableLayout<View> {
 		return group;
 	}
 
-	static public void setScale (Activity activity) {
+	static public void setup (Activity activity, Class drawableClass) {
+		if (!drawableClass.getName().endsWith(".R$drawable"))
+			throw new RuntimeException("The drawable class must be R.drawable: " + drawableClass);
+
 		DisplayMetrics metrics = new DisplayMetrics();
 		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		scale = metrics.density;
+		drawableToID.clear();
+		Field[] fields = drawableClass.getFields();
+		for (int i = 0, n = fields.length; i < n; i++) {
+			Field field = fields[i];
+			try {
+				drawableToID.put(field.getName(), field.getInt(null));
+			} catch (Exception ex) {
+				throw new RuntimeException("Error getting drawable field value: " + field, ex);
+			}
+		}
 	}
 
 	static private class DebugRect {

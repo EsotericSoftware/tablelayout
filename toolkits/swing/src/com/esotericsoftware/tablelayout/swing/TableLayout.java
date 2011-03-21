@@ -20,10 +20,8 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
@@ -33,36 +31,6 @@ public class TableLayout extends BaseTableLayout<Component> implements LayoutMan
 	static {
 		addClassPrefix("javax.swing.");
 		addClassPrefix("java.awt.");
-
-		setWidgetFactory("button", new WidgetFactory<JButton>() {
-			public JButton newInstance () {
-				return new JButton();
-			}
-
-			public void set (JButton widget, String name, String value) {
-				if (name.equalsIgnoreCase("text")) widget.setText(value);
-			}
-		});
-
-		setWidgetFactory("text", new WidgetFactory<JTextField>() {
-			public JTextField newInstance () {
-				return new JTextField();
-			}
-
-			public void set (JTextField widget, String name, String value) {
-				if (name.equalsIgnoreCase("text")) widget.setText(value);
-			}
-		});
-
-		setWidgetFactory("password", new WidgetFactory<JPasswordField>() {
-			public JPasswordField newInstance () {
-				return new JPasswordField();
-			}
-
-			public void set (JPasswordField widget, String name, String value) {
-				if (name.equalsIgnoreCase("text")) widget.setText(value);
-			}
-		});
 	}
 
 	static private Timer timer;

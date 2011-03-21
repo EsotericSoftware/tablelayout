@@ -41,7 +41,7 @@ public class TableLayoutEditor extends JFrame {
 				Component widget = super.getWidget(name);
 				if (widget != null) return widget;
 				try {
-					return (Component)wrap(TableLayoutParser.newWidget(name));
+					return (Component)wrap(newWidget(name));
 				} catch (Exception ignored) {
 				}
 				if (name.endsWith("Edit")) return new JTextField();
@@ -109,6 +109,7 @@ public class TableLayoutEditor extends JFrame {
 						try {
 							outputTable.parse(codeArea.getText());
 						} catch (Throwable ex) {
+							// ex.printStackTrace();
 							StringWriter buffer = new StringWriter(1024);
 							if (ex.getCause() != null) ex = ex.getCause();
 							while (ex != null) {

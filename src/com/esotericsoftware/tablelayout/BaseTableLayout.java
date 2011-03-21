@@ -1,6 +1,8 @@
 
 package com.esotericsoftware.tablelayout;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -518,8 +520,367 @@ public class BaseTableLayout<T> {
 		return Integer.parseInt(value);
 	}
 
-	protected BaseTableLayout getTableLayout (Object object) {
-		return (BaseTableLayout)object;
+	protected Object newWidget (String className) throws Exception {
+		WidgetFactory factory = widgetFactories.get(className);
+		if (factory != null) return factory.newInstance(this);
+		try {
+			return Class.forName(className).newInstance();
+		} catch (Exception ex) {
+			for (int i = 0, n = classPrefixes.size(); i < n; i++) {
+				String prefix = classPrefixes.get(i);
+				try {
+					return Class.forName(prefix + className).newInstance();
+				} catch (Exception ignored) {
+				}
+			}
+			throw ex;
+		}
+	}
+
+	protected void setProperty (Object object, String name, ArrayList<String> values) {
+		WidgetFactory factory = widgetFactories.get(object.getClass().getName());
+		if (factory != null) {
+			for (int i = 0, n = values.size(); i < n; i++)
+				factory.set(this, object, name, values.get(i));
+			return;
+		}
+		try {
+			invokeMethod(object, name, values);
+		} catch (NoSuchMethodException ex1) {
+			try {
+				invokeMethod(object, "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1), values);
+			} catch (NoSuchMethodException ex2) {
+				try {
+					Field field = object.getClass().getField(name);
+					Object value = convertType(object, values.get(0), field.getType());
+					if (value != null) field.set(object, value);
+				} catch (Exception ex3) {
+					throw new RuntimeException("No method, bean property, or field found.");
+				}
+			}
+		}
+	}
+
+	protected void setTableProperty (String name, ArrayList<String> values) {
+		name = name.toLowerCase();
+		for (int i = 0, n = values.size(); i < n; i++)
+			values.set(i, values.get(i).toLowerCase());
+		try {
+			String value;
+			if (name.equals("size")) {
+				switch (values.size()) {
+				case 1:
+					width = height = scale(values.get(0));
+					break;
+				case 2:
+					width = scale(values.get(0));
+					height = scale(values.get(1));
+					break;
+				}
+
+			} else if (name.equals("width") || name.equals("w")) {
+				width = scale(values.get(0));
+
+			} else if (name.equals("height") || name.equals("h")) {
+				height = scale(values.get(0));
+
+			} else if (name.equals("fill")) {
+				switch (values.size()) {
+				case 0:
+					fillWidth = fillHeight = 1f;
+					break;
+				case 1:
+					value = values.get(0);
+					if (value.equals("x"))
+						fillWidth = 1f;
+					else if (value.equals("y")) //
+						fillHeight = 1f;
+					else
+						fillWidth = fillHeight = Integer.parseInt(value) / 100f;
+					break;
+				case 2:
+					value = values.get(0);
+					if (value.length() > 0) fillWidth = Integer.parseInt(value) / 100f;
+					value = values.get(1);
+					if (value.length() > 0) fillHeight = Integer.parseInt(value) / 100f;
+					break;
+				}
+
+			} else if (name.equals("padding") || name.equals("pad")) {
+				switch (values.size()) {
+				case 4:
+					value = values.get(3);
+					if (value.length() > 0) padRight = scale(value);
+				case 3:
+					value = values.get(2);
+					if (value.length() > 0) padBottom = scale(value);
+				case 2:
+					value = values.get(0);
+					if (value.length() > 0) padTop = scale(value);
+					value = values.get(1);
+					if (value.length() > 0) padLeft = scale(value);
+					break;
+				case 1:
+					padTop = padLeft = padBottom = padRight = scale(values.get(0));
+					break;
+				default:
+					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
+				}
+
+			} else if (name.startsWith("padding") || name.startsWith("pad")) {
+				name = name.replace("padding", "").replace("pad", "");
+				if (name.equals("top") || name.equals("t"))
+					padTop = scale(values.get(0));
+				else if (name.equals("left") || name.equals("l"))
+					padLeft = scale(values.get(0));
+				else if (name.equals("bottom") || name.equals("b"))
+					padBottom = scale(values.get(0));
+				else if (name.equals("right") || name.equals("r"))
+					padRight = scale(values.get(0));
+				else
+					throw new IllegalArgumentException("Unknown property.");
+
+			} else if (name.equals("align")) {
+				align = 0;
+				for (int i = 0, n = values.size(); i < n; i++) {
+					value = values.get(i);
+					if (value.equals("center"))
+						align |= CENTER;
+					else if (value.equals("left"))
+						align |= LEFT;
+					else if (value.equals("right"))
+						align |= RIGHT;
+					else if (value.equals("top"))
+						align |= TOP;
+					else if (value.equals("bottom"))
+						align |= BOTTOM;
+					else
+						throw new IllegalArgumentException("Invalid value: " + value);
+				}
+
+			} else if (name.equals("debug")) {
+				debug = "";
+				if (values.size() == 0) debug = "all,";
+				for (int i = 0, n = values.size(); i < n; i++)
+					debug += values.get(i) + ",";
+				if (debug.equals("true,")) debug = "all,";
+
+			} else
+				throw new IllegalArgumentException("Unknown property: " + name);
+		} catch (Exception ex) {
+			throw new IllegalArgumentException("Error setting property: " + name, ex);
+		}
+	}
+
+	protected void setCellProperty (Cell c, String name, ArrayList<String> values) {
+		name = name.toLowerCase();
+		for (int i = 0, n = values.size(); i < n; i++)
+			values.set(i, values.get(i).toLowerCase());
+		try {
+			String value;
+			if (name.equals("expand")) {
+				switch (values.size()) {
+				case 0:
+					c.expandWidth = c.expandHeight = 1;
+					break;
+				case 1:
+					value = values.get(0);
+					if (value.equals("x"))
+						c.expandWidth = 1;
+					else if (value.equals("y")) //
+						c.expandHeight = 1;
+					else
+						c.expandWidth = c.expandHeight = Integer.parseInt(value);
+					break;
+				case 2:
+					value = values.get(0);
+					if (value.length() > 0) c.expandWidth = Integer.parseInt(value);
+					value = values.get(1);
+					if (value.length() > 0) c.expandHeight = Integer.parseInt(value);
+					break;
+				}
+
+			} else if (name.equals("fill")) {
+				switch (values.size()) {
+				case 0:
+					c.fillWidth = c.fillHeight = 1f;
+					break;
+				case 1:
+					value = values.get(0);
+					if (value.equals("x"))
+						c.fillWidth = 1f;
+					else if (value.equals("y")) //
+						c.fillHeight = 1f;
+					else
+						c.fillWidth = c.fillHeight = Integer.parseInt(value) / 100f;
+					break;
+				case 2:
+					value = values.get(0);
+					if (value.length() > 0) c.fillWidth = Integer.parseInt(value) / 100f;
+					value = values.get(1);
+					if (value.length() > 0) c.fillHeight = Integer.parseInt(value) / 100f;
+					break;
+				}
+
+			} else if (name.equals("size")) {
+				switch (values.size()) {
+				case 2:
+					value = values.get(0);
+					if (value.length() > 0) c.minWidth = c.prefWidth = scale(value);
+					value = values.get(1);
+					if (value.length() > 0) c.minHeight = c.prefHeight = scale(value);
+					break;
+				case 1:
+					value = values.get(0);
+					if (value.length() > 0) c.minWidth = c.minHeight = c.prefWidth = c.prefHeight = scale(value);
+					break;
+				default:
+					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
+				}
+
+			} else if (name.equals("width") || name.equals("w")) {
+				switch (values.size()) {
+				case 3:
+					value = values.get(0);
+					if (value.length() > 0) c.maxWidth = scale(value);
+				case 2:
+					value = values.get(1);
+					if (value.length() > 0) c.prefWidth = scale(value);
+				case 1:
+					value = values.get(0);
+					if (value.length() > 0) c.minWidth = scale(value);
+					break;
+				default:
+					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
+				}
+
+			} else if (name.equals("height") || name.equals("h")) {
+				switch (values.size()) {
+				case 3:
+					value = values.get(0);
+					if (value.length() > 0) c.maxHeight = scale(value);
+				case 2:
+					value = values.get(1);
+					if (value.length() > 0) c.prefHeight = scale(value);
+				case 1:
+					value = values.get(0);
+					if (value.length() > 0) c.minHeight = scale(value);
+					break;
+				default:
+					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
+				}
+
+			} else if (name.equals("spacing") || name.equals("space")) {
+				switch (values.size()) {
+				case 4:
+					value = values.get(3);
+					if (value.length() > 0) c.spaceRight = scale(value);
+				case 3:
+					value = values.get(2);
+					if (value.length() > 0) c.spaceBottom = scale(value);
+				case 2:
+					value = values.get(0);
+					if (value.length() > 0) c.spaceTop = scale(value);
+					value = values.get(1);
+					if (value.length() > 0) c.spaceLeft = scale(value);
+					break;
+				case 1:
+					c.spaceTop = c.spaceLeft = c.spaceBottom = c.spaceRight = scale(values.get(0));
+					break;
+				default:
+					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
+				}
+
+			} else if (name.equals("padding") || name.equals("pad")) {
+				switch (values.size()) {
+				case 4:
+					value = values.get(3);
+					if (value.length() > 0) c.padRight = scale(value);
+				case 3:
+					value = values.get(2);
+					if (value.length() > 0) c.padBottom = scale(value);
+				case 2:
+					value = values.get(0);
+					if (value.length() > 0) c.padTop = scale(value);
+					value = values.get(1);
+					if (value.length() > 0) c.padLeft = scale(value);
+					break;
+				case 1:
+					c.padTop = c.padLeft = c.padBottom = c.padRight = scale(values.get(0));
+					break;
+				default:
+					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
+				}
+
+			} else if (name.startsWith("padding") || name.startsWith("pad")) {
+				name = name.replace("padding", "").replace("pad", "");
+				if (name.equals("top") || name.equals("t"))
+					c.padTop = scale(values.get(0));
+				else if (name.equals("left") || name.equals("l"))
+					c.padLeft = scale(values.get(0));
+				else if (name.equals("bottom") || name.equals("b"))
+					c.padBottom = scale(values.get(0));
+				else if (name.equals("right") || name.equals("r")) //
+					c.padRight = scale(values.get(0));
+				else
+					throw new IllegalArgumentException("Unknown property.");
+
+			} else if (name.startsWith("spacing") || name.startsWith("space")) {
+				name = name.replace("spacing", "").replace("space", "");
+				if (name.equals("top") || name.equals("t"))
+					c.spaceTop = scale(values.get(0));
+				else if (name.equals("left") || name.equals("l"))
+					c.spaceLeft = scale(values.get(0));
+				else if (name.equals("bottom") || name.equals("b"))
+					c.spaceBottom = scale(values.get(0));
+				else if (name.equals("right") || name.equals("r")) //
+					c.spaceRight = scale(values.get(0));
+				else
+					throw new IllegalArgumentException("Unknown property.");
+
+			} else if (name.equals("align")) {
+				c.align = 0;
+				for (int i = 0, n = values.size(); i < n; i++) {
+					value = values.get(i);
+					if (value.equals("center"))
+						c.align |= CENTER;
+					else if (value.equals("left"))
+						c.align |= LEFT;
+					else if (value.equals("right"))
+						c.align |= RIGHT;
+					else if (value.equals("top"))
+						c.align |= TOP;
+					else if (value.equals("bottom"))
+						c.align |= BOTTOM;
+					else
+						throw new IllegalArgumentException("Invalid value: " + value);
+				}
+
+			} else if (name.equals("ignore")) {
+				c.ignore = values.size() == 0 ? true : Boolean.valueOf(values.get(0));
+
+			} else if (name.equals("colspan")) {
+				c.colspan = Integer.parseInt(values.get(0));
+
+			} else if (name.equals("uniform")) {
+				if (values.size() == 0) c.uniformWidth = c.uniformHeight = true;
+				for (int i = 0, n = values.size(); i < n; i++) {
+					value = values.get(i);
+					if (value.equals("x"))
+						c.uniformWidth = true;
+					else if (value.equals("y"))
+						c.uniformHeight = true;
+					else if (value.equals("false"))
+						c.uniformHeight = c.uniformHeight = null;
+					else
+						throw new IllegalArgumentException("Invalid value: " + value);
+				}
+
+			} else
+				throw new IllegalArgumentException("Unknown property.");
+		} catch (Exception ex) {
+			throw new IllegalArgumentException("Error setting property: " + name, ex);
+		}
 	}
 
 	protected void drawDebugRect (boolean dash, int x, int y, int w, int h) {
@@ -529,8 +890,9 @@ public class BaseTableLayout<T> {
 		classPrefixes.add(prefix);
 	}
 
-	static public void setWidgetFactory (String name, WidgetFactory factory) {
-		widgetFactories.put(name, factory);
+	static public void setWidgetFactory (WidgetFactory factory, String... classNames) {
+		for (int i = 0, n = classNames.length; i < n; i++)
+			widgetFactories.put(classNames[i], factory);
 	}
 
 	static private int[] intArray (int index, int size, boolean zero) {
@@ -559,10 +921,76 @@ public class BaseTableLayout<T> {
 		return array;
 	}
 
-	static public interface WidgetFactory<T> {
-		public T newInstance ();
+	static private void invokeMethod (Object object, String name, ArrayList<String> values) throws NoSuchMethodException {
+		Method[] methods = object.getClass().getMethods();
+		outer:
+		for (int i = 0, n = methods.length; i < n; i++) {
+			Method method = methods[i];
+			if (!method.getName().equalsIgnoreCase(name)) continue;
+			Object[] params = values.toArray();
+			Class[] paramTypes = method.getParameterTypes();
+			for (int ii = 0, nn = paramTypes.length; ii < nn; ii++) {
+				Object value = convertType(object, (String)params[ii], paramTypes[ii]);
+				if (value == null) continue outer;
+				params[ii] = value;
+			}
+			try {
+				method.invoke(object, params);
+				return;
+			} catch (Exception ex) {
+				throw new RuntimeException("Error invoking method: " + name, ex);
+			}
+		}
+		throw new NoSuchMethodException();
+	}
 
-		public void set (T widget, String name, String value);
+	static private Object convertType (Object parentObject, String value, Class paramType) {
+		if (paramType == String.class) return value;
+		try {
+			if (paramType == int.class || paramType == Integer.class) return Integer.valueOf(value);
+			if (paramType == float.class || paramType == Float.class) return Float.valueOf(value);
+			if (paramType == long.class || paramType == Long.class) return Long.valueOf(value);
+			if (paramType == double.class || paramType == Double.class) return Double.valueOf(value);
+		} catch (NumberFormatException ignored) {
+		}
+		if (paramType == boolean.class || paramType == Boolean.class) return Boolean.valueOf(value);
+		if (paramType == char.class || paramType == Character.class) return value.charAt(0);
+		if (paramType == short.class || paramType == Short.class) return Short.valueOf(value);
+		if (paramType == byte.class || paramType == Byte.class) return Byte.valueOf(value);
+		// Look for a static field.
+		try {
+			Field field = getField(paramType, value);
+			if (field != null && paramType == field.getType()) return field.get(null);
+		} catch (Exception ignored) {
+		}
+		try {
+			Field field = getField(parentObject.getClass(), value);
+			if (field != null && paramType == field.getType()) return field.get(null);
+		} catch (Exception ignored) {
+		}
+		return null;
+	}
+
+	static private Field getField (Class type, String name) {
+		try {
+			Field field = type.getField(name);
+			if (field != null) return field;
+		} catch (Exception ignored) {
+		}
+		while (type != null && type != Object.class) {
+			Field[] fields = type.getDeclaredFields();
+			for (int i = 0, n = fields.length; i < n; i++)
+				if (fields[i].getName().equalsIgnoreCase(name)) return fields[i];
+			type = type.getSuperclass();
+		}
+		return null;
+	}
+
+	static public abstract class WidgetFactory<T> {
+		abstract public T newInstance (BaseTableLayout table);
+
+		public void set (BaseTableLayout table, T widget, String name, String value) {
+		}
 	}
 
 	static public class Cell {
