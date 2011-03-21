@@ -3,11 +3,13 @@ package com.esotericsoftware.tablelayout.android;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 import com.esotericsoftware.tablelayout.BaseTableLayout;
 
 public class TableLayout extends BaseTableLayout<View> {
+	static float scale;
 	static {
 		addClassPrefix("com.badlogic.gdx.scenes.scene2d.");
 		addClassPrefix("com.badlogic.gdx.scenes.scene2d.views.");
@@ -31,6 +34,7 @@ public class TableLayout extends BaseTableLayout<View> {
 
 	public TableLayout (Context context, String tableText) {
 		super(tableText);
+
 		this.group = new ViewGroup(context) {
 			protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec) {
 				measureChildren(widthMeasureSpec, heightMeasureSpec);
@@ -54,6 +58,7 @@ public class TableLayout extends BaseTableLayout<View> {
 					Cell c = cells.get(i);
 					if (c.ignore) continue;
 					View view = (View)c.widget;
+					// System.out.println(c.widgetX + ", " + c.widgetY + ", " + c.widgetWidth + ", " + c.widgetHeight);
 					view.layout(c.widgetX, c.widgetY, c.widgetX + c.widgetWidth, c.widgetY + c.widgetHeight);
 				}
 				if (debug != null && debugRects != null) {
@@ -70,7 +75,8 @@ public class TableLayout extends BaseTableLayout<View> {
 				return totalMinHeight;
 			}
 
-			protected void onDraw (Canvas canvas) {
+			protected void dispatchDraw (Canvas canvas) {
+				super.dispatchDraw(canvas);
 				if (debug == null || debugRects == null) return;
 				if (paint == null) {
 					paint = new Paint();
@@ -164,8 +170,18 @@ public class TableLayout extends BaseTableLayout<View> {
 		debugRects.add(new DebugRect(dash, x, y, w, h));
 	}
 
+	protected int scale (String value) {
+		return (int)(Integer.parseInt(value) * scale);
+	}
+
 	public ViewGroup getView () {
 		return group;
+	}
+
+	static public void setScale (Activity activity) {
+		DisplayMetrics metrics = new DisplayMetrics();
+		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		scale = metrics.density;
 	}
 
 	static private class DebugRect {

@@ -514,6 +514,10 @@ public class BaseTableLayout<T> {
 		return 0;
 	}
 
+	protected int scale (String value) {
+		return Integer.parseInt(value);
+	}
+
 	protected BaseTableLayout getTableLayout (Object object) {
 		return (BaseTableLayout)object;
 	}

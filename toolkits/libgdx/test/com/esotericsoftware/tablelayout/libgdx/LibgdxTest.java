@@ -61,7 +61,7 @@ public class LibgdxTest implements ApplicationListener {
 
 		table = new TableLayout(group, font);
 		table.parse("" //
-			// + "debug" //
+			+ "debug" //
 			+ "* spacing:10" //
 			+ "'Sweet' (text:'moo!!!!!!!!!!.')" //
 			+ "'moo'" //

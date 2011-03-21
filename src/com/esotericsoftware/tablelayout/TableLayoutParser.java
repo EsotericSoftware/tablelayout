@@ -33,13 +33,13 @@ class TableLayoutParser {
 
 		try {
 
-// line 3 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+			// line 3 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 			{
 				cs = tableLayout_start;
 				top = 0;
 			}
 
-// line 8 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+			// line 8 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 			{
 				int _klen;
 				int _trans = 0;
@@ -117,75 +117,75 @@ class TableLayoutParser {
 							while (_nacts-- > 0) {
 								switch (_tableLayout_actions[_acts++]) {
 								case 0:
-// line 45 "TableLayoutParser.rl"
+									// line 45 "TableLayoutParser.rl"
 								{
 									s = p;
 								}
 									break;
 								case 1:
-// line 46 "TableLayoutParser.rl"
+									// line 46 "TableLayoutParser.rl"
 								{
 									name = new String(data, s, p - s);
 									s = p;
 								}
 									break;
 								case 2:
-// line 50 "TableLayoutParser.rl"
+									// line 50 "TableLayoutParser.rl"
 								{
 									values.add(new String(data, s, p - s));
 								}
 									break;
 								case 3:
-// line 53 "TableLayoutParser.rl"
+									// line 53 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("tableProperty: " + name + " = " + values);
 									setTableProperty((BaseTableLayout)parent, name, values);
 								}
 									break;
 								case 4:
-// line 57 "TableLayoutParser.rl"
+									// line 57 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("cellDefaultProperty: " + name + " = " + values);
-									setCellProperty(((BaseTableLayout)parent).getCellDefaults(), name, values);
+									setCellProperty(table, ((BaseTableLayout)parent).getCellDefaults(), name, values);
 								}
 									break;
 								case 5:
-// line 61 "TableLayoutParser.rl"
+									// line 61 "TableLayoutParser.rl"
 								{
 									int column = ((BaseTableLayout)parent).getColumnDefaults().size();
 									columnDefaults = ((BaseTableLayout)parent).getColumnDefaults(column);
 								}
 									break;
 								case 6:
-// line 65 "TableLayoutParser.rl"
+									// line 65 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("columnDefaultProperty: " + name + " = " + values);
-									setCellProperty(columnDefaults, name, values);
+									setCellProperty(table, columnDefaults, name, values);
 								}
 									break;
 								case 7:
-// line 69 "TableLayoutParser.rl"
+									// line 69 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("startRow");
 									rowDefaults = ((BaseTableLayout)parent).startRow();
 								}
 									break;
 								case 8:
-// line 73 "TableLayoutParser.rl"
+									// line 73 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("rowDefaultValue: " + name + " = " + values);
-									setCellProperty(rowDefaults, name, values);
+									setCellProperty(table, rowDefaults, name, values);
 								}
 									break;
 								case 9:
-// line 77 "TableLayoutParser.rl"
+									// line 77 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("cellProperty: " + name + " = " + values);
-									setCellProperty(cell, name, values);
+									setCellProperty(table, cell, name, values);
 								}
 									break;
 								case 10:
-// line 81 "TableLayoutParser.rl"
+									// line 81 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("setTitle: " + new String(data, s, p - s));
 									if (widget instanceof BaseTableLayout)
@@ -195,26 +195,26 @@ class TableLayoutParser {
 								}
 									break;
 								case 11:
-// line 88 "TableLayoutParser.rl"
+									// line 88 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("widgetLayoutString: " + new String(data, s, p - s).trim());
 									widgetLayoutString = new String(data, s, p - s).trim();
 								}
 									break;
 								case 12:
-// line 92 "TableLayoutParser.rl"
+									// line 92 "TableLayoutParser.rl"
 								{
 									className = new String(data, s, p - s);
 								}
 									break;
 								case 13:
-// line 95 "TableLayoutParser.rl"
+									// line 95 "TableLayoutParser.rl"
 								{
 									label = table.newLabel(new String(data, s, p - s));
 								}
 									break;
 								case 14:
-// line 98 "TableLayoutParser.rl"
+									// line 98 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("newWidget: " + name + " " + className + " " + label);
 									widget = null;
@@ -246,14 +246,14 @@ class TableLayoutParser {
 								}
 									break;
 								case 15:
-// line 127 "TableLayoutParser.rl"
+									// line 127 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("newLabel: " + new String(data, s, p - s));
 									widget = table.newLabel(new String(data, s, p - s));
 								}
 									break;
 								case 16:
-// line 131 "TableLayoutParser.rl"
+									// line 131 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("startTable");
 									parents.add(parent);
@@ -276,7 +276,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 17:
-// line 139 "TableLayoutParser.rl"
+									// line 139 "TableLayoutParser.rl"
 								{
 									widget = parent;
 									if (!parents.isEmpty()) {
@@ -291,7 +291,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 18:
-// line 147 "TableLayoutParser.rl"
+									// line 147 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("startWidgetSection");
 									parents.add(parent);
@@ -313,7 +313,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 19:
-// line 154 "TableLayoutParser.rl"
+									// line 154 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("endWidgetSection");
 									widget = parent;
@@ -326,14 +326,14 @@ class TableLayoutParser {
 								}
 									break;
 								case 20:
-// line 160 "TableLayoutParser.rl"
+									// line 160 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("addCell");
 									cell = ((BaseTableLayout)parent).add(table.wrap(widget));
 								}
 									break;
 								case 21:
-// line 164 "TableLayoutParser.rl"
+									// line 164 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("addWidget");
 									table.addChild(parent, table.wrap(widget), widgetLayoutString);
@@ -341,7 +341,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 22:
-// line 169 "TableLayoutParser.rl"
+									// line 169 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("widgetProperty: " + name + " = " + values);
 									try {
@@ -368,7 +368,7 @@ class TableLayoutParser {
 									values.clear();
 								}
 									break;
-// line 317 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+								// line 317 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 								}
 							}
 						}
@@ -389,7 +389,7 @@ class TableLayoutParser {
 				}
 			}
 
-// line 264 "TableLayoutParser.rl"
+			// line 264 "TableLayoutParser.rl"
 
 		} catch (RuntimeException ex) {
 			parseRuntimeEx = ex;
@@ -406,7 +406,7 @@ class TableLayoutParser {
 				parseRuntimeEx);
 	}
 
-// line 337 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+	// line 337 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 	private static byte[] init__tableLayout_actions_0 () {
 		return new byte[] {0, 1, 0, 1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 1, 8, 1, 9, 1, 10, 1, 12, 1, 13, 1, 14, 1, 15, 1, 16,
 			1, 17, 1, 18, 1, 19, 1, 20, 1, 21, 1, 22, 2, 0, 1, 2, 0, 2, 2, 0, 10, 2, 0, 12, 2, 0, 13, 2, 0, 15, 2, 1, 3, 2, 1, 4, 2,
@@ -560,7 +560,7 @@ class TableLayoutParser {
 	static final int tableLayout_en_main = 1;
 	static final int tableLayout_en_main_table = 82;
 
-// line 279 "TableLayoutParser.rl"
+	// line 279 "TableLayoutParser.rl"
 
 	static public void setTableProperty (BaseTableLayout table, String name, ArrayList<String> values) {
 		name = name.toLowerCase();
@@ -571,19 +571,19 @@ class TableLayoutParser {
 			if (name.equals("size")) {
 				switch (values.size()) {
 				case 1:
-					table.width = table.height = Integer.parseInt(values.get(0));
+					table.width = table.height = table.scale(values.get(0));
 					break;
 				case 2:
-					table.width = Integer.parseInt(values.get(0));
-					table.height = Integer.parseInt(values.get(1));
+					table.width = table.scale(values.get(0));
+					table.height = table.scale(values.get(1));
 					break;
 				}
 
 			} else if (name.equals("width") || name.equals("w")) {
-				table.width = Integer.parseInt(values.get(0));
+				table.width = table.scale(values.get(0));
 
 			} else if (name.equals("height") || name.equals("h")) {
-				table.height = Integer.parseInt(values.get(0));
+				table.height = table.scale(values.get(0));
 
 			} else if (name.equals("fill")) {
 				switch (values.size()) {
@@ -611,18 +611,18 @@ class TableLayoutParser {
 				switch (values.size()) {
 				case 4:
 					value = values.get(3);
-					if (value.length() > 0) table.padRight = Integer.parseInt(value);
+					if (value.length() > 0) table.padRight = table.scale(value);
 				case 3:
 					value = values.get(2);
-					if (value.length() > 0) table.padBottom = Integer.parseInt(value);
+					if (value.length() > 0) table.padBottom = table.scale(value);
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) table.padTop = Integer.parseInt(value);
+					if (value.length() > 0) table.padTop = table.scale(value);
 					value = values.get(1);
-					if (value.length() > 0) table.padLeft = Integer.parseInt(value);
+					if (value.length() > 0) table.padLeft = table.scale(value);
 					break;
 				case 1:
-					table.padTop = table.padLeft = table.padBottom = table.padRight = Integer.parseInt(values.get(0));
+					table.padTop = table.padLeft = table.padBottom = table.padRight = table.scale(values.get(0));
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -631,13 +631,13 @@ class TableLayoutParser {
 			} else if (name.startsWith("padding") || name.startsWith("pad")) {
 				name = name.replace("padding", "").replace("pad", "");
 				if (name.equals("top") || name.equals("t"))
-					table.padTop = Integer.parseInt(values.get(0));
+					table.padTop = table.scale(values.get(0));
 				else if (name.equals("left") || name.equals("l"))
-					table.padLeft = Integer.parseInt(values.get(0));
+					table.padLeft = table.scale(values.get(0));
 				else if (name.equals("bottom") || name.equals("b"))
-					table.padBottom = Integer.parseInt(values.get(0));
+					table.padBottom = table.scale(values.get(0));
 				else if (name.equals("right") || name.equals("r"))
-					table.padRight = Integer.parseInt(values.get(0));
+					table.padRight = table.scale(values.get(0));
 				else
 					throw new IllegalArgumentException("Unknown property.");
 
@@ -674,7 +674,7 @@ class TableLayoutParser {
 		values.clear();
 	}
 
-	static public void setCellProperty (Cell c, String name, ArrayList<String> values) {
+	static public void setCellProperty (BaseTableLayout table, Cell c, String name, ArrayList<String> values) {
 		name = name.toLowerCase();
 		for (int i = 0, n = values.size(); i < n; i++)
 			values.set(i, values.get(i).toLowerCase());
@@ -728,13 +728,13 @@ class TableLayoutParser {
 				switch (values.size()) {
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = c.prefWidth = Integer.parseInt(value);
+					if (value.length() > 0) c.minWidth = c.prefWidth = table.scale(value);
 					value = values.get(1);
-					if (value.length() > 0) c.minHeight = c.prefHeight = Integer.parseInt(value);
+					if (value.length() > 0) c.minHeight = c.prefHeight = table.scale(value);
 					break;
 				case 1:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = c.minHeight = c.prefWidth = c.prefHeight = Integer.parseInt(value);
+					if (value.length() > 0) c.minWidth = c.minHeight = c.prefWidth = c.prefHeight = table.scale(value);
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -744,13 +744,13 @@ class TableLayoutParser {
 				switch (values.size()) {
 				case 3:
 					value = values.get(0);
-					if (value.length() > 0) c.maxWidth = Integer.parseInt(value);
+					if (value.length() > 0) c.maxWidth = table.scale(value);
 				case 2:
 					value = values.get(1);
-					if (value.length() > 0) c.prefWidth = Integer.parseInt(value);
+					if (value.length() > 0) c.prefWidth = table.scale(value);
 				case 1:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = Integer.parseInt(value);
+					if (value.length() > 0) c.minWidth = table.scale(value);
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -760,13 +760,13 @@ class TableLayoutParser {
 				switch (values.size()) {
 				case 3:
 					value = values.get(0);
-					if (value.length() > 0) c.maxHeight = Integer.parseInt(value);
+					if (value.length() > 0) c.maxHeight = table.scale(value);
 				case 2:
 					value = values.get(1);
-					if (value.length() > 0) c.prefHeight = Integer.parseInt(value);
+					if (value.length() > 0) c.prefHeight = table.scale(value);
 				case 1:
 					value = values.get(0);
-					if (value.length() > 0) c.minHeight = Integer.parseInt(value);
+					if (value.length() > 0) c.minHeight = table.scale(value);
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -776,18 +776,18 @@ class TableLayoutParser {
 				switch (values.size()) {
 				case 4:
 					value = values.get(3);
-					if (value.length() > 0) c.spaceRight = Integer.parseInt(value);
+					if (value.length() > 0) c.spaceRight = table.scale(value);
 				case 3:
 					value = values.get(2);
-					if (value.length() > 0) c.spaceBottom = Integer.parseInt(value);
+					if (value.length() > 0) c.spaceBottom = table.scale(value);
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) c.spaceTop = Integer.parseInt(value);
+					if (value.length() > 0) c.spaceTop = table.scale(value);
 					value = values.get(1);
-					if (value.length() > 0) c.spaceLeft = Integer.parseInt(value);
+					if (value.length() > 0) c.spaceLeft = table.scale(value);
 					break;
 				case 1:
-					c.spaceTop = c.spaceLeft = c.spaceBottom = c.spaceRight = Integer.parseInt(values.get(0));
+					c.spaceTop = c.spaceLeft = c.spaceBottom = c.spaceRight = table.scale(values.get(0));
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -797,18 +797,18 @@ class TableLayoutParser {
 				switch (values.size()) {
 				case 4:
 					value = values.get(3);
-					if (value.length() > 0) c.padRight = Integer.parseInt(value);
+					if (value.length() > 0) c.padRight = table.scale(value);
 				case 3:
 					value = values.get(2);
-					if (value.length() > 0) c.padBottom = Integer.parseInt(value);
+					if (value.length() > 0) c.padBottom = table.scale(value);
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) c.padTop = Integer.parseInt(value);
+					if (value.length() > 0) c.padTop = table.scale(value);
 					value = values.get(1);
-					if (value.length() > 0) c.padLeft = Integer.parseInt(value);
+					if (value.length() > 0) c.padLeft = table.scale(value);
 					break;
 				case 1:
-					c.padTop = c.padLeft = c.padBottom = c.padRight = Integer.parseInt(values.get(0));
+					c.padTop = c.padLeft = c.padBottom = c.padRight = table.scale(values.get(0));
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -817,26 +817,26 @@ class TableLayoutParser {
 			} else if (name.startsWith("padding") || name.startsWith("pad")) {
 				name = name.replace("padding", "").replace("pad", "");
 				if (name.equals("top") || name.equals("t"))
-					c.padTop = Integer.parseInt(values.get(0));
+					c.padTop = table.scale(values.get(0));
 				else if (name.equals("left") || name.equals("l"))
-					c.padLeft = Integer.parseInt(values.get(0));
+					c.padLeft = table.scale(values.get(0));
 				else if (name.equals("bottom") || name.equals("b"))
-					c.padBottom = Integer.parseInt(values.get(0));
+					c.padBottom = table.scale(values.get(0));
 				else if (name.equals("right") || name.equals("r")) //
-					c.padRight = Integer.parseInt(values.get(0));
+					c.padRight = table.scale(values.get(0));
 				else
 					throw new IllegalArgumentException("Unknown property.");
 
 			} else if (name.startsWith("spacing") || name.startsWith("space")) {
 				name = name.replace("spacing", "").replace("space", "");
 				if (name.equals("top") || name.equals("t"))
-					c.spaceTop = Integer.parseInt(values.get(0));
+					c.spaceTop = table.scale(values.get(0));
 				else if (name.equals("left") || name.equals("l"))
-					c.spaceLeft = Integer.parseInt(values.get(0));
+					c.spaceLeft = table.scale(values.get(0));
 				else if (name.equals("bottom") || name.equals("b"))
-					c.spaceBottom = Integer.parseInt(values.get(0));
+					c.spaceBottom = table.scale(values.get(0));
 				else if (name.equals("right") || name.equals("r")) //
-					c.spaceRight = Integer.parseInt(values.get(0));
+					c.spaceRight = table.scale(values.get(0));
 				else
 					throw new IllegalArgumentException("Unknown property.");
 
