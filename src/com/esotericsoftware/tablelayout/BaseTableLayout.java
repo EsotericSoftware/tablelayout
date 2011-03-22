@@ -20,7 +20,6 @@ public class BaseTableLayout<T> {
 	static public final int MAX = -3;
 
 	static final ArrayList<String> classPrefixes = new ArrayList();
-	static final HashMap<String, WidgetFactory> widgetFactories = new HashMap();
 
 	static private final int[][] intArrays = new int[10][];
 	static private final int INT_columnMinWidth = 0;
@@ -521,8 +520,6 @@ public class BaseTableLayout<T> {
 	}
 
 	protected Object newWidget (String className) throws Exception {
-		WidgetFactory factory = widgetFactories.get(className);
-		if (factory != null) return factory.newInstance(this);
 		try {
 			return Class.forName(className).newInstance();
 		} catch (Exception ex) {
@@ -538,12 +535,6 @@ public class BaseTableLayout<T> {
 	}
 
 	protected void setProperty (Object object, String name, ArrayList<String> values) {
-		WidgetFactory factory = widgetFactories.get(object.getClass().getName());
-		if (factory != null) {
-			for (int i = 0, n = values.size(); i < n; i++)
-				factory.set(this, object, name, values.get(i));
-			return;
-		}
 		try {
 			invokeMethod(object, name, values);
 		} catch (NoSuchMethodException ex1) {
@@ -890,11 +881,6 @@ public class BaseTableLayout<T> {
 		classPrefixes.add(prefix);
 	}
 
-	static public void setWidgetFactory (WidgetFactory factory, String... classNames) {
-		for (int i = 0, n = classNames.length; i < n; i++)
-			widgetFactories.put(classNames[i], factory);
-	}
-
 	static private int[] intArray (int index, int size, boolean zero) {
 		if (true) return new int[size];
 		int[] array = intArrays[index];
@@ -945,7 +931,7 @@ public class BaseTableLayout<T> {
 	}
 
 	static private Object convertType (Object parentObject, String value, Class paramType) {
-		if (paramType == String.class) return value;
+		if (paramType == String.class || paramType == CharSequence.class) return value;
 		try {
 			if (paramType == int.class || paramType == Integer.class) return Integer.valueOf(value);
 			if (paramType == float.class || paramType == Float.class) return Float.valueOf(value);
@@ -984,13 +970,6 @@ public class BaseTableLayout<T> {
 			type = type.getSuperclass();
 		}
 		return null;
-	}
-
-	static public abstract class WidgetFactory<T> {
-		abstract public T newInstance (BaseTableLayout table);
-
-		public void set (BaseTableLayout table, T widget, String name, String value) {
-		}
 	}
 
 	static public class Cell {

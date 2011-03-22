@@ -28,33 +28,11 @@ public class TableLayout extends BaseTableLayout<View> {
 	static {
 		addClassPrefix("com.badlogic.gdx.scenes.scene2d.");
 		addClassPrefix("com.badlogic.gdx.scenes.scene2d.views.");
-
-		setWidgetFactory(new WidgetFactory<Button>() {
-			public Button newInstance (BaseTableLayout table) {
-				Button button = new Button(((TableLayout)table).context);
-				button.setBackgroundDrawable(new StateListDrawable());
-				return button;
-			}
-
-			public void set (BaseTableLayout table, Button button, String name, String value) {
-				int[] state;
-				if (name.equals("image"))
-					state = new int[0];
-				else if (name.equals("pressed"))
-					state = new int[] {R.attr.state_pressed};
-				else if (name.equals("focused"))
-					state = new int[] {R.attr.state_focused};
-				else
-					throw new RuntimeException("Invalid property: " + name);
-				StateListDrawable states = (StateListDrawable)button.getBackground();
-				states.addState(state, ((TableLayout)table).getDrawable(value));
-			}
-		}, "button", Button.class.getName());
 	}
 
+	static final HashMap<String, Integer> drawableToID = new HashMap();
 	static float scale;
 	static Paint paint;
-	static private final HashMap<String, Integer> drawableToID = new HashMap();
 
 	final Context context;
 	final ViewGroup group;
@@ -128,22 +106,6 @@ public class TableLayout extends BaseTableLayout<View> {
 		super(parent);
 		this.context = parent.context;
 		this.group = parent.group;
-	}
-
-	Drawable getDrawable (String name) {
-		Integer id = drawableToID.get(name);
-		if (id == null) throw new IllegalArgumentException("Unknown drawable name: " + name);
-		return context.getResources().getDrawable(id);
-	}
-
-	ImageView getImageView (String name) {
-		Integer id = drawableToID.get(name);
-		if (id != null) {
-			ImageView view = new ImageView(context);
-			((ImageView)view).setImageResource(id);
-			return view;
-		}
-		return null;
 	}
 
 	public View getWidget (String name) {
@@ -225,6 +187,101 @@ public class TableLayout extends BaseTableLayout<View> {
 
 	public ViewGroup getView () {
 		return group;
+	}
+
+	Drawable getDrawable (String name) {
+		Integer id = drawableToID.get(name);
+		if (id == null) throw new IllegalArgumentException("Unknown drawable name: " + name);
+		return context.getResources().getDrawable(id);
+	}
+
+	ImageView getImageView (String name) {
+		Integer id = drawableToID.get(name);
+		if (id != null) {
+			ImageView view = new ImageView(context);
+			view.setImageResource(id);
+			return view;
+		}
+		return null;
+	}
+
+	protected Object newWidget (String className) throws Exception {
+		if (className.equals("button")) {
+			Button button = new Button(context);
+			button.setBackgroundDrawable(new StateListDrawable());
+			return button;
+		}
+
+		return super.newWidget(className);
+	}
+
+	protected void setProperty (Object object, String name, ArrayList<String> values) {
+		if (values.size() == 1) {
+			if (object instanceof View) {
+				if (setBackground((View)object, name, values.get(0))) return;
+			}
+			if (object instanceof TextView) {
+				if (setCompoundDrawable((TextView)object, name, values.get(0))) return;
+			}
+		}
+
+		super.setProperty(object, name, values);
+	}
+
+	private boolean setCompoundDrawable (TextView view, String name, String value) {
+		if (name.equals("left")) {
+			Drawable[] drawables = view.getCompoundDrawables();
+			view.setCompoundDrawablesWithIntrinsicBounds(getDrawable(value), drawables[1], drawables[2], drawables[3]);
+			return true;
+		}
+
+		if (name.equals("top")) {
+			Drawable[] drawables = view.getCompoundDrawables();
+			view.setCompoundDrawablesWithIntrinsicBounds(drawables[0], getDrawable(value), drawables[2], drawables[3]);
+			return true;
+		}
+
+		if (name.equals("right")) {
+			Drawable[] drawables = view.getCompoundDrawables();
+			view.setCompoundDrawablesWithIntrinsicBounds(drawables[0], drawables[1], getDrawable(value), drawables[3]);
+			return true;
+		}
+
+		if (name.equals("bottom")) {
+			Drawable[] drawables = view.getCompoundDrawables();
+			view.setCompoundDrawablesWithIntrinsicBounds(drawables[0], drawables[1], drawables[2], getDrawable(value));
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean setBackground (View view, String name, String value) {
+		if (name.equals("image")) {
+			if (view.getBackground() instanceof StateListDrawable)
+				setBackgroundState(view, 0, value);
+			else
+				view.setBackgroundDrawable(getDrawable(value));
+			return true;
+		}
+
+		if (name.equals("pressed")) {
+			setBackgroundState(view, R.attr.state_pressed, value);
+			return true;
+		}
+
+		if (name.equals("focused")) {
+			setBackgroundState(view, R.attr.state_focused, value);
+			return true;
+		}
+
+		return false;
+	}
+
+	private void setBackgroundState (View view, int state, String value) {
+		StateListDrawable states = (StateListDrawable)view.getBackground();
+		Drawable drawable = getDrawable(value);
+		states.addState(new int[] {state}, drawable);
 	}
 
 	static public void setup (Activity activity, Class drawableClass) {

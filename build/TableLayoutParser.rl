@@ -2,12 +2,9 @@
 
 package com.esotericsoftware.tablelayout;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import com.esotericsoftware.tablelayout.BaseTableLayout.Cell;
-import com.esotericsoftware.tablelayout.BaseTableLayout.WidgetFactory;
 
 class TableLayoutParser {
 	static public void parse (BaseTableLayout table, String input) {
