@@ -23,6 +23,7 @@ class TableLayoutParser {
 		Cell cell = null, rowDefaults = null, columnDefaults = null;
 		Object parent = table, widget = null;
 		RuntimeException parseRuntimeEx = null;
+		boolean hasColon = false;
 
 		boolean debug = false;
 		if (debug) System.out.println();
@@ -43,6 +44,7 @@ class TableLayoutParser {
 			action name {
 				name = new String(data, s, p - s);
 				s = p;
+				hasColon = false;
 			}
 			action value {
 				values.add(new String(data, s, p - s));
@@ -100,23 +102,27 @@ class TableLayoutParser {
 			action newWidget {
 				if (debug) System.out.println("newWidget: " + name + " " + className + " " + label);
 				widget = null;
-				if (label != null) {
+				if (label != null) { // 'label' or ['label'] or [name:'label']
 					widget = label;
 					label = null;
 					if (name.length() > 0) table.setName(name, widget);
 				} else if (className == null) {
-					if (name.length() > 0) {
+					if (name.length() > 0) { // [name]
 						widget = table.getWidget(name);
 						if (widget == null) {
 							// Try the widget name as a class name.
 							try {
 								widget = table.wrap(table.newWidget(name));
 							} catch (Exception ex) {
-								throw new IllegalArgumentException("Widget not found with name: " + name);
+								if (hasColon) { // [name:]
+									widget = table.wrap(null);
+									table.setName(name, widget);
+								} else
+									throw new IllegalArgumentException("Widget not found with name: " + name);
 							}
 						}
-					}
-				} else {
+					} // else leave widget null for: []
+				} else { // [:class] and [name:class]
 					try {
 						widget = table.wrap(table.newWidget(className));
 					} catch (Exception ex) {
@@ -188,14 +194,14 @@ class TableLayoutParser {
 			widget =
 				# Widget name.
 				'[' space* ^[\]:]* >buffer %name <:
-				(space* ':' space*
-					(
-						# Class name.
-						(^[\]']+ >buffer %newWidgetClassName) |
-						# Label.
-						('\'' ^'\''* >buffer %newWidgetLabel '\'')
-					)
-				)? space* ']' @newWidget;
+				space* ':'? %{ hasColon = true; } space*
+				(
+					# Class name.
+					(^[\]':]+ >buffer %newWidgetClassName) |
+					# Label.
+					('\'' ^'\''* >buffer %newWidgetLabel '\'')
+				)?
+				space* ']' @newWidget;
 			label = '\'' ^'\''* >buffer %newLabel '\'';
 			startTable = '{' @startTable;
 

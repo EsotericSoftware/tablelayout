@@ -31,7 +31,6 @@ import com.esotericsoftware.tablelayout.swing.TableLayout;
 public class TableLayoutEditor extends JFrame {
 	JTextArea codeArea, errorArea;
 	TableLayout outputTable;
-	JPanel outputPanel;
 
 	public TableLayoutEditor () {
 		super("TableLayout Editor");
@@ -49,10 +48,9 @@ public class TableLayoutEditor extends JFrame {
 				return new JLabel(name);
 			}
 		};
-		outputPanel = new JPanel(outputTable);
 
 		TableLayout table = new TableLayout();
-		table.setName("outputPanel", outputPanel);
+		table.setName("outputPanel", outputTable.getContainer());
 		table.parse("padding:10 " //
 			+ "[JSplitPane] expand fill ( "//
 			+ "{" //
@@ -104,8 +102,8 @@ public class TableLayoutEditor extends JFrame {
 			private void changed () {
 				EventQueue.invokeLater(new Runnable() {
 					public void run () {
-						outputPanel.removeAll();
 						errorArea.setText("");
+						outputTable.clear();
 						try {
 							outputTable.parse(codeArea.getText());
 						} catch (Throwable ex) {
@@ -118,17 +116,15 @@ public class TableLayoutEditor extends JFrame {
 								ex = ex.getCause();
 							}
 							errorArea.setText(buffer.toString());
-							outputPanel.removeAll();
 							outputTable.clear();
 						}
-						outputPanel.revalidate();
-						outputPanel.repaint();
+						outputTable.getContainer().doLayout();
 					}
 				});
 			}
 		});
 
-		setContentPane(new JPanel(table));
+		setContentPane(table.getContainer());
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setSize(800, 600);
 		setLocationRelativeTo(null);

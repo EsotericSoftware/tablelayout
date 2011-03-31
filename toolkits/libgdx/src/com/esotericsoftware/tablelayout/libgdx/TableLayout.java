@@ -25,6 +25,7 @@ public class TableLayout extends BaseTableLayout<Actor> {
 
 	private Array<DebugRect> debugRects;
 	private ImmediateModeRenderer debugRenderer;
+	private boolean needsLayout = true;
 
 	public TableLayout (Group group) {
 		this.group = group;
@@ -53,22 +54,21 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		return actor;
 	}
 
+	protected void addWidget (Actor child) {
+		group.addActor(child);
+	}
+
+	protected void removeWidget (Actor child) {
+		group.removeActor(child);
+	}
+
 	public void layout () {
 		tableLayoutX = (int)group.x;
 		tableLayoutY = (int)group.y;
 		tableLayoutWidth = (int)group.width;
 		tableLayoutHeight = (int)group.height;
-		ArrayList<Cell> cells = getCells();
-		for (int i = 0, n = cells.size(); i < n; i++) {
-			Cell c = cells.get(i);
-			if (c.ignore) continue;
-			Actor actor = (Actor)c.widget;
-			if (actor.parent == null)
-				group.addActor(actor);
-			else if (actor.parent != group) //
-				throw new IllegalStateException("Actor has wrong parent: " + actor);
-		}
 		super.layout();
+		ArrayList<Cell> cells = getCells();
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
@@ -78,9 +78,17 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			actor.width = c.widgetWidth;
 			actor.height = c.widgetHeight;
 		}
+		needsLayout = false;
 	}
 
-	public void drawDebug () {
+	/**
+	 * This method is needed for the TableLayout to relayout automatically if {@link #invalidate()} has been called and also to
+	 * draw the debug lines, when enabled. If this method is not called each frame, {@link #layout()} must be called manually when
+	 * the TableLayout is modified, and no debug lines will be drawn.
+	 */
+	public void update () {
+		if (needsLayout) layout();
+
 		if (debug == null || debugRects == null) return;
 		if (debugRenderer == null) debugRenderer = new ImmediateModeRenderer(64);
 		debugRenderer.begin(GL10.GL_LINES);
@@ -119,6 +127,10 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			}
 		}
 		debugRenderer.end();
+	}
+
+	public void invalidate () {
+		needsLayout = true;
 	}
 
 	protected TableLayout newTableLayout () {
@@ -174,7 +186,7 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		return null;
 	}
 
-	protected void drawDebugRect (boolean dash, int x, int y, int w, int h) {
+	public void drawDebugRect (boolean dash, int x, int y, int w, int h) {
 		if (debugRects == null) debugRects = new Array();
 		debugRects.add(new DebugRect(dash, x, y, w, h));
 	}

@@ -34,18 +34,8 @@ public class TableLayout extends BaseTableLayout<Widget> {
 		tableLayoutY = widget.getBorderTop();
 		tableLayoutWidth = widget.getInnerWidth();
 		tableLayoutHeight = widget.getInnerHeight();
-		ArrayList<Cell> cells = getCells();
-		for (int i = 0, n = cells.size(); i < n; i++) {
-			Cell c = cells.get(i);
-			if (c.ignore) continue;
-			Widget cellWidget = (Widget)c.widget;
-			Widget cellWidgetParent = cellWidget.getParent();
-			if (cellWidgetParent == null)
-				widget.add(cellWidget);
-			else if (cellWidgetParent != widget) //
-				throw new IllegalStateException("Widget has wrong parent: " + cellWidget);
-		}
 		super.layout();
+		ArrayList<Cell> cells = getCells();
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
@@ -53,6 +43,18 @@ public class TableLayout extends BaseTableLayout<Widget> {
 			cellWidget.setPosition(c.widgetX, c.widgetY);
 			cellWidget.setSize(c.widgetWidth, c.widgetHeight);
 		}
+	}
+
+	protected void addWidget (Widget child) {
+		widget.add(child);
+	}
+
+	protected void removeWidget (Widget child) {
+		widget.removeChild(child);
+	}
+
+	public void invalidate () {
+		widget.invalidateLayout();
 	}
 
 	protected TableLayout newTableLayout () {
@@ -64,7 +66,6 @@ public class TableLayout extends BaseTableLayout<Widget> {
 	}
 
 	protected void setTitle (Widget parent, String title) {
-		// BOZO - Add title for TWL?
 	}
 
 	protected void addChild (Widget parent, Widget child, String layoutString) {
@@ -104,10 +105,6 @@ public class TableLayout extends BaseTableLayout<Widget> {
 	protected TableLayout getTableLayout (Object object) {
 		if (object instanceof TableLayout) return (TableLayout)object;
 		return null;
-	}
-
-	protected void drawDebugRect (boolean dash, int x, int y, int w, int h) {
-		// BOZO - Draw debug for TWL?
 	}
 
 	public Widget getWidget () {

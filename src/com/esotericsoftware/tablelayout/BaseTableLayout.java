@@ -1,13 +1,14 @@
 
 package com.esotericsoftware.tablelayout;
 
+import java.awt.Component;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-public class BaseTableLayout<T> {
+public abstract class BaseTableLayout<T> {
 	static public final int CENTER = 1 << 0;
 	static public final int TOP = 1 << 1;
 	static public final int BOTTOM = 1 << 2;
@@ -50,7 +51,7 @@ public class BaseTableLayout<T> {
 	final HashMap<String, T> nameToWidget;
 
 	private final ArrayList<Cell> cells = new ArrayList();
-	private Cell cellDefaults = Cell.defaults();
+	private Cell cellDefaults = cellDefaults();
 	private final ArrayList<Cell> columnDefaults = new ArrayList(4);
 	private Cell rowDefaults;
 	private int columns, rows;
@@ -79,6 +80,9 @@ public class BaseTableLayout<T> {
 		TableLayoutParser.parse(this, tableText);
 	}
 
+	/**
+	 * @param widget May be null.
+	 */
 	public Cell add (T widget) {
 		Cell cell = new Cell();
 		cell.widget = widget;
@@ -121,6 +125,8 @@ public class BaseTableLayout<T> {
 			cell.set(cellDefaults);
 		cell.merge(rowDefaults);
 
+		addWidget(widget);
+
 		return cell;
 	}
 
@@ -143,10 +149,14 @@ public class BaseTableLayout<T> {
 	}
 
 	public void clear () {
+		for (int i = cells.size() - 1; i >= 0; i--) {
+			Cell cell = cells.get(i);
+			removeWidget((T)cell.widget);
+		}
 		cells.clear();
 		columnDefaults.clear();
 		nameToWidget.clear();
-		cellDefaults = Cell.defaults();
+		cellDefaults = cellDefaults();
 		debug = null;
 		rows = 0;
 		columns = 0;
@@ -481,53 +491,42 @@ public class BaseTableLayout<T> {
 		return value;
 	}
 
-	protected BaseTableLayout newTableLayout () {
-		return new BaseTableLayout(this);
-	}
+	abstract protected BaseTableLayout newTableLayout ();
 
-	protected T newLabel (String text) {
-		return (T)text;
-	}
+	abstract protected T newLabel (String text);
 
-	protected void setTitle (T parent, String string) {
-	}
+	abstract protected void setTitle (T parent, String string);
 
-	protected void addChild (T parent, T child, String layoutString) {
-	}
+	abstract protected void addChild (T parent, T child, String layoutString);
 
-	protected T wrap (Object object) {
-		return (T)object;
-	}
+	abstract protected T wrap (Object object);
 
-	protected int getMinWidth (T widget) {
-		return 0;
-	}
+	abstract protected void addWidget (T child);
 
-	protected int getMinHeight (T widget) {
-		return 0;
-	}
+	abstract protected void removeWidget (T child);
 
-	protected int getPrefWidth (T widget) {
-		return 0;
-	}
+	abstract protected int getMinWidth (T widget);
 
-	protected int getPrefHeight (T widget) {
-		return 0;
-	}
+	abstract protected int getMinHeight (T widget);
 
-	protected int getMaxWidth (T widget) {
-		return 0;
-	}
+	abstract protected int getPrefWidth (T widget);
 
-	protected int getMaxHeight (T widget) {
-		return 0;
-	}
+	abstract protected int getPrefHeight (T widget);
+
+	abstract protected int getMaxWidth (T widget);
+
+	abstract protected int getMaxHeight (T widget);
+
+	/**
+	 * Marks the TableLayout as needing to layout again.
+	 */
+	abstract public void invalidate ();
 
 	protected int scale (String value) {
 		return Integer.parseInt(value);
 	}
 
-	protected Object newWidget (String className) throws Exception {
+	public Object newWidget (String className) throws Exception {
 		try {
 			return Class.forName(className).newInstance();
 		} catch (Exception ex) {
@@ -542,7 +541,18 @@ public class BaseTableLayout<T> {
 		}
 	}
 
-	protected void setProperty (Object object, String name, ArrayList<String> values) {
+	public void setWidget (Cell cell, T widget) {
+		if (cell.widget != null) removeWidget((T)cell.widget);
+		cell.widget = widget;
+		nameToWidget.put(cell.name, widget);
+		addWidget(widget);
+	}
+
+	public void setWidget (String name, T widget) {
+		setWidget(getCell(name), widget);
+	}
+
+	public void setProperty (Object object, String name, ArrayList<String> values) {
 		try {
 			invokeMethod(object, name, values);
 		} catch (NoSuchMethodException ex1) {
@@ -560,7 +570,7 @@ public class BaseTableLayout<T> {
 		}
 	}
 
-	protected void setTableProperty (String name, ArrayList<String> values) {
+	public void setTableProperty (String name, ArrayList<String> values) {
 		name = name.toLowerCase();
 		for (int i = 0, n = values.size(); i < n; i++)
 			values.set(i, values.get(i).toLowerCase());
@@ -671,7 +681,7 @@ public class BaseTableLayout<T> {
 		}
 	}
 
-	protected void setCellProperty (Cell c, String name, ArrayList<String> values) {
+	public void setCellProperty (Cell c, String name, ArrayList<String> values) {
 		name = name.toLowerCase();
 		for (int i = 0, n = values.size(); i < n; i++)
 			values.set(i, values.get(i).toLowerCase());
@@ -882,7 +892,7 @@ public class BaseTableLayout<T> {
 		}
 	}
 
-	protected void drawDebugRect (boolean dash, int x, int y, int w, int h) {
+	public void drawDebugRect (boolean dash, int x, int y, int w, int h) {
 	}
 
 	static public void addClassPrefix (String prefix) {
@@ -916,12 +926,37 @@ public class BaseTableLayout<T> {
 	}
 
 	static private void invokeMethod (Object object, String name, ArrayList<String> values) throws NoSuchMethodException {
+		Object[] params = values.toArray();
+		// Prefer methods with string parameters.
+		Class[] stringParamTypes = new Class[params.length];
+		Method method = null;
+		try {
+			for (int i = 0, n = params.length; i < n; i++)
+				stringParamTypes[i] = String.class;
+			method = object.getClass().getMethod(name, stringParamTypes);
+		} catch (NoSuchMethodException ignored) {
+			try {
+				for (int i = 0, n = params.length; i < n; i++)
+					stringParamTypes[i] = CharSequence.class;
+				method = object.getClass().getMethod(name, stringParamTypes);
+			} catch (NoSuchMethodException ignored2) {
+			}
+		}
+		if (method != null) {
+			try {
+				method.invoke(object, params);
+			} catch (Exception ex) {
+				throw new RuntimeException("Error invoking method: " + name, ex);
+			}
+			return;
+		}
+		// Try to convert the strings to match a method.
 		Method[] methods = object.getClass().getMethods();
 		outer:
 		for (int i = 0, n = methods.length; i < n; i++) {
-			Method method = methods[i];
+			method = methods[i];
 			if (!method.getName().equalsIgnoreCase(name)) continue;
-			Object[] params = values.toArray();
+			params = values.toArray();
 			Class[] paramTypes = method.getParameterTypes();
 			for (int ii = 0, nn = paramTypes.length; ii < nn; ii++) {
 				Object value = convertType(object, (String)params[ii], paramTypes[ii]);
@@ -978,6 +1013,32 @@ public class BaseTableLayout<T> {
 			type = type.getSuperclass();
 		}
 		return null;
+	}
+
+	private Cell cellDefaults () {
+		Cell defaults = new Cell();
+		defaults.minWidth = MIN;
+		defaults.minHeight = MIN;
+		defaults.prefWidth = PREF;
+		defaults.prefHeight = PREF;
+		defaults.maxWidth = MAX;
+		defaults.maxHeight = MAX;
+		defaults.spaceTop = 0;
+		defaults.spaceLeft = 0;
+		defaults.spaceBottom = 0;
+		defaults.spaceRight = 0;
+		defaults.padTop = 0;
+		defaults.padLeft = 0;
+		defaults.padBottom = 0;
+		defaults.padRight = 0;
+		defaults.fillWidth = 0f;
+		defaults.fillHeight = 0f;
+		defaults.align = CENTER;
+		defaults.expandWidth = 0;
+		defaults.expandHeight = 0;
+		defaults.ignore = false;
+		defaults.colspan = 1;
+		return defaults;
 	}
 
 	static public class Cell {
@@ -1057,32 +1118,6 @@ public class BaseTableLayout<T> {
 			if (cell.colspan != null) colspan = cell.colspan;
 			if (cell.uniformWidth != null) uniformWidth = cell.uniformWidth;
 			if (cell.uniformHeight != null) uniformHeight = cell.uniformHeight;
-		}
-
-		static Cell defaults () {
-			Cell defaults = new Cell();
-			defaults.minWidth = MIN;
-			defaults.minHeight = MIN;
-			defaults.prefWidth = PREF;
-			defaults.prefHeight = PREF;
-			defaults.maxWidth = MAX;
-			defaults.maxHeight = MAX;
-			defaults.spaceTop = 0;
-			defaults.spaceLeft = 0;
-			defaults.spaceBottom = 0;
-			defaults.spaceRight = 0;
-			defaults.padTop = 0;
-			defaults.padLeft = 0;
-			defaults.padBottom = 0;
-			defaults.padRight = 0;
-			defaults.fillWidth = 0f;
-			defaults.fillHeight = 0f;
-			defaults.align = CENTER;
-			defaults.expandWidth = 0;
-			defaults.expandHeight = 0;
-			defaults.ignore = false;
-			defaults.colspan = 1;
-			return defaults;
 		}
 	}
 }

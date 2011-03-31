@@ -69,14 +69,13 @@ public class LibgdxTest implements ApplicationListener {
 			+ "'Hi' align:bottom,right"//
 			+ "[image1]" //
 		);
-		table.layout();
 	}
 
 	public void render () {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		table.update();
 		stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30.0f));
 		stage.draw();
-		table.drawDebug(); // Optional.
 	}
 
 	public void resize (int arg0, int arg1) {

@@ -15,12 +15,14 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
 import com.esotericsoftware.tablelayout.BaseTableLayout;
@@ -116,6 +118,18 @@ public class TableLayout extends BaseTableLayout<View> {
 		return view;
 	}
 
+	protected void addWidget (View child) {
+		group.addView(child);
+	}
+
+	protected void removeWidget (View child) {
+		group.removeView(child);
+	}
+
+	public void invalidate () {
+		group.requestLayout();
+	}
+
 	protected TableLayout newTableLayout () {
 		return new TableLayout(this);
 	}
@@ -123,7 +137,6 @@ public class TableLayout extends BaseTableLayout<View> {
 	protected TextView newLabel (String text) {
 		TextView textView = new TextView(group.getContext());
 		textView.setText(text);
-		group.addView(textView);
 		return textView;
 	}
 
@@ -144,7 +157,6 @@ public class TableLayout extends BaseTableLayout<View> {
 			view = new FrameLayout(group.getContext());
 		else
 			throw new IllegalArgumentException("Unknown object: " + object);
-		if (view.getParent() != group) group.addView(view);
 		return view;
 	}
 
@@ -177,7 +189,7 @@ public class TableLayout extends BaseTableLayout<View> {
 		return null;
 	}
 
-	protected void drawDebugRect (boolean dash, int x, int y, int w, int h) {
+	public void drawDebugRect (boolean dash, int x, int y, int w, int h) {
 		if (debugRects == null) debugRects = new ArrayList();
 		debugRects.add(new DebugRect(dash, x, y, w, h));
 	}
@@ -190,23 +202,24 @@ public class TableLayout extends BaseTableLayout<View> {
 		return group;
 	}
 
-	Drawable getDrawable (String name) {
+	public Drawable getDrawable (String name) {
 		Integer id = drawableToID.get(name);
 		if (id == null) throw new IllegalArgumentException("Unknown drawable name: " + name);
 		return context.getResources().getDrawable(id);
 	}
 
-	ImageView getImageView (String name) {
+	public ImageView getImageView (String name) {
 		Integer id = drawableToID.get(name);
 		if (id != null) {
 			ImageView view = new ImageView(context);
+			view.setScaleType(ScaleType.FIT_XY);
 			view.setImageResource(id);
 			return view;
 		}
 		return null;
 	}
 
-	protected Object newWidget (String className) throws Exception {
+	public Object newWidget (String className) throws Exception {
 		if (className.equals("button")) {
 			Button button = new Button(context);
 			button.setBackgroundDrawable(new StateListDrawable());
