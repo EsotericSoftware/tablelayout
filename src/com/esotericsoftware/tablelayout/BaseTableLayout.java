@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 public class BaseTableLayout<T> {
 	static public final int CENTER = 1 << 0;
@@ -81,6 +82,13 @@ public class BaseTableLayout<T> {
 	public Cell add (T widget) {
 		Cell cell = new Cell();
 		cell.widget = widget;
+
+		for (Entry<String, T> entry : nameToWidget.entrySet()) {
+			if (widget == entry.getValue()) {
+				cell.name = entry.getKey();
+				break;
+			}
+		}
 
 		if (cells.size() > 0) {
 			// Set cell x and y.
@@ -984,15 +992,16 @@ public class BaseTableLayout<T> {
 		public Boolean ignore;
 		public Integer colspan;
 		public Boolean uniformWidth, uniformHeight;
+		public String name;
+
+		public Object widget;
+		public int widgetX, widgetY;
+		public int widgetWidth, widgetHeight;
 
 		boolean endRow;
 		int column, row;
 		int cellAboveIndex = -1;
 		int padTopTemp, padLeftTemp, padBottomTemp, padRightTemp;
-
-		public Object widget;
-		public int widgetX, widgetY;
-		public int widgetWidth, widgetHeight;
 
 		Cell () {
 		}

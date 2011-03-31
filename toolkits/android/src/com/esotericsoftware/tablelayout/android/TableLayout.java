@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -140,7 +141,7 @@ public class TableLayout extends BaseTableLayout<View> {
 		else if (object instanceof String)
 			view = newLabel((String)object);
 		else if (object == null)
-			view = new View(group.getContext());
+			view = new FrameLayout(group.getContext());
 		else
 			throw new IllegalArgumentException("Unknown object: " + object);
 		if (view.getParent() != group) group.addView(view);
@@ -215,7 +216,7 @@ public class TableLayout extends BaseTableLayout<View> {
 		return super.newWidget(className);
 	}
 
-	protected void setProperty (Object object, String name, ArrayList<String> values) {
+	public void setProperty (Object object, String name, ArrayList<String> values) {
 		if (values.size() == 1) {
 			if (object instanceof View) {
 				if (setBackground((View)object, name, values.get(0))) return;
@@ -228,7 +229,7 @@ public class TableLayout extends BaseTableLayout<View> {
 		super.setProperty(object, name, values);
 	}
 
-	private boolean setCompoundDrawable (TextView view, String name, String value) {
+	public boolean setCompoundDrawable (TextView view, String name, String value) {
 		if (name.equals("left")) {
 			Drawable[] drawables = view.getCompoundDrawables();
 			view.setCompoundDrawablesWithIntrinsicBounds(getDrawable(value), drawables[1], drawables[2], drawables[3]);
@@ -256,7 +257,7 @@ public class TableLayout extends BaseTableLayout<View> {
 		return false;
 	}
 
-	private boolean setBackground (View view, String name, String value) {
+	public boolean setBackground (View view, String name, String value) {
 		if (name.equals("image")) {
 			if (view.getBackground() instanceof StateListDrawable)
 				setBackgroundState(view, 0, value);
@@ -278,7 +279,9 @@ public class TableLayout extends BaseTableLayout<View> {
 		return false;
 	}
 
-	private void setBackgroundState (View view, int state, String value) {
+	public void setBackgroundState (View view, int state, String value) {
+		if (!(view.getBackground() instanceof StateListDrawable))
+			throw new RuntimeException("View must have a StateListDrawable background: " + view.getBackground());
 		StateListDrawable states = (StateListDrawable)view.getBackground();
 		Drawable drawable = getDrawable(value);
 		states.addState(new int[] {state}, drawable);
