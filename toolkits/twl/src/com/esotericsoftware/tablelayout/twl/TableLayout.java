@@ -74,6 +74,8 @@ public class TableLayout extends BaseTableLayout<Widget> {
 
 	protected Widget wrap (Object object) {
 		if (object instanceof Widget) return (Widget)object;
+		if (object instanceof TableLayout) return ((TableLayout)object).getWidget();
+		if (object instanceof String) return newLabel((String)object);
 		if (object == null) return new Widget();
 		throw new IllegalArgumentException("Unknown object: " + object);
 	}
@@ -100,11 +102,6 @@ public class TableLayout extends BaseTableLayout<Widget> {
 
 	protected int getMaxHeight (Widget widget) {
 		return widget.getMaxHeight();
-	}
-
-	protected TableLayout getTableLayout (Object object) {
-		if (object instanceof TableLayout) return (TableLayout)object;
-		return null;
 	}
 
 	public Widget getWidget () {

@@ -38,9 +38,10 @@ public class TableLayout extends BaseTableLayout<Component> {
 	static BasicStroke debugDash = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] {3}, 0);
 	static BasicStroke debugSolid = new BasicStroke(1);
 
+	final Container container = new Container();
+
 	Container debugParent;
 	ArrayList<DebugRect> debugRects;
-	final Container container = new Container();
 
 	public TableLayout () {
 		initialize();
@@ -207,12 +208,6 @@ public class TableLayout extends BaseTableLayout<Component> {
 
 	protected int getMaxHeight (Component widget) {
 		return widget.getMaximumSize().height;
-	}
-
-	protected TableLayout getTableLayout (Object object) {
-		if (object instanceof TableLayout) return (TableLayout)object;
-		if (object instanceof JComponent) return (TableLayout)((JComponent)object).getLayout();
-		return null;
 	}
 
 	void drawDebug () {

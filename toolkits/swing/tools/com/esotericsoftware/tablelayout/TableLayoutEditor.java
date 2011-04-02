@@ -119,6 +119,7 @@ public class TableLayoutEditor extends JFrame {
 							outputTable.clear();
 						}
 						outputTable.getContainer().doLayout();
+						outputTable.getContainer().repaint();
 					}
 				});
 			}

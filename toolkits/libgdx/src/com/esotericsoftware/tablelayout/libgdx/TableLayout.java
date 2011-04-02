@@ -44,7 +44,7 @@ public class TableLayout extends BaseTableLayout<Actor> {
 
 	private TableLayout (TableLayout parent) {
 		super(parent);
-		this.group = parent.group;
+		this.group = parent.group; // BOZO - Wrong? Test nested tables in libgdx.
 		this.font = parent.font;
 	}
 
@@ -152,6 +152,7 @@ public class TableLayout extends BaseTableLayout<Actor> {
 
 	protected Actor wrap (Object object) {
 		if (object instanceof Actor) return (Actor)object;
+		if (object instanceof TableLayout) return ((TableLayout)object).getGroup();
 		if (object instanceof String) return newLabel((String)object);
 		if (object == null) return new Group(null);
 		throw new IllegalArgumentException("Unknown object: " + object);
@@ -179,11 +180,6 @@ public class TableLayout extends BaseTableLayout<Actor> {
 
 	protected int getMaxHeight (Actor actor) {
 		return 0;
-	}
-
-	protected TableLayout getTableLayout (Object object) {
-		if (object instanceof TableLayout) return (TableLayout)object;
-		return null;
 	}
 
 	public void drawDebugRect (boolean dash, int x, int y, int w, int h) {

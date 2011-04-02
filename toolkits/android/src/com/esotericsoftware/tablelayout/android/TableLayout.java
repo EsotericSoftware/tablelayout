@@ -34,11 +34,11 @@ public class TableLayout extends BaseTableLayout<View> {
 	}
 
 	static final HashMap<String, Integer> drawableToID = new HashMap();
-	static float scale;
+	static float scale = 1;
 	static Paint paint;
 
 	final Context context;
-	final ViewGroup group;
+	ViewGroup group;
 	ArrayList<DebugRect> debugRects;
 
 	public TableLayout (Context context) {
@@ -48,24 +48,39 @@ public class TableLayout extends BaseTableLayout<View> {
 	public TableLayout (Context context, String tableText) {
 		super(tableText);
 		this.context = context;
+		initialize();
+	}
 
+	private TableLayout (TableLayout parent) {
+		super(parent);
+		this.context = parent.context;
+		initialize();
+	}
+
+	private void initialize () {
 		group = new ViewGroup(context) {
 			protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec) {
-				measureChildren(widthMeasureSpec, heightMeasureSpec);
+				boolean widthUnspecified = MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.UNSPECIFIED;
+				boolean heightUnspecified = MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED;
 
-				tableLayoutWidth = MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.UNSPECIFIED ? Integer.MAX_VALUE : MeasureSpec
-					.getMode(widthMeasureSpec);
-				tableLayoutHeight = MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED ? Integer.MAX_VALUE
-					: MeasureSpec.getMode(heightMeasureSpec);
+				tableLayoutWidth = widthUnspecified ? 0 : MeasureSpec.getSize(widthMeasureSpec);
+				tableLayoutHeight = heightUnspecified ? 0 : MeasureSpec.getSize(heightMeasureSpec);
+
+				measureChildren(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+					MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+
 				TableLayout.this.layout();
-				setMeasuredDimension(resolveSize(totalPrefWidth, widthMeasureSpec), resolveSize(totalPrefHeight, heightMeasureSpec));
+
+				int measuredWidth = widthUnspecified ? totalMinWidth : totalPrefWidth;
+				int measuredHeight = heightUnspecified ? totalMinHeight : totalPrefHeight;
+				setMeasuredDimension(resolveSize(measuredWidth, widthMeasureSpec), resolveSize(measuredHeight, heightMeasureSpec));
 			}
 
 			protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
-				tableLayoutX = left;
-				tableLayoutY = top;
 				tableLayoutWidth = right - left;
 				tableLayoutHeight = bottom - top;
+
+				if (debug != null && debugRects != null) debugRects.clear();
 				TableLayout.this.layout();
 				ArrayList<Cell> cells = getCells();
 				for (int i = 0, n = cells.size(); i < n; i++) {
@@ -105,12 +120,6 @@ public class TableLayout extends BaseTableLayout<View> {
 		group.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 	}
 
-	private TableLayout (TableLayout parent) {
-		super(parent);
-		this.context = parent.context;
-		this.group = parent.group;
-	}
-
 	public View getWidget (String name) {
 		View view = super.getWidget(name);
 		if (view == null) view = getImageView(name);
@@ -148,16 +157,11 @@ public class TableLayout extends BaseTableLayout<View> {
 	}
 
 	protected View wrap (Object object) {
-		View view;
-		if (object instanceof View)
-			view = (View)object;
-		else if (object instanceof String)
-			view = newLabel((String)object);
-		else if (object == null)
-			view = new FrameLayout(group.getContext());
-		else
-			throw new IllegalArgumentException("Unknown object: " + object);
-		return view;
+		if (object instanceof View) return (View)object;
+		if (object instanceof TableLayout) return ((TableLayout)object).getView();
+		if (object instanceof String) return newLabel((String)object);
+		if (object == null) return new FrameLayout(group.getContext());
+		throw new IllegalArgumentException("Unknown object: " + object);
 	}
 
 	protected int getMinWidth (View view) {
@@ -182,11 +186,6 @@ public class TableLayout extends BaseTableLayout<View> {
 
 	protected int getMaxHeight (View view) {
 		return 0;
-	}
-
-	protected TableLayout getTableLayout (Object object) {
-		if (object instanceof TableLayout) return (TableLayout)object;
-		return null;
 	}
 
 	public void drawDebugRect (boolean dash, int x, int y, int w, int h) {
@@ -220,11 +219,7 @@ public class TableLayout extends BaseTableLayout<View> {
 	}
 
 	public Object newWidget (String className) throws Exception {
-		if (className.equals("button")) {
-			Button button = new Button(context);
-			button.setBackgroundDrawable(new StateListDrawable());
-			return button;
-		}
+		if (className.equals("button")) return new Button(context);
 
 		return super.newWidget(className);
 	}
@@ -280,16 +275,26 @@ public class TableLayout extends BaseTableLayout<View> {
 		}
 
 		if (name.equals("pressed")) {
+			ensureBackgroundStateList(view);
 			setBackgroundState(view, R.attr.state_pressed, value);
 			return true;
 		}
 
 		if (name.equals("focused")) {
+			ensureBackgroundStateList(view);
 			setBackgroundState(view, R.attr.state_focused, value);
 			return true;
 		}
 
 		return false;
+	}
+
+	private void ensureBackgroundStateList (View view) {
+		Drawable background = view.getBackground();
+		if (background instanceof StateListDrawable) return;
+		StateListDrawable states = new StateListDrawable();
+		if (background != null) states.addState(new int[] {0}, background);
+		view.setBackgroundDrawable(states);
 	}
 
 	public void setBackgroundState (View view, int state, String value) {

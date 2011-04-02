@@ -244,7 +244,7 @@ public abstract class BaseTableLayout<T> {
 			rowMinHeight[c.row] = Math.max(rowMinHeight[c.row], minHeight + padTopBottom);
 		}
 
-		// Determine maximum cell sizes using preferred size ratios to distribute space beyond min size.
+		// Determine maximum cell sizes using (preferred - min) size to weight distribution of extra space.
 		totalMinWidth = 0;
 		totalMinHeight = 0;
 		totalPrefWidth = 0;
@@ -367,7 +367,26 @@ public abstract class BaseTableLayout<T> {
 				if (expandHeight[i] != 0) rowHeight[i] += amount * expandHeight[i] / totalExpandHeight;
 		}
 
-		// Position table with the TableLayout.
+		// Distribute any additional width added by colspanned cells to the columns spanned.
+		for (int i = 0, n = cells.size(); i < n; i++) {
+			Cell c = cells.get(i);
+			if (c.ignore) continue;
+			if (c.colspan == 1) continue;
+
+			int minWidth = getWidth((T)c.widget, c.minWidth);
+
+			int spannedCellWidth = 0;
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
+				spannedCellWidth += columnWidth[column];
+
+			int extraWidth = Math.max(0, minWidth - spannedCellWidth) / c.colspan;
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
+				columnWidth[column] += extraWidth;
+
+			c.widgetWidth = Math.max(c.widgetWidth, minWidth - (c.padLeftTemp - c.padRightTemp));
+		}
+
+		// Determine table size.
 		int tableWidth = 0, tableHeight = 0;
 		for (int i = 0; i < columns; i++)
 			tableWidth += columnWidth[i];
@@ -376,6 +395,7 @@ public abstract class BaseTableLayout<T> {
 			tableHeight += rowHeight[i];
 		tableHeight = Math.max(tableHeight, height);
 
+		// Position table within the TableLayout.
 		int x = tableLayoutX + padLeft;
 		if ((align & RIGHT) != 0)
 			x += tableLayoutWidth - tableWidth;
