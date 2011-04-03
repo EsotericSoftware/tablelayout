@@ -227,18 +227,19 @@ class TableLayoutParser {
 										label = null;
 										if (name.length() > 0) table.setName(name, widget);
 									} else if (className == null) {
-										if (name.length() > 0) { // [name]
-											widget = table.getWidget(name);
-											if (widget == null) {
-												// Try the widget name as a class name.
-												try {
-													widget = table.wrap(table.newWidget(name));
-												} catch (Exception ex) {
-													if (hasColon) { // [name:]
-														widget = table.wrap(null);
-														table.setName(name, widget);
-													} else
+										if (name.length() > 0) {
+											if (hasColon) { // [name:]
+												widget = table.wrap(null);
+												table.setName(name, widget);
+											} else { // [name]
+												widget = table.getWidget(name);
+												if (widget == null) {
+													// Try the widget name as a class name.
+													try {
+														widget = table.wrap(table.newWidget(name));
+													} catch (Exception ex) {
 														throw new IllegalArgumentException("Widget not found with name: " + name);
+													}
 												}
 											}
 										} // else leave widget null for: []
@@ -254,14 +255,14 @@ class TableLayoutParser {
 								}
 									break;
 								case 15:
-									// line 135 "TableLayoutParser.rl"
+									// line 136 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("newLabel: " + new String(data, s, p - s));
 									widget = table.newLabel(new String(data, s, p - s));
 								}
 									break;
 								case 16:
-									// line 139 "TableLayoutParser.rl"
+									// line 140 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("startTable");
 									parents.add(parent);
@@ -284,7 +285,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 17:
-									// line 147 "TableLayoutParser.rl"
+									// line 148 "TableLayoutParser.rl"
 								{
 									widget = parent;
 									if (!parents.isEmpty()) {
@@ -299,7 +300,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 18:
-									// line 155 "TableLayoutParser.rl"
+									// line 156 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("startWidgetSection");
 									parents.add(parent);
@@ -321,7 +322,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 19:
-									// line 162 "TableLayoutParser.rl"
+									// line 163 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("endWidgetSection");
 									widget = parent;
@@ -334,14 +335,14 @@ class TableLayoutParser {
 								}
 									break;
 								case 20:
-									// line 168 "TableLayoutParser.rl"
+									// line 169 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("addCell");
 									cell = ((BaseTableLayout)parent).add(table.wrap(widget));
 								}
 									break;
 								case 21:
-									// line 172 "TableLayoutParser.rl"
+									// line 173 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("addWidget");
 									table.addChild(parent, table.wrap(widget), widgetLayoutString);
@@ -349,7 +350,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 22:
-									// line 177 "TableLayoutParser.rl"
+									// line 178 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("widgetProperty: " + name + " = " + values);
 									try {
@@ -362,12 +363,12 @@ class TableLayoutParser {
 								}
 									break;
 								case 23:
-									// line 197 "TableLayoutParser.rl"
+									// line 198 "TableLayoutParser.rl"
 								{
 									hasColon = true;
 								}
 									break;
-								// line 316 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+								// line 317 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 								}
 							}
 						}
@@ -388,7 +389,7 @@ class TableLayoutParser {
 				}
 			}
 
-			// line 257 "TableLayoutParser.rl"
+			// line 258 "TableLayoutParser.rl"
 
 		} catch (RuntimeException ex) {
 			parseRuntimeEx = ex;
@@ -405,7 +406,7 @@ class TableLayoutParser {
 				parseRuntimeEx);
 	}
 
-	// line 336 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+	// line 337 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 	private static byte[] init__tableLayout_actions_0 () {
 		return new byte[] {0, 1, 0, 1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 1, 8, 1, 9, 1, 10, 1, 12, 1, 13, 1, 14, 1, 15, 1, 16,
 			1, 17, 1, 18, 1, 19, 1, 20, 1, 21, 1, 22, 1, 23, 2, 0, 1, 2, 0, 2, 2, 0, 10, 2, 0, 12, 2, 0, 13, 2, 0, 15, 2, 1, 3, 2,
@@ -560,5 +561,5 @@ class TableLayoutParser {
 	static final int tableLayout_en_main = 1;
 	static final int tableLayout_en_main_table = 82;
 
-	// line 272 "TableLayoutParser.rl"
+	// line 273 "TableLayoutParser.rl"
 }

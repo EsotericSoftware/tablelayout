@@ -107,18 +107,19 @@ class TableLayoutParser {
 					label = null;
 					if (name.length() > 0) table.setName(name, widget);
 				} else if (className == null) {
-					if (name.length() > 0) { // [name]
-						widget = table.getWidget(name);
-						if (widget == null) {
-							// Try the widget name as a class name.
-							try {
-								widget = table.wrap(table.newWidget(name));
-							} catch (Exception ex) {
-								if (hasColon) { // [name:]
-									widget = table.wrap(null);
-									table.setName(name, widget);
-								} else
+					if (name.length() > 0) {
+						if (hasColon) { // [name:]
+							widget = table.wrap(null);
+							table.setName(name, widget);
+						} else { // [name]
+							widget = table.getWidget(name);
+							if (widget == null) {
+								// Try the widget name as a class name.
+								try {
+									widget = table.wrap(table.newWidget(name));
+								} catch (Exception ex) {
 									throw new IllegalArgumentException("Widget not found with name: " + name);
+								}
 							}
 						}
 					} // else leave widget null for: []

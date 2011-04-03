@@ -204,6 +204,10 @@ public class TableLayout extends BaseTableLayout<View> {
 		return group;
 	}
 
+	public Context getContext () {
+		return context;
+	}
+
 	public Drawable getDrawable (String name) {
 		Integer id = drawableToID.get(name);
 		if (id == null) throw new IllegalArgumentException("Unknown drawable name: " + name);
@@ -269,22 +273,22 @@ public class TableLayout extends BaseTableLayout<View> {
 	}
 
 	public boolean setBackground (View view, String name, String value) {
-		if (name.equals("image")) {
-			if (view.getBackground() instanceof StateListDrawable)
-				setBackgroundState(view, 0, value);
-			else
-				view.setBackgroundDrawable(getDrawable(value));
+		if (name.equals("bg")) {
+			view.setBackgroundDrawable(getDrawable(value));
+			return true;
+		}
+
+		if (name.equals("empty")) {
+			setBackgroundState(view, 0, value);
 			return true;
 		}
 
 		if (name.equals("pressed")) {
-			ensureBackgroundStateList(view);
 			setBackgroundState(view, R.attr.state_pressed, value);
 			return true;
 		}
 
 		if (name.equals("focused")) {
-			ensureBackgroundStateList(view);
 			setBackgroundState(view, R.attr.state_focused, value);
 			return true;
 		}
@@ -292,20 +296,16 @@ public class TableLayout extends BaseTableLayout<View> {
 		return false;
 	}
 
-	private void ensureBackgroundStateList (View view) {
-		Drawable background = view.getBackground();
-		if (background instanceof StateListDrawable) return;
-		StateListDrawable states = new StateListDrawable();
-		if (background != null) states.addState(new int[] {0}, background);
-		view.setBackgroundDrawable(states);
-	}
-
 	public void setBackgroundState (View view, int state, String value) {
-		if (!(view.getBackground() instanceof StateListDrawable))
-			throw new RuntimeException("View must have a StateListDrawable background: " + view.getBackground());
-		StateListDrawable states = (StateListDrawable)view.getBackground();
-		Drawable drawable = getDrawable(value);
-		states.addState(new int[] {state}, drawable);
+		Drawable background = view.getBackground();
+		StateListDrawable states;
+		if (background instanceof CustomizedStateListDrawable)
+			states = (StateListDrawable)background;
+		else {
+			states = new CustomizedStateListDrawable();
+			view.setBackgroundDrawable(states);
+		}
+		states.addState(new int[] {state}, getDrawable(value));
 	}
 
 	static public void setup (Activity activity, Class drawableClass) {
@@ -315,6 +315,7 @@ public class TableLayout extends BaseTableLayout<View> {
 		DisplayMetrics metrics = new DisplayMetrics();
 		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		scale = metrics.density;
+
 		drawableToID.clear();
 		Field[] fields = drawableClass.getFields();
 		for (int i = 0, n = fields.length; i < n; i++) {
@@ -332,9 +333,15 @@ public class TableLayout extends BaseTableLayout<View> {
 		final Rect rect;
 
 		public DebugRect (boolean isCell, int x, int y, int width, int height) {
-			rect = new Rect(x, y, x + width, y + height);
+			rect = new Rect(x, y, x + width - 1, y + height - 1);
 			this.isCell = isCell;
 
 		}
+	}
+
+	/**
+	 * Marker class so we know the background is no longer the default.
+	 */
+	static class CustomizedStateListDrawable extends StateListDrawable {
 	}
 }
