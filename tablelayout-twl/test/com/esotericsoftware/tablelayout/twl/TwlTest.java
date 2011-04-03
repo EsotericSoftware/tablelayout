@@ -42,7 +42,7 @@ public class TwlTest {
 		scrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
 		FPSCounter fpsCounter = new FPSCounter(4, 2);
 
-		TableLayout table = new TableLayout();
+		Table table = new Table();
 		table.setName("scrollPane", scrollPane);
 		table.setName("fpsCounter", fpsCounter);
 		table.parse("" //
@@ -52,8 +52,8 @@ public class TwlTest {
 			+ "---" //
 			+ "[ProgressBar] fill (value:0.4)" //
 		);
-		root.add(table.getWidget());
-		
+		root.add(table);
+
 		while (!Display.isCloseRequested()) {
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 			gui.update();

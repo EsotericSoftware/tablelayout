@@ -26,21 +26,20 @@ import com.badlogic.gdx.scenes.scene2d.actions.Sequence;
 import com.badlogic.gdx.scenes.scene2d.actors.Image;
 
 public class LibgdxTest implements ApplicationListener {
-	private BitmapFont font;
 	private Stage stage;
-	private TableLayout table;
+	private Table table;
 	private TextureRegion blendDownRegion;
 
 	public void create () {
-		font = new BitmapFont(true);
+		GdxToolkit.setFont(new BitmapFont(true));
 
 		stage = new Stage(640, 480, false);
 		stage.projection.setToOrtho(0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1);
 
-		Group group = new Group();
-		stage.addActor(group);
-		group.width = 640;
-		group.height = 480;
+		table = new Table();
+		stage.addActor(table);
+		table.width = 640;
+		table.height = 480;
 
 		Texture badlogic = new Texture(Gdx.files.internal("badlogic.jpg"));
 		TextureRegion badlogicRegion = new TextureRegion(badlogic, 0, 0, 256, 256);
@@ -51,7 +50,7 @@ public class LibgdxTest implements ApplicationListener {
 		img1.originX = img1.originY = 64;
 		img1.action(Sequence.$(FadeOut.$(1), FadeIn.$(1), ScaleTo.$(0.5f, 0.5f, 1), FadeOut.$(0.5f),
 			Delay.$(Parallel.$(RotateTo.$(360, 1), FadeIn.$(1), ScaleTo.$(1, 1, 1)), 1)));
-		group.addActor(img1);
+		table.addActor(img1);
 
 		Image img2 = new Image("image2", badlogicRegion);
 		img2.width = img2.height = 64;
@@ -59,7 +58,6 @@ public class LibgdxTest implements ApplicationListener {
 		img2.action(Forever.$(Sequence.$(MoveBy.$(50, 0, 1), MoveBy.$(0, 50, 1), MoveBy.$(-50, 0, 1), MoveBy.$(0, -50, 1))));
 		stage.addActor(img2);
 
-		table = new TableLayout(group, font);
 		table.parse("" //
 			+ "debug" //
 			+ "* spacing:10" //

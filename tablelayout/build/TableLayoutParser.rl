@@ -4,10 +4,8 @@ package com.esotericsoftware.tablelayout;
 
 import java.util.ArrayList;
 
-import com.esotericsoftware.tablelayout.BaseTableLayout.Cell;
-
 class TableLayoutParser {
-	static public void parse (BaseTableLayout table, String input) {
+	static public void parse (TableLayout table, Toolkit toolkit, String input) {
 		char[] data = (input + "  ").toCharArray();
 		int cs, p = 0, pe = data.length, eof = pe, top = 0;
 		int[] stack = new int[4];
@@ -18,6 +16,7 @@ class TableLayoutParser {
 		String className = null;
 		Object label = null;
 
+		int columnDefaultCount = 0;
 		ArrayList<String> values = new ArrayList(4);
 		ArrayList<Object> parents = new ArrayList(8);
 		Cell cell = null, rowDefaults = null, columnDefaults = null;
@@ -51,43 +50,42 @@ class TableLayoutParser {
 			}
 			action tableProperty {
 				if (debug) System.out.println("tableProperty: " + name + " = " + values);
-				((BaseTableLayout)parent).setTableProperty(name, values);
+				toolkit.setTableProperty((TableLayout)parent, name, values);
 				values.clear();
 			}
 			action cellDefaultProperty {
 				if (debug) System.out.println("cellDefaultProperty: " + name + " = " + values);
-				table.setCellProperty(((BaseTableLayout)parent).getCellDefaults(), name, values);
+				toolkit.setCellProperty(((TableLayout)parent).getCellDefaults(), name, values);
 				values.clear();
 			}
 			action startColumn {
-				int column = ((BaseTableLayout)parent).getColumnDefaults().size();
-				columnDefaults = ((BaseTableLayout)parent).getColumnDefaults(column);
+				columnDefaults = ((TableLayout)parent).getColumnDefaults(columnDefaultCount++);
 			}
 			action columnDefaultProperty {
 				if (debug) System.out.println("columnDefaultProperty: " + name + " = " + values);
-				table.setCellProperty(columnDefaults, name, values);
+				toolkit.setCellProperty(columnDefaults, name, values);
 				values.clear();
 			}
 			action startRow {
 				if (debug) System.out.println("startRow");
-				rowDefaults = ((BaseTableLayout)parent).startRow();
+				rowDefaults = ((TableLayout)parent).startRow();
 			}
 			action rowDefaultValue {
 				if (debug) System.out.println("rowDefaultValue: " + name + " = " + values);
-				table.setCellProperty(rowDefaults, name, values);
+				toolkit.setCellProperty(rowDefaults, name, values);
 				values.clear();
 			}
 			action cellProperty {
 				if (debug) System.out.println("cellProperty: " + name + " = " + values);
-				table.setCellProperty(cell, name, values);
+				toolkit.setCellProperty(cell, name, values);
 				values.clear();
 			}
 			action setTitle {
 				if (debug) System.out.println("setTitle: " + new String(data, s, p - s));
-				if (widget instanceof BaseTableLayout)
-					((BaseTableLayout)widget).title = new String(data, s, p - s);
+				if (widget instanceof TableLayout)
+					((TableLayout)widget).title = new String(data, s, p - s);
 				else
-					table.setTitle(widget, new String(data, s, p - s));
+					toolkit.setTitle(widget, new String(data, s, p - s));
 			}
 			action widgetLayoutString {
 				if (debug) System.out.println("widgetLayoutString: " + new String(data, s, p - s).trim());
@@ -97,7 +95,7 @@ class TableLayoutParser {
 				className = new String(data, s, p - s);
 			}
 			action newWidgetLabel {
-				label = table.newLabel(new String(data, s, p - s));
+				label = toolkit.newLabel(new String(data, s, p - s));
 			}
 			action newWidget {
 				if (debug) System.out.println("newWidget: " + name + " " + className + " " + label);
@@ -109,14 +107,14 @@ class TableLayoutParser {
 				} else if (className == null) {
 					if (name.length() > 0) {
 						if (hasColon) { // [name:]
-							widget = table.wrap(null);
+							widget = toolkit.newEmptyWidget();
 							table.setName(name, widget);
 						} else { // [name]
 							widget = table.getWidget(name);
 							if (widget == null) {
 								// Try the widget name as a class name.
 								try {
-									widget = table.wrap(table.newWidget(name));
+									widget = toolkit.wrap(toolkit.newWidget(name));
 								} catch (Exception ex) {
 									throw new IllegalArgumentException("Widget not found with name: " + name);
 								}
@@ -125,7 +123,7 @@ class TableLayoutParser {
 					} // else leave widget null for: []
 				} else { // [:class] and [name:class]
 					try {
-						widget = table.wrap(table.newWidget(className));
+						widget = toolkit.wrap(toolkit.newWidget(className));
 					} catch (Exception ex) {
 						throw new RuntimeException("Error creating instance of class: " + className, ex);
 					}
@@ -135,12 +133,12 @@ class TableLayoutParser {
 			}
 			action newLabel {
 				if (debug) System.out.println("newLabel: " + new String(data, s, p - s));
-				widget = table.newLabel(new String(data, s, p - s));
+				widget = toolkit.newLabel(new String(data, s, p - s));
 			}
 			action startTable {
 				if (debug) System.out.println("startTable");
 				parents.add(parent);
-				parent = table.newTableLayout();
+				parent = toolkit.newTableLayout();
 				cell = null;
 				widget = null;
 				fcall table;
@@ -168,17 +166,20 @@ class TableLayoutParser {
 			}
 			action addCell {
 				if (debug) System.out.println("addCell");
-				cell = ((BaseTableLayout)parent).add(table.wrap(widget));
+				if (widget == null)
+					cell = ((TableLayout)parent).addCell(toolkit.newEmptyWidget());
+				else
+					cell = ((TableLayout)parent).addCell(toolkit.wrap(widget));
 			}
 			action addWidget {
 				if (debug) System.out.println("addWidget");
-				table.addChild(parent, table.wrap(widget), widgetLayoutString);
+				toolkit.addChild(parent, toolkit.wrap(widget), widgetLayoutString);
 				widgetLayoutString = null;
 			}
 			action widgetProperty {
 				if (debug) System.out.println("widgetProperty: " + name + " = " + values);
 				try {
-					table.setProperty(parent, name, values);
+					toolkit.setProperty(parent, name, values);
 				} catch (RuntimeException ex) {
 					throw new RuntimeException("Error setting property: " + name + "\nClass: " + parent.getClass()
 						+ "\nValues: " + values, ex);
@@ -195,7 +196,7 @@ class TableLayoutParser {
 			widget =
 				# Widget name.
 				'[' space* ^[\]:]* >buffer %name <:
-				space* ':'? %{ hasColon = true; } space*
+				space* ':'? @{ hasColon = true; } space*
 				(
 					# Class name.
 					(^[\]':]+ >buffer %newWidgetClassName) |

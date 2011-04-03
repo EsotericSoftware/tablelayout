@@ -1,75 +1,61 @@
 
-package com.esotericsoftware.tablelayout;
+package com.esotericsoftware.tablelayout.swing;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import com.esotericsoftware.tablelayout.swing.TableLayout;
-
 public class TableLayoutEditor extends JFrame {
 	JTextArea codeArea, errorArea;
-	TableLayout outputTable;
+	Table outputTable;
 
 	public TableLayoutEditor () {
 		super("TableLayout Editor");
 
-		outputTable = new TableLayout() {
+		outputTable = new Table(new SwingTableLayout() {
 			public Component getWidget (String name) {
 				Component widget = super.getWidget(name);
 				if (widget != null) return widget;
 				try {
-					return (Component)wrap(newWidget(name));
+					return toolkit.wrap(toolkit.newWidget(name));
 				} catch (Exception ignored) {
 				}
 				if (name.endsWith("Edit")) return new JTextField();
 				if (name.endsWith("Button")) return new JButton("Center");
 				return new Placeholder(name);
 			}
-		};
+		});
 
-		TableLayout table = new TableLayout();
-		table.setName("outputPanel", outputTable.getContainer());
-		table.parse("padding:10 " //
+		Table table = new Table();
+		table.layout.setName("outputTable", outputTable);
+		table.layout.parse("padding:10 " //
 			+ "[JSplitPane] expand fill ( "//
 			+ "{" //
 			+ "[JScrollPane] size:300,0 expand fill ([codeArea:JTextArea])" //
 			+ "---" //
 			+ "[JScrollPane] size:300,0 expand fill ([errorArea:JTextArea])" //
 			+ "}" //
-			+ "[outputPanel]" //
+			+ "[outputTable]" //
 			+ ")");
 
-		errorArea = (JTextArea)table.getWidget("errorArea");
+		errorArea = (JTextArea)table.layout.getWidget("errorArea");
 		errorArea.setFont(Font.decode("monospaced"));
 		errorArea.setWrapStyleWord(true);
 		errorArea.setLineWrap(true);
 		errorArea.setForeground(Color.red);
 
-		codeArea = (JTextArea)table.getWidget("codeArea");
+		codeArea = (JTextArea)table.layout.getWidget("codeArea");
 		codeArea.setText("[split:JSplitPane] expand fill (\n" //
 			+ "   dividerSize:25\n" //
 			+ "   setResizeWeight:0.4\n" //
@@ -85,7 +71,7 @@ public class TableLayoutEditor extends JFrame {
 			+ "   	[JScrollPane] size:100,0 expand fill ([JTextArea])\n" //
 			+ "   } top\n" //
 			+ ")");
-		outputTable.parse(codeArea.getText());
+		outputTable.layout.parse(codeArea.getText());
 
 		codeArea.setFont(Font.decode("monospaced"));
 		codeArea.getDocument().addDocumentListener(new DocumentListener() {
@@ -105,11 +91,11 @@ public class TableLayoutEditor extends JFrame {
 				EventQueue.invokeLater(new Runnable() {
 					public void run () {
 						errorArea.setText("");
-						outputTable.clear();
+						outputTable.layout.clear();
 						try {
-							outputTable.parse(codeArea.getText());
+							outputTable.layout.parse(codeArea.getText());
 						} catch (Throwable ex) {
-							// ex.printStackTrace();
+							ex.printStackTrace();
 							StringWriter buffer = new StringWriter(1024);
 							if (ex.getCause() != null) ex = ex.getCause();
 							while (ex != null) {
@@ -118,17 +104,17 @@ public class TableLayoutEditor extends JFrame {
 								ex = ex.getCause();
 							}
 							errorArea.setText(buffer.toString());
-							outputTable.clear();
+							outputTable.layout.clear();
 						}
-						outputTable.getContainer().doLayout();
-						outputTable.getContainer().repaint();
+						outputTable.doLayout();
+						outputTable.repaint();
 					}
 				});
 			}
 		});
 
-		setContentPane(table.getContainer());
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setContentPane(table);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(800, 600);
 		setLocationRelativeTo(null);
 		setVisible(true);
