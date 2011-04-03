@@ -21,13 +21,13 @@ public class NinePatchTest implements ApplicationListener {
 	public void create () {
 		font = new BitmapFont(true);
 
-		stage = new Stage(640, 480, false);
+		stage = new Stage(800, 600, false);
 		stage.projection.setToOrtho(0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1);
 
 		Group group = new Group();
 		stage.addActor(group);
-		group.width = 640;
-		group.height = 480;
+		group.width = 800;
+		group.height = 600;
 
 		Image nw = new Image("nw", new TextureRegion(new Texture(Gdx.files.internal("9patch-nw.png"))));
 		nw.region.flip(false, true); // Flip for use with y down coordinate system.
@@ -98,6 +98,6 @@ public class NinePatchTest implements ApplicationListener {
 	}
 
 	public static void main (String[] args) throws Exception {
-		new LwjglApplication(new NinePatchTest(), "LibgdxTest", 640, 480, false);
+		new LwjglApplication(new NinePatchTest(), "LibgdxTest", 800, 600, false);
 	}
 }
