@@ -3,6 +3,7 @@ package com.esotericsoftware.tablelayout;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.KeyAdapter;
@@ -15,6 +16,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -45,7 +47,7 @@ public class TableLayoutEditor extends JFrame {
 				}
 				if (name.endsWith("Edit")) return new JTextField();
 				if (name.endsWith("Button")) return new JButton("Center");
-				return new JLabel(name);
+				return new Placeholder(name);
 			}
 		};
 
@@ -130,6 +132,23 @@ public class TableLayoutEditor extends JFrame {
 		setSize(800, 600);
 		setLocationRelativeTo(null);
 		setVisible(true);
+	}
+
+	static public class Placeholder extends JLabel {
+		private Dimension min = new Dimension();
+		private Dimension max = new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
+
+		public Placeholder (String text) {
+			super(text);
+		}
+
+		public Dimension getMinimumSize () {
+			return min;
+		}
+
+		public Dimension getMaximumSize () {
+			return max;
+		}
 	}
 
 	public static void main (String[] args) {
