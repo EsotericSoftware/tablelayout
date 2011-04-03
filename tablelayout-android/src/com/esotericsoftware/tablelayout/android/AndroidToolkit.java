@@ -13,6 +13,7 @@ import android.graphics.drawable.StateListDrawable;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -46,6 +47,11 @@ public class AndroidToolkit extends Toolkit<View> {
 
 	public TableLayout newTableLayout () {
 		return new Table().layout;
+	}
+
+	public Object newWidget (String className) throws Exception {
+		if (className.equals("button")) return new Button(context);
+		return super.newWidget(className);
 	}
 
 	public View newLabel (String text) {
