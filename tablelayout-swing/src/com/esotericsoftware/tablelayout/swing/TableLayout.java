@@ -39,8 +39,6 @@ public class TableLayout extends BaseTableLayout<Component> {
 	static BasicStroke debugSolid = new BasicStroke(1);
 
 	final Container container = new Container();
-
-	Container debugParent;
 	ArrayList<DebugRect> debugRects;
 
 	public TableLayout () {
@@ -76,18 +74,6 @@ public class TableLayout extends BaseTableLayout<Component> {
 			}
 
 			public void layoutContainer (Container parent) {
-				if (debug != null) {
-					debugParent = parent;
-					if (debugRects == null) {
-						debugRects = new ArrayList();
-						debugLayouts.add(TableLayout.this);
-					} else
-						debugRects.clear();
-				} else if (debugRects != null) {
-					debugLayouts.remove(this);
-					debugRects = null;
-				}
-
 				if (title != null && parent instanceof JComponent) {
 					JComponent component = (JComponent)parent;
 					Border border = component.getBorder();
@@ -113,16 +99,7 @@ public class TableLayout extends BaseTableLayout<Component> {
 				if (debug != null) {
 					if (timer == null) {
 						timer = new Timer("TableLayout Debug", true);
-						timer.schedule(new TimerTask() {
-							public void run () {
-								if (!EventQueue.isDispatchThread()) {
-									EventQueue.invokeLater(this);
-									return;
-								}
-								for (TableLayout table : debugLayouts)
-									table.drawDebug();
-							}
-						}, 100, 250);
+						timer.schedule(newDebugTask(), 100);
 					}
 				}
 			}
@@ -133,6 +110,20 @@ public class TableLayout extends BaseTableLayout<Component> {
 			public void removeLayoutComponent (Component comp) {
 			}
 		});
+	}
+
+	TimerTask newDebugTask () {
+		return new TimerTask() {
+			public void run () {
+				if (!EventQueue.isDispatchThread()) {
+					EventQueue.invokeLater(this);
+					return;
+				}
+				for (TableLayout table : debugLayouts)
+					table.drawDebug();
+				timer.schedule(newDebugTask(), 250);
+			}
+		};
 	}
 
 	public Container getContainer () {
@@ -211,26 +202,35 @@ public class TableLayout extends BaseTableLayout<Component> {
 	}
 
 	void drawDebug () {
-		Graphics2D g = (Graphics2D)debugParent.getGraphics();
+		Graphics2D g = (Graphics2D)container.getGraphics();
 		if (g == null) return;
 		g.setColor(Color.red);
+		System.out.println();
 		for (DebugRect rect : debugRects) {
-			g.setColor(Color.red);
-			g.setStroke(rect.dash ? debugDash : debugSolid);
+			g.setColor(rect.isCell ? Color.red : Color.green);
 			g.draw(rect);
 		}
 	}
 
-	public void drawDebugRect (boolean dash, int x, int y, int w, int h) {
-		if (debugRects != null) debugRects.add(new DebugRect(dash, x, y, w, h));
+	public void clearDebugRects () {
+		if (debugRects != null) debugLayouts.remove(this);
+		debugRects = null;
+	}
+
+	public void addDebugRect (boolean isCell, int x, int y, int w, int h) {
+		if (debugRects == null) {
+			debugRects = new ArrayList();
+			debugLayouts.add(TableLayout.this);
+		}
+		debugRects.add(new DebugRect(isCell, x, y, w, h));
 	}
 
 	static private class DebugRect extends Rectangle {
-		final boolean dash;
+		final boolean isCell;
 
-		public DebugRect (boolean dash, int x, int y, int width, int height) {
-			super(x, y, width, height);
-			this.dash = dash;
+		public DebugRect (boolean isCell, int x, int y, int width, int height) {
+			super(x, y, width - 1, height - 1);
+			this.isCell = isCell;
 		}
 	}
 }

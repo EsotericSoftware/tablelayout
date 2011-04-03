@@ -82,13 +82,18 @@ public class TableLayout extends BaseTableLayout<Actor> {
 	}
 
 	/**
-	 * This method is needed for the TableLayout to relayout automatically if {@link #invalidate()} has been called and also to
-	 * draw the debug lines, when enabled. If this method is not called each frame, {@link #layout()} must be called manually when
-	 * the TableLayout is modified, and no debug lines will be drawn.
+	 * This method is needed for the TableLayout to relayout automatically if {@link #invalidate()} has been called. If this method
+	 * is not called each frame, {@link #layout()} must be called manually when the TableLayout is modified.
 	 */
 	public void update () {
 		if (needsLayout) layout();
+	}
 
+	/**
+	 * This method is needed for the TableLayout to draw the debug lines, when enabled. If this method is not called each frame, no
+	 * debug lines will be drawn.
+	 */
+	public void drawDebug () {
 		if (debug == null || debugRects == null) return;
 		if (debugRenderer == null) debugRenderer = new ImmediateModeRenderer(64);
 		debugRenderer.begin(GL10.GL_LINES);
@@ -98,8 +103,8 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			float y1 = rect.y;
 			float x2 = x1 + rect.width;
 			float y2 = y1 + rect.height;
-			float r = rect.dash ? 0 : 1;
-			float g = rect.dash ? 1 : 0;
+			float r = rect.isCell ? 1 : 0;
+			float g = rect.isCell ? 0 : 1;
 
 			debugRenderer.color(r, g, 0, 1);
 			debugRenderer.vertex(x1, y1, 0);
@@ -182,7 +187,11 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		return 0;
 	}
 
-	public void drawDebugRect (boolean dash, int x, int y, int w, int h) {
+	public void clearDebugRects () {
+		if (debugRects != null) debugRects.clear();
+	}
+
+	public void addDebugRect (boolean dash, int x, int y, int w, int h) {
 		if (debugRects == null) debugRects = new Array();
 		debugRects.add(new DebugRect(dash, x, y, w, h));
 	}
@@ -192,11 +201,11 @@ public class TableLayout extends BaseTableLayout<Actor> {
 	}
 
 	static private class DebugRect extends Rectangle {
-		final boolean dash;
+		final boolean isCell;
 
-		public DebugRect (boolean dash, int x, int y, int width, int height) {
+		public DebugRect (boolean isCell, int x, int y, int width, int height) {
 			super(x, y, width, height);
-			this.dash = dash;
+			this.isCell = isCell;
 		}
 	}
 }

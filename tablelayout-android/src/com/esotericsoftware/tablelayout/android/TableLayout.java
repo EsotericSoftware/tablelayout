@@ -80,7 +80,6 @@ public class TableLayout extends BaseTableLayout<View> {
 				tableLayoutWidth = right - left;
 				tableLayoutHeight = bottom - top;
 
-				if (debug != null && debugRects != null) debugRects.clear();
 				TableLayout.this.layout();
 				ArrayList<Cell> cells = getCells();
 				for (int i = 0, n = cells.size(); i < n; i++) {
@@ -112,7 +111,7 @@ public class TableLayout extends BaseTableLayout<View> {
 				}
 				for (int i = 0, n = debugRects.size(); i < n; i++) {
 					DebugRect rect = debugRects.get(i);
-					paint.setColor(rect.dash ? Color.GREEN : Color.RED);
+					paint.setColor(rect.isCell ? Color.RED : Color.GREEN);
 					canvas.drawRect(rect.rect, paint);
 				}
 			}
@@ -188,9 +187,13 @@ public class TableLayout extends BaseTableLayout<View> {
 		return 0;
 	}
 
-	public void drawDebugRect (boolean dash, int x, int y, int w, int h) {
+	public void clearDebugRects () {
+		if (debugRects != null) debugRects.clear();
+	}
+
+	public void addDebugRect (boolean isCell, int x, int y, int w, int h) {
 		if (debugRects == null) debugRects = new ArrayList();
-		debugRects.add(new DebugRect(dash, x, y, w, h));
+		debugRects.add(new DebugRect(isCell, x, y, w, h));
 	}
 
 	protected int scale (String value) {
@@ -325,12 +328,13 @@ public class TableLayout extends BaseTableLayout<View> {
 	}
 
 	static private class DebugRect {
-		final boolean dash;
+		final boolean isCell;
 		final Rect rect;
 
-		public DebugRect (boolean dash, int x, int y, int width, int height) {
+		public DebugRect (boolean isCell, int x, int y, int width, int height) {
 			rect = new Rect(x, y, x + width, y + height);
-			this.dash = dash;
+			this.isCell = isCell;
+
 		}
 	}
 }

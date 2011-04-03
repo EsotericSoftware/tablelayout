@@ -66,7 +66,7 @@ public class LibgdxTest implements ApplicationListener {
 			+ "'Sweet' (text:'moo!!!!!!!!!!.')" //
 			+ "'moo'" //
 			+ "---" //
-			+ "'Hi' align:bottom,right"//
+			+ "'Hi' align:bottom,right" //
 			+ "[image1]" //
 		);
 	}
@@ -76,6 +76,7 @@ public class LibgdxTest implements ApplicationListener {
 		table.update();
 		stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30.0f));
 		stage.draw();
+		table.drawDebug();
 	}
 
 	public void resize (int arg0, int arg1) {

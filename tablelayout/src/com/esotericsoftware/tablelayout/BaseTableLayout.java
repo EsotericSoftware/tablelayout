@@ -456,11 +456,12 @@ public abstract class BaseTableLayout<T> {
 
 		// Draw widgets and bounds.
 		if (debug == null) return;
+		clearDebugRects();
 		currentX = x;
 		currentY = y;
 		if (debug.contains("table,") || debug.contains("all,")) {
-			drawDebugRect(true, tableLayoutX + padLeft, tableLayoutY + padTop, tableLayoutWidth - 1, tableLayoutHeight - 1);
-			drawDebugRect(true, x, y, tableWidth - 1, tableHeight - 1);
+			addDebugRect(false, tableLayoutX + padLeft, tableLayoutY + padTop, tableLayoutWidth, tableLayoutHeight);
+			addDebugRect(false, x, y, tableWidth, tableHeight);
 		}
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
@@ -468,7 +469,7 @@ public abstract class BaseTableLayout<T> {
 
 			// Widget bounds.
 			if (debug.contains("widget,") || debug.contains("all,"))
-				drawDebugRect(true, c.widgetX, c.widgetY, c.widgetWidth - 1, c.widgetHeight - 1);
+				addDebugRect(false, c.widgetX, c.widgetY, c.widgetWidth, c.widgetHeight);
 
 			// Cell bounds.
 			int spannedCellWidth = 0;
@@ -477,8 +478,8 @@ public abstract class BaseTableLayout<T> {
 			spannedCellWidth -= c.padLeftTemp + c.padRightTemp;
 			currentX += c.padLeftTemp;
 			if (debug.contains("cell,") || debug.contains("all,"))
-				drawDebugRect(false, currentX, currentY + c.padTopTemp, spannedCellWidth - 1, rowHeight[c.row] - c.padTopTemp
-					- c.padBottomTemp - 1);
+				addDebugRect(true, currentX, currentY + c.padTopTemp, spannedCellWidth, rowHeight[c.row] - c.padTopTemp
+					- c.padBottomTemp);
 			if (c.endRow) {
 				currentX = x;
 				currentY += rowHeight[c.row];
@@ -912,7 +913,10 @@ public abstract class BaseTableLayout<T> {
 		}
 	}
 
-	public void drawDebugRect (boolean dash, int x, int y, int w, int h) {
+	public void clearDebugRects () {
+	}
+
+	public void addDebugRect (boolean isCell, int x, int y, int w, int h) {
 	}
 
 	static public void addClassPrefix (String prefix) {
