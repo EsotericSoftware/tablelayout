@@ -1,8 +1,10 @@
 
 package com.esotericsoftware.tablelayout.libgdx;
 
-import java.awt.Component;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -10,9 +12,15 @@ import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.TableLayout;
 
 public class Table extends Group {
-	public final GdxTableLayout layout = new GdxTableLayout();
+	public final GdxTableLayout layout;
 
 	public Table () {
+		layout = new GdxTableLayout();
+		layout.table = this;
+	}
+
+	public Table (TableLayout parent) {
+		layout = new GdxTableLayout(parent);
 		layout.table = this;
 	}
 
@@ -32,6 +40,18 @@ public class Table extends Group {
 		return layout.getWidget(name);
 	}
 
+	public List<Actor> getWidgets () {
+		return layout.getWidgets();
+	}
+
+	public List<Actor> getWidgets (String namePrefix) {
+		return layout.getWidgets(namePrefix);
+	}
+
+	public List<Cell> getCells (String namePrefix) {
+		return layout.getCells(namePrefix);
+	}
+
 	public void setWidget (String name, Actor widget) {
 		layout.setWidget(name, widget);
 	}
@@ -40,7 +60,7 @@ public class Table extends Group {
 		return layout.getCell(name);
 	}
 
-	public ArrayList<Cell> getCells () {
+	public List<Cell> getCells () {
 		return layout.getCells();
 	}
 

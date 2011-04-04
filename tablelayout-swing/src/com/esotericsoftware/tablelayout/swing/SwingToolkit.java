@@ -46,9 +46,8 @@ public class SwingToolkit extends Toolkit<Component> {
 		((Container)parent).remove(child);
 	}
 
-	public TableLayout newTableLayout () {
-		Table table = new Table();
-		return table.layout;
+	public TableLayout newTableLayout (TableLayout parent) {
+		return new Table(parent).layout;
 	}
 
 	public Component newLabel (String text) {

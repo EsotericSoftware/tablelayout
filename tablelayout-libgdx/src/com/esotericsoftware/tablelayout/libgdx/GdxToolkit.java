@@ -30,9 +30,8 @@ public class GdxToolkit extends Toolkit<Actor> {
 		((Group)parent).removeActor(child);
 	}
 
-	public TableLayout newTableLayout () {
-		Table table = new Table();
-		return table.layout;
+	public TableLayout newTableLayout (TableLayout parent) {
+		return new Table(parent).layout;
 	}
 
 	public Actor newLabel (String text) {

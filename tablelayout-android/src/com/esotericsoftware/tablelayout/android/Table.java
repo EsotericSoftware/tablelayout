@@ -1,21 +1,30 @@
 
 package com.esotericsoftware.tablelayout.android;
 
-import java.awt.Component;
 import java.util.ArrayList;
-
-import com.esotericsoftware.tablelayout.Cell;
+import java.util.List;
 
 import android.graphics.Canvas;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
+
+import com.esotericsoftware.tablelayout.Cell;
+import com.esotericsoftware.tablelayout.TableLayout;
 
 public class Table extends ViewGroup {
-	public final AndroidTableLayout layout = new AndroidTableLayout();
+	public final AndroidTableLayout layout;
+	public boolean sizeToBackground;
 
 	public Table () {
 		super(AndroidToolkit.context);
+		layout = new AndroidTableLayout();
+		layout.table = this;
+		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+	}
+
+	public Table (TableLayout parent) {
+		super(AndroidToolkit.context);
+		layout = new AndroidTableLayout(parent);
 		layout.table = this;
 		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 	}
@@ -36,6 +45,18 @@ public class Table extends ViewGroup {
 		return layout.getWidget(name);
 	}
 
+	public List<View> getWidgets () {
+		return layout.getWidgets();
+	}
+
+	public List<View> getWidgets (String namePrefix) {
+		return layout.getWidgets(namePrefix);
+	}
+
+	public List<Cell> getCells (String namePrefix) {
+		return layout.getCells(namePrefix);
+	}
+
 	public void setWidget (String name, View view) {
 		layout.setWidget(name, view);
 	}
@@ -44,7 +65,7 @@ public class Table extends ViewGroup {
 		return layout.getCell(name);
 	}
 
-	public ArrayList<Cell> getCells () {
+	public List<Cell> getCells () {
 		return layout.getCells();
 	}
 
@@ -66,6 +87,10 @@ public class Table extends ViewGroup {
 
 		int measuredWidth = widthUnspecified ? layout.totalMinWidth : layout.totalPrefWidth;
 		int measuredHeight = heightUnspecified ? layout.totalMinHeight : layout.totalPrefHeight;
+
+		measuredWidth = Math.max(measuredWidth, getSuggestedMinimumWidth());
+		measuredHeight = Math.max(measuredHeight, getSuggestedMinimumHeight());
+
 		setMeasuredDimension(resolveSize(measuredWidth, widthMeasureSpec), resolveSize(measuredHeight, heightMeasureSpec));
 	}
 
@@ -82,11 +107,15 @@ public class Table extends ViewGroup {
 	}
 
 	protected int getSuggestedMinimumWidth () {
-		return layout.totalMinWidth;
+		int width = layout.totalMinWidth;
+		if (sizeToBackground && getBackground() != null) width = Math.max(width, getBackground().getMinimumWidth());
+		return width;
 	}
 
 	protected int getSuggestedMinimumHeight () {
-		return layout.totalMinHeight;
+		int height = layout.totalMinHeight;
+		if (sizeToBackground && getBackground() != null) height = Math.max(height, getBackground().getMinimumHeight());
+		return height;
 	}
 
 	protected void dispatchDraw (Canvas canvas) {

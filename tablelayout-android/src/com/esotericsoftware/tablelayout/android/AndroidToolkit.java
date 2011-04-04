@@ -2,8 +2,8 @@
 package com.esotericsoftware.tablelayout.android;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import android.R;
 import android.app.Activity;
@@ -29,12 +29,16 @@ public class AndroidToolkit extends Toolkit<View> {
 
 	static public AndroidToolkit instance = new AndroidToolkit();
 	static public Context context;
+	static public float density = 1;
 
 	static final HashMap<String, Integer> drawableToID = new HashMap();
-	static float scale = 1;
 
 	public AndroidToolkit () {
 		super(View.class);
+	}
+
+	public int getSize (String value) {
+		return (int)(super.getSize(value) * density);
 	}
 
 	public void addChild (View parent, View child, String layoutString) {
@@ -45,8 +49,8 @@ public class AndroidToolkit extends Toolkit<View> {
 		((ViewGroup)parent).removeView(child);
 	}
 
-	public TableLayout newTableLayout () {
-		return new Table().layout;
+	public TableLayout newTableLayout (TableLayout parent) {
+		return new Table(parent).layout;
 	}
 
 	public Object newWidget (String className) throws Exception {
@@ -91,7 +95,7 @@ public class AndroidToolkit extends Toolkit<View> {
 		return 0;
 	}
 
-	public void setProperty (View view, String name, ArrayList<String> values) {
+	public void setProperty (View view, String name, List<String> values) {
 		if (values.size() == 1) {
 			if (setBackground(view, name, values.get(0))) return;
 			if (view instanceof TextView) {
@@ -153,7 +157,7 @@ public class AndroidToolkit extends Toolkit<View> {
 			return true;
 		}
 
-		if (name.equals("empty")) {
+		if (name.equals("normal")) {
 			setBackgroundState(view, 0, value);
 			return true;
 		}
@@ -190,7 +194,7 @@ public class AndroidToolkit extends Toolkit<View> {
 
 		DisplayMetrics metrics = new DisplayMetrics();
 		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		scale = metrics.density;
+		density = metrics.density;
 
 		drawableToID.clear();
 		Field[] fields = drawableClass.getFields();

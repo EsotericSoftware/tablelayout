@@ -30,8 +30,8 @@ public class TwlToolkit extends Toolkit<Widget> {
 		parent.removeChild(child);
 	}
 
-	public TableLayout newTableLayout () {
-		return new Table().layout;
+	public TableLayout newTableLayout (TableLayout parent) {
+		return new Table(parent).layout;
 	}
 
 	public Widget newLabel (String text) {

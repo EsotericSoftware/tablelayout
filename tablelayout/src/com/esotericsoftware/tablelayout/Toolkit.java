@@ -4,6 +4,7 @@ package com.esotericsoftware.tablelayout;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.esotericsoftware.tablelayout.TableLayout.*;
 
@@ -38,8 +39,9 @@ abstract public class Toolkit<T> {
 
 	/**
 	 * Returns a new TableLayout.
+	 * @param parent May be null. If not null, the returned TableLayout will be nested under the specified parent.
 	 */
-	abstract public TableLayout newTableLayout ();
+	abstract public TableLayout newTableLayout (TableLayout parent);
 
 	abstract public int getMinWidth (T widget);
 
@@ -111,7 +113,7 @@ abstract public class Toolkit<T> {
 	/**
 	 * Sets a property on the widget. This is called for widget properties specified in the TableLayout description.
 	 */
-	public void setProperty (T object, String name, ArrayList<String> values) {
+	public void setProperty (T object, String name, List<String> values) {
 		try {
 			invokeMethod(object, name, values);
 		} catch (NoSuchMethodException ex1) {
@@ -132,7 +134,7 @@ abstract public class Toolkit<T> {
 	/**
 	 * Sets a property on the table. This is called for table properties specified in the TableLayout description.
 	 */
-	public void setTableProperty (TableLayout table, String name, ArrayList<String> values) {
+	public void setTableProperty (TableLayout table, String name, List<String> values) {
 		name = name.toLowerCase();
 		for (int i = 0, n = values.size(); i < n; i++)
 			values.set(i, values.get(i).toLowerCase());
@@ -246,7 +248,7 @@ abstract public class Toolkit<T> {
 	/**
 	 * Sets a property on the cell. This is called for cell properties specified in the TableLayout description.
 	 */
-	public void setCellProperty (Cell c, String name, ArrayList<String> values) {
+	public void setCellProperty (Cell c, String name, List<String> values) {
 		name = name.toLowerCase();
 		for (int i = 0, n = values.size(); i < n; i++)
 			values.set(i, values.get(i).toLowerCase());
@@ -458,13 +460,26 @@ abstract public class Toolkit<T> {
 	}
 
 	/**
-	 * Parses the specified pixel value to an int. This hook can be used to scale all sizes applied to a cell.
+	 * Interprets the specified value as a size. This can be used to scale all sizes applied to a cell, implement size units (eg,
+	 * 23px or 23em), etc. The default implementation supports integers and also "min", "pref", and "max" for
+	 * {@link TableLayout#MIN}, {@link TableLayout#PREF} and {@link TableLayout#MAX}.
 	 */
-	protected int getSize (String value) {
+	public int getSize (String value) {
+		if (value.equals("min")) return TableLayout.MIN;
+		if (value.equals("pref")) return TableLayout.PREF;
+		if (value.equals("max")) return TableLayout.MAX;
 		return Integer.parseInt(value);
 	}
 
-	static private void invokeMethod (Object object, String name, ArrayList<String> values) throws NoSuchMethodException {
+	/**
+	 * Interprets the specified value as a size. This can be used to scale all sizes applied to a cell. The default implementation
+	 * just casts to int.
+	 */
+	public int getSize (float value) {
+		return (int)value;
+	}
+
+	static private void invokeMethod (Object object, String name, List<String> values) throws NoSuchMethodException {
 		Object[] params = values.toArray();
 		// Prefer methods with string parameters.
 		Class[] stringParamTypes = new Class[params.length];

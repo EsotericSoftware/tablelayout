@@ -3,6 +3,7 @@ package com.esotericsoftware.tablelayout.twl;
 
 import java.awt.Canvas;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.TableLayout;
@@ -13,6 +14,14 @@ import de.matthiasmann.twl.Widget;
 
 public class TwlTableLayout extends TableLayout<Widget> {
 	Table table;
+
+	public TwlTableLayout () {
+		super();
+	}
+
+	public TwlTableLayout (TableLayout parent) {
+		super(parent);
+	}
 
 	public Toolkit getToolkit () {
 		return TwlToolkit.instance;
@@ -26,7 +35,7 @@ public class TwlTableLayout extends TableLayout<Widget> {
 
 		super.layout();
 
-		ArrayList<Cell> cells = getCells();
+		List<Cell> cells = getCells();
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;

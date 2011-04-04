@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -24,6 +25,14 @@ public class SwingTableLayout extends TableLayout<Component> {
 
 	Table table;
 	ArrayList<DebugRect> debugRects;
+
+	public SwingTableLayout () {
+		super();
+	}
+
+	public SwingTableLayout (TableLayout parent) {
+		super(parent);
+	}
 
 	public Toolkit getToolkit () {
 		return SwingToolkit.instance;
@@ -44,7 +53,7 @@ public class SwingTableLayout extends TableLayout<Component> {
 
 		super.layout();
 
-		ArrayList<Cell> cells = getCells();
+		List<Cell> cells = getCells();
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;

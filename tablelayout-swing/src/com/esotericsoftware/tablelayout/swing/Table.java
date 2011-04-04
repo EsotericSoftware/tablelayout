@@ -6,16 +6,23 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.LayoutManager;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.JComponent;
 
 import com.esotericsoftware.tablelayout.Cell;
+import com.esotericsoftware.tablelayout.TableLayout;
 
 public class Table extends JComponent {
 	public final SwingTableLayout layout;
 
 	public Table () {
 		this(new SwingTableLayout());
+	}
+
+	public Table (TableLayout parent) {
+		this(new SwingTableLayout(parent));
 	}
 
 	Table (final SwingTableLayout layout) {
@@ -28,8 +35,9 @@ public class Table extends JComponent {
 
 			public Dimension preferredLayoutSize (Container parent) {
 				layout.layout(); // BOZO - Cache layout?
-				prefSize.width = layout.totalPrefWidth;
-				prefSize.height = layout.totalPrefHeight;
+				prefSize.width = layout.totalMinWidth;
+				prefSize.height = layout.totalMinHeight;
+				System.out.println("oref " + prefSize);
 				return prefSize;
 			}
 
@@ -37,6 +45,7 @@ public class Table extends JComponent {
 				layout.layout(); // BOZO - Cache layout?
 				minSize.width = layout.totalMinWidth;
 				minSize.height = layout.totalMinHeight;
+				System.out.println("mion " + minSize);
 				return minSize;
 			}
 
@@ -68,6 +77,18 @@ public class Table extends JComponent {
 		return layout.getWidget(name);
 	}
 
+	public List<Component> getWidgets () {
+		return layout.getWidgets();
+	}
+
+	public List<Component> getWidgets (String namePrefix) {
+		return layout.getWidgets(namePrefix);
+	}
+
+	public List<Cell> getCells (String namePrefix) {
+		return layout.getCells(namePrefix);
+	}
+
 	public void setWidget (String name, Component widget) {
 		layout.setWidget(name, widget);
 	}
@@ -76,7 +97,7 @@ public class Table extends JComponent {
 		return layout.getCell(name);
 	}
 
-	public ArrayList<Cell> getCells () {
+	public List<Cell> getCells () {
 		return layout.getCells();
 	}
 

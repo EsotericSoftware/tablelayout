@@ -2,16 +2,27 @@
 package com.esotericsoftware.tablelayout.twl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 import com.esotericsoftware.tablelayout.Cell;
+import com.esotericsoftware.tablelayout.TableLayout;
 
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Widget;
 
 public class Table extends Widget {
-	public final TwlTableLayout layout = new TwlTableLayout();
+	public final TwlTableLayout layout;
 
 	public Table () {
+		layout = new TwlTableLayout();
+		layout.table = this;
+		setTheme("");
+	}
+
+	public Table (TableLayout parent) {
+		layout = new TwlTableLayout(parent);
 		layout.table = this;
 		setTheme("");
 	}
@@ -28,6 +39,18 @@ public class Table extends Widget {
 		return layout.getWidget(name);
 	}
 
+	public List<Widget> getWidgets () {
+		return layout.getWidgets();
+	}
+
+	public List<Widget> getWidgets (String namePrefix) {
+		return layout.getWidgets(namePrefix);
+	}
+
+	public List<Cell> getCells (String namePrefix) {
+		return layout.getCells(namePrefix);
+	}
+
 	public void setWidget (String name, Widget Widget) {
 		layout.setWidget(name, Widget);
 	}
@@ -36,7 +59,7 @@ public class Table extends Widget {
 		return layout.getCell(name);
 	}
 
-	public ArrayList<Cell> getCells () {
+	public List<Cell> getCells () {
 		return layout.getCells();
 	}
 

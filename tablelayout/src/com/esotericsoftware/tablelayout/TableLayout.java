@@ -3,7 +3,10 @@ package com.esotericsoftware.tablelayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
+
+// BOZO - Clarify table fill.
 
 abstract public class TableLayout<T> {
 	static public final int CENTER = 1 << 0;
@@ -47,6 +50,7 @@ abstract public class TableLayout<T> {
 	public int totalPrefWidth, totalPrefHeight;
 
 	private final HashMap<String, T> nameToWidget;
+	private final HashMap<T, Cell> widgetToCell;
 
 	private final ArrayList<Cell> cells = new ArrayList();
 	private Cell cellDefaults = Cell.defaults();
@@ -55,11 +59,15 @@ abstract public class TableLayout<T> {
 	private int columns, rows;
 
 	public TableLayout () {
-		nameToWidget = new HashMap();
+		this(null);
 	}
 
+	/**
+	 * @param parent May be null.
+	 */
 	public TableLayout (TableLayout parent) {
-		nameToWidget = parent.nameToWidget;
+		nameToWidget = parent == null ? new HashMap() : parent.nameToWidget;
+		widgetToCell = parent == null ? new HashMap() : parent.widgetToCell;
 	}
 
 	/**
@@ -86,6 +94,8 @@ abstract public class TableLayout<T> {
 	public Cell addCell (T widget) {
 		Cell cell = new Cell();
 		cell.widget = widget;
+
+		widgetToCell.put(widget, cell);
 
 		for (Entry<String, T> entry : nameToWidget.entrySet()) {
 			if (widget == entry.getValue()) {
@@ -188,30 +198,46 @@ abstract public class TableLayout<T> {
 		cells.clear();
 		columnDefaults.clear();
 		nameToWidget.clear();
+		widgetToCell.clear();
 		cellDefaults = Cell.defaults();
 		debug = null;
 		rows = 0;
 		columns = 0;
 		rowDefaults = null;
+		if (debug != null) clearDebugRectangles();
 	}
 
 	public T getWidget (String name) {
 		return nameToWidget.get(name.toLowerCase());
 	}
 
+	public List<T> getWidgets () {
+		return new ArrayList(nameToWidget.values());
+	}
+
+	public List<T> getWidgets (String namePrefix) {
+		ArrayList<T> widgets = new ArrayList();
+		for (Entry<String, T> entry : nameToWidget.entrySet())
+			if (entry.getKey().startsWith(namePrefix)) widgets.add(entry.getValue());
+		return widgets;
+	}
+
 	public Cell getCell (T widget) {
-		for (int i = 0, n = cells.size(); i < n; i++) {
-			Cell c = cells.get(i);
-			if (c.widget == widget) return c;
-		}
-		return null;
+		return widgetToCell.get(widget);
 	}
 
 	public Cell getCell (String name) {
 		return getCell(getWidget(name));
 	}
 
-	public ArrayList<Cell> getCells () {
+	public List<Cell> getCells () {
+		return cells;
+	}
+
+	public List<Cell> getCells (String namePrefix) {
+		ArrayList<Cell> cells = new ArrayList();
+		for (Cell cell : widgetToCell.values())
+			if (cell.name.startsWith(namePrefix)) cells.add(cell);
 		return cells;
 	}
 
@@ -277,7 +303,7 @@ abstract public class TableLayout<T> {
 		totalPrefHeight = Math.max(totalPrefHeight, height);
 
 		int[] columnMaxWidth;
-		int tableLayoutWidth = this.tableLayoutWidth - padLeft - padRight;
+		int tableLayoutWidth = this.tableLayoutWidth - (padLeft + padRight);
 		int totalGrowWidth = totalPrefWidth - totalMinWidth;
 		if (totalGrowWidth == 0)
 			columnMaxWidth = columnMinWidth;
@@ -297,7 +323,7 @@ abstract public class TableLayout<T> {
 		if (totalGrowHeight == 0)
 			rowMaxHeight = rowMinHeight;
 		else {
-			int extraHeight = Math.max(0, tableLayoutHeight - padTop - padBottom - totalMinHeight);
+			int extraHeight = Math.max(0, tableLayoutHeight - totalMinHeight);
 			rowMaxHeight = new int[rows];
 			for (int i = 0; i < rows; i++) {
 				int growHeight = rowPrefHeight[i] - rowMinHeight[i];
@@ -325,7 +351,7 @@ abstract public class TableLayout<T> {
 					totalExpandWidth += c.expandWidth / (float)c.colspan;
 				}
 			}
-			spannedCellMaxWidth -= c.padLeftTemp - c.padRightTemp;
+			spannedCellMaxWidth -= c.padLeftTemp + c.padRightTemp;
 			if (c.expandHeight != 0 && expandHeight[c.row] == 0) {
 				expandHeight[c.row] = c.expandHeight;
 				totalExpandHeight += c.expandHeight;
@@ -395,7 +421,7 @@ abstract public class TableLayout<T> {
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
 				columnWidth[column] += extraWidth;
 
-			c.widgetWidth = Math.max(c.widgetWidth, minWidth - (c.padLeftTemp - c.padRightTemp));
+			c.widgetWidth = Math.max(c.widgetWidth, minWidth - (c.padLeftTemp + c.padRightTemp));
 		}
 
 		// Determine table size.
@@ -501,9 +527,13 @@ abstract public class TableLayout<T> {
 	}
 
 	public void setWidget (Cell cell, T widget) {
-		if (cell.widget != null) toolkit.removeChild(getTable(), (T)cell.widget);
+		if (cell.widget != null) {
+			toolkit.removeChild(getTable(), (T)cell.widget);
+			widgetToCell.remove((T)cell.widget);
+		}
 		cell.widget = widget;
 		nameToWidget.put(cell.name, widget);
+		widgetToCell.put(widget, cell);
 		toolkit.addChild(getTable(), widget, null);
 	}
 

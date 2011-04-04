@@ -2,6 +2,7 @@
 package com.esotericsoftware.tablelayout.android;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -19,6 +20,14 @@ public class AndroidTableLayout extends TableLayout<View> {
 	Table table;
 	ArrayList<DebugRect> debugRects;
 
+	public AndroidTableLayout () {
+		super();
+	}
+
+	public AndroidTableLayout (TableLayout parent) {
+		super(parent);
+	}
+
 	public Toolkit getToolkit () {
 		return AndroidToolkit.instance;
 	}
@@ -33,7 +42,7 @@ public class AndroidTableLayout extends TableLayout<View> {
 	public void layout () {
 		super.layout();
 
-		ArrayList<Cell> cells = getCells();
+		List<Cell> cells = getCells();
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;

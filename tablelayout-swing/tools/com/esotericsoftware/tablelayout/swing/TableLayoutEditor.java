@@ -16,6 +16,8 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+// BOZO - Save last markup.
+
 public class TableLayoutEditor extends JFrame {
 	JTextArea codeArea, errorArea;
 	Table outputTable;
@@ -92,6 +94,7 @@ public class TableLayoutEditor extends JFrame {
 					public void run () {
 						errorArea.setText("");
 						outputTable.layout.clear();
+						SwingTableLayout.debugLayouts.clear();
 						try {
 							outputTable.layout.parse(codeArea.getText());
 						} catch (Throwable ex) {
@@ -106,7 +109,7 @@ public class TableLayoutEditor extends JFrame {
 							errorArea.setText(buffer.toString());
 							outputTable.layout.clear();
 						}
-						outputTable.doLayout();
+						outputTable.revalidate();
 						outputTable.repaint();
 					}
 				});
@@ -128,13 +131,6 @@ public class TableLayoutEditor extends JFrame {
 			super(text);
 		}
 
-		public Dimension getMinimumSize () {
-			return min;
-		}
-
-		public Dimension getMaximumSize () {
-			return max;
-		}
 	}
 
 	public static void main (String[] args) {

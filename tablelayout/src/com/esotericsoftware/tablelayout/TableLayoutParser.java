@@ -264,7 +264,7 @@ class TableLayoutParser {
 								{
 									if (debug) System.out.println("startTable");
 									parents.add(parent);
-									parent = toolkit.newTableLayout();
+									parent = toolkit.newTableLayout(parent instanceof TableLayout ? (TableLayout)parent : null);
 									cell = null;
 									widget = null;
 									{

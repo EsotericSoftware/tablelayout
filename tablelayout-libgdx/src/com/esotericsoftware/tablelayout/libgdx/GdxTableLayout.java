@@ -3,6 +3,7 @@ package com.esotericsoftware.tablelayout.libgdx;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer;
@@ -18,6 +19,14 @@ public class GdxTableLayout extends TableLayout<Actor> {
 
 	private Array<DebugRect> debugRects;
 	private ImmediateModeRenderer debugRenderer;
+
+	public GdxTableLayout () {
+		super();
+	}
+
+	public GdxTableLayout (TableLayout parent) {
+		super(parent);
+	}
 
 	public Toolkit getToolkit () {
 		return GdxToolkit.instance;
@@ -37,7 +46,7 @@ public class GdxTableLayout extends TableLayout<Actor> {
 
 		super.layout();
 
-		ArrayList<Cell> cells = getCells();
+		List<Cell> cells = getCells();
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
