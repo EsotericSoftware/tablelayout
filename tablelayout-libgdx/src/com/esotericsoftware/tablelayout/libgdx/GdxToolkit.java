@@ -23,6 +23,7 @@ public class GdxToolkit extends Toolkit<Actor> {
 	}
 
 	public void addChild (Actor parent, Actor child, String layoutString) {
+		if (child.parent != null) child.remove();
 		((Group)parent).addActor(child);
 	}
 

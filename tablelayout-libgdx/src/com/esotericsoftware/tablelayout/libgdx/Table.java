@@ -1,13 +1,12 @@
 
 package com.esotericsoftware.tablelayout.libgdx;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.TableLayout;
 
@@ -19,13 +18,27 @@ public class Table extends Group {
 		layout.table = this;
 	}
 
+	public Table (String name) {
+		super(name);
+		layout = new GdxTableLayout();
+		layout.table = this;
+	}
+
 	public Table (TableLayout parent) {
 		layout = new GdxTableLayout(parent);
 		layout.table = this;
 	}
 
-	public Actor setName (String name, Actor widget) {
-		return layout.setName(name, widget);
+	public Actor setName (String name, Actor actor) {
+		return layout.setName(name, actor);
+	}
+
+	/**
+	 * Calls {@link #setName(String, Actor)} with the name of the actor.
+	 */
+	public Actor add (Actor actor) {
+		if (actor.name == null) throw new IllegalArgumentException("Actor must have a name: " + actor.getClass());
+		return layout.setName(actor.name, actor);
 	}
 
 	public void parse (String tableDescription) {
@@ -52,8 +65,8 @@ public class Table extends Group {
 		return layout.getCells(namePrefix);
 	}
 
-	public void setWidget (String name, Actor widget) {
-		layout.setWidget(name, widget);
+	public void setWidget (String name, Actor actor) {
+		layout.setWidget(name, actor);
 	}
 
 	public Cell getCell (String name) {
@@ -64,23 +77,28 @@ public class Table extends Group {
 		return layout.getCells();
 	}
 
-	public Cell getCell (Actor widget) {
-		return layout.getCell(widget);
+	public Cell getCell (Actor actor) {
+		return layout.getCell(actor);
 	}
 
-	/**
-	 * This method is needed for the TableLayout to relayout automatically if {@link TableLayout#invalidate()} has been called. If
-	 * this method is not called each frame, {@link TableLayout#layout()} must be called manually when the TableLayout is modified.
-	 */
-	public void update () {
+	protected void draw (SpriteBatch batch, float parentAlpha) {
 		if (layout.needsLayout) layout.layout();
+		super.draw(batch, parentAlpha);
 	}
 
 	/**
-	 * This method is needed for the TableLayout to draw the debug lines, when enabled. If this method is not called each frame, no
-	 * debug lines will be drawn.
+	 * Draws the debug lines for all TableLayouts in the stage. If this method is not called each frame, no debug lines will be
+	 * drawn.
 	 */
-	public void drawDebug () {
-		layout.drawDebug();
+	static public void drawDebug (Stage stage) {
+		drawDebug(stage.getActors());
+	}
+
+	static private void drawDebug (List<Actor> actors) {
+		for (int i = 0, n = actors.size(); i < n; i++) {
+			Actor actor = actors.get(i);
+			if (actor instanceof Table) ((Table)actor).layout.drawDebug();
+			if (actor instanceof Group) drawDebug(((Group)actor).getActors());
+		}
 	}
 }

@@ -37,6 +37,7 @@ abstract public class TableLayout<T> {
 
 	public final Toolkit<T> toolkit = getToolkit();
 
+	public String name;
 	public int width, height;
 	public float fillWidth, fillHeight;
 	public int padTop, padLeft, padBottom, padRight;

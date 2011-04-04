@@ -8,6 +8,7 @@ import java.util.List;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.actors.Label;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.TableLayout;
@@ -39,8 +40,6 @@ public class GdxTableLayout extends TableLayout<Actor> {
 	}
 
 	public void layout () {
-		tableLayoutX = (int)table.x;
-		tableLayoutY = (int)table.y;
 		tableLayoutWidth = (int)table.width;
 		tableLayoutHeight = (int)table.height;
 
@@ -55,6 +54,7 @@ public class GdxTableLayout extends TableLayout<Actor> {
 			actor.y = c.widgetY;
 			actor.width = c.widgetWidth;
 			actor.height = c.widgetHeight;
+			if (actor instanceof Table) ((Table)actor).layout.layout();
 		}
 		needsLayout = false;
 	}
@@ -66,11 +66,20 @@ public class GdxTableLayout extends TableLayout<Actor> {
 	public void drawDebug () {
 		if (debug == null || debugRects == null) return;
 		if (debugRenderer == null) debugRenderer = new ImmediateModeRenderer(64);
+
+		int x = 0, y = 0;
+		Actor parent = table;
+		while (parent != null) {
+			x += parent.x;
+			y += parent.y;
+			parent = parent.parent;
+		}
+
 		debugRenderer.begin(GL10.GL_LINES);
 		for (int i = 0, n = debugRects.size; i < n; i++) {
 			DebugRect rect = debugRects.get(i);
-			float x1 = rect.x + 1;
-			float y1 = rect.y;
+			float x1 = x + rect.x + 1;
+			float y1 = y + rect.y;
 			float x2 = x1 + rect.width;
 			float y2 = y1 + rect.height;
 			float r = rect.isCell ? 1 : 0;

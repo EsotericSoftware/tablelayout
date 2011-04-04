@@ -45,18 +45,18 @@ public class LibgdxTest implements ApplicationListener {
 		TextureRegion badlogicRegion = new TextureRegion(badlogic, 0, 0, 256, 256);
 		badlogicRegion.flip(false, true);
 
-		Image img1 = new Image("image1", badlogicRegion);
-		img1.width = img1.height = 128;
-		img1.originX = img1.originY = 64;
-		img1.action(Sequence.$(FadeOut.$(1), FadeIn.$(1), ScaleTo.$(0.5f, 0.5f, 1), FadeOut.$(0.5f),
+		Image image1 = new Image("image1", badlogicRegion);
+		image1.width = image1.height = 128;
+		image1.originX = image1.originY = 64;
+		image1.action(Sequence.$(FadeOut.$(1), FadeIn.$(1), ScaleTo.$(0.5f, 0.5f, 1), FadeOut.$(0.5f),
 			Delay.$(Parallel.$(RotateTo.$(360, 1), FadeIn.$(1), ScaleTo.$(1, 1, 1)), 1)));
-		table.addActor(img1);
+		table.add(image1);
 
-		Image img2 = new Image("image2", badlogicRegion);
-		img2.width = img2.height = 64;
-		img2.originX = img2.originY = 32;
-		img2.action(Forever.$(Sequence.$(MoveBy.$(50, 0, 1), MoveBy.$(0, 50, 1), MoveBy.$(-50, 0, 1), MoveBy.$(0, -50, 1))));
-		stage.addActor(img2);
+		Image image2 = new Image("image2", badlogicRegion);
+		image2.width = image2.height = 64;
+		image2.originX = image2.originY = 32;
+		image2.action(Forever.$(Sequence.$(MoveBy.$(50, 0, 1), MoveBy.$(0, 50, 1), MoveBy.$(-50, 0, 1), MoveBy.$(0, -50, 1))));
+		stage.addActor(image2);
 
 		table.parse("" //
 			+ "debug" //
@@ -71,10 +71,9 @@ public class LibgdxTest implements ApplicationListener {
 
 	public void render () {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		table.update();
 		stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30.0f));
 		stage.draw();
-		table.drawDebug();
+		Table.drawDebug(stage);
 	}
 
 	public void resize (int arg0, int arg1) {

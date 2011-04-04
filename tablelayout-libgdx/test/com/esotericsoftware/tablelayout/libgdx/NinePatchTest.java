@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actors.Image;
 
@@ -30,57 +29,62 @@ public class NinePatchTest implements ApplicationListener {
 
 		Image nw = new Image("nw", new TextureRegion(new Texture(Gdx.files.internal("9patch-nw.png"))));
 		nw.region.flip(false, true); // Flip for use with y down coordinate system.
-		table.addActor(nw);
+		table.add(nw);
 
 		Image ne = new Image("ne", nw.region);
 		ne.region.flip(true, false);
-		table.addActor(ne);
+		table.add(ne);
 
 		Image sw = new Image("sw", nw.region);
 		sw.region.flip(false, true);
-		table.addActor(sw);
+		table.add(sw);
 
 		Image se = new Image("se", nw.region);
 		se.region.flip(true, true);
-		table.addActor(se);
+		table.add(se);
 
 		Image n = new Image("n", new TextureRegion(new Texture(Gdx.files.internal("9patch-n.png"))));
 		n.region.flip(false, true); // Flip for use with y down coordinate system.
-		table.addActor(n);
+		table.add(n);
 
 		Image s = new Image("s", n.region);
 		s.region.flip(false, true);
-		table.addActor(s);
+		table.add(s);
 
 		Image w = new Image("w", new TextureRegion(new Texture(Gdx.files.internal("9patch-w.png"))));
 		w.region.flip(false, true); // Flip for use with y down coordinate system.
-		table.addActor(w);
+		table.add(w);
 
 		Image e = new Image("e", w.region);
 		e.region.flip(true, false);
-		table.addActor(e);
-
-		Image center = new Image("center", new TextureRegion(new Texture(Gdx.files.internal("9patch-center.png"))));
-		center.region.flip(false, true); // Flip for use with y down coordinate system.
-		table.addActor(center);
+		table.add(e);
 
 		table.parse("" //
-			// + "debug" //
+			+ "" //
 			+ "* fill" //
 			+ "[nw] [n] [ne]" //
 			+ "---" //
-			+ "[w] [center] expand [e]" //
+			+ "[w] { debug name:content * pad:10 '1' '2' --- '3' '4' } expand [e]" //
 			+ "---" //
 			+ "[sw] [s] [se]" //
 		);
+		table.layout();
+
+		Image center = new Image("center", new TextureRegion(new Texture(Gdx.files.internal("9patch-center.png"))));
+		center.region.flip(false, true); // Flip for use with y down coordinate system.
+
+		// Add a background image stretched to the size of the table named "content". Note the table must be already laid out.
+		Table contentTable = (Table)table.getWidget("content");
+		center.width = contentTable.width;
+		center.height = contentTable.height;
+		contentTable.addActorAt(0, center);
 	}
 
 	public void render () {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		table.update();
 		stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30.0f));
 		stage.draw();
-		table.drawDebug();
+		Table.drawDebug(stage);
 	}
 
 	public void resize (int arg0, int arg1) {

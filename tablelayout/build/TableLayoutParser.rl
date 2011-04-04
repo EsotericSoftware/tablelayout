@@ -168,8 +168,13 @@ class TableLayoutParser {
 				if (debug) System.out.println("addCell");
 				if (widget == null)
 					cell = ((TableLayout)parent).addCell(toolkit.newEmptyWidget());
-				else
+				else {
+					if (widget instanceof TableLayout) {
+						TableLayout layout = (TableLayout)widget;
+						if (layout.name != null) ((TableLayout)parent).setName(layout.name, layout.getTable());
+					}
 					cell = ((TableLayout)parent).addCell(toolkit.wrap(widget));
+				}
 			}
 			action addWidget {
 				if (debug) System.out.println("addWidget");

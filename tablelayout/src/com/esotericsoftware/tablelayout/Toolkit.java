@@ -231,6 +231,9 @@ abstract public class Toolkit<T> {
 						throw new IllegalArgumentException("Invalid value: " + value);
 				}
 
+			} else if (name.equals("name")) {
+				table.name = values.get(0);
+
 			} else if (name.equals("debug")) {
 				table.debug = "";
 				if (values.size() == 0) table.debug = "all,";

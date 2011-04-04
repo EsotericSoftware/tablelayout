@@ -338,12 +338,17 @@ class TableLayoutParser {
 									if (debug) System.out.println("addCell");
 									if (widget == null)
 										cell = ((TableLayout)parent).addCell(toolkit.newEmptyWidget());
-									else
+									else {
+										if (widget instanceof TableLayout) {
+											TableLayout layout = (TableLayout)widget;
+											if (layout.name != null) ((TableLayout)parent).setName(layout.name, layout.getTable());
+										}
 										cell = ((TableLayout)parent).addCell(toolkit.wrap(widget));
+									}
 								}
 									break;
 								case 21:
-									// line 174 "TableLayoutParser.rl"
+									// line 179 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("addWidget");
 									toolkit.addChild(parent, toolkit.wrap(widget), widgetLayoutString);
@@ -351,7 +356,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 22:
-									// line 179 "TableLayoutParser.rl"
+									// line 184 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("widgetProperty: " + name + " = " + values);
 									try {
@@ -364,12 +369,12 @@ class TableLayoutParser {
 								}
 									break;
 								case 23:
-									// line 199 "TableLayoutParser.rl"
+									// line 204 "TableLayoutParser.rl"
 								{
 									hasColon = true;
 								}
 									break;
-								// line 319 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+								// line 324 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 								}
 							}
 						}
@@ -390,7 +395,7 @@ class TableLayoutParser {
 				}
 			}
 
-			// line 259 "TableLayoutParser.rl"
+			// line 264 "TableLayoutParser.rl"
 
 		} catch (RuntimeException ex) {
 			parseRuntimeEx = ex;
@@ -407,7 +412,7 @@ class TableLayoutParser {
 				parseRuntimeEx);
 	}
 
-	// line 339 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+	// line 344 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 	private static byte[] init__tableLayout_actions_0 () {
 		return new byte[] {0, 1, 0, 1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 1, 8, 1, 9, 1, 10, 1, 12, 1, 13, 1, 14, 1, 15, 1, 16,
 			1, 17, 1, 18, 1, 19, 1, 20, 1, 21, 1, 22, 2, 0, 2, 2, 0, 10, 2, 0, 12, 2, 0, 13, 2, 0, 15, 2, 1, 3, 2, 1, 4, 2, 1, 6, 2,
@@ -562,5 +567,5 @@ class TableLayoutParser {
 	static final int tableLayout_en_main = 1;
 	static final int tableLayout_en_main_table = 82;
 
-	// line 274 "TableLayoutParser.rl"
+	// line 279 "TableLayoutParser.rl"
 }
