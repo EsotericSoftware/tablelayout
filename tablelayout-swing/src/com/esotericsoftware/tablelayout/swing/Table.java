@@ -37,7 +37,6 @@ public class Table extends JComponent {
 				layout.layout(); // BOZO - Cache layout?
 				prefSize.width = layout.totalMinWidth;
 				prefSize.height = layout.totalMinHeight;
-				System.out.println("oref " + prefSize);
 				return prefSize;
 			}
 
@@ -45,7 +44,6 @@ public class Table extends JComponent {
 				layout.layout(); // BOZO - Cache layout?
 				minSize.width = layout.totalMinWidth;
 				minSize.height = layout.totalMinHeight;
-				System.out.println("mion " + minSize);
 				return minSize;
 			}
 

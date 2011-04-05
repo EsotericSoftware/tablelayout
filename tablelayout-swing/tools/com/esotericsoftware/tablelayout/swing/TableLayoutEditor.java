@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Label;
 import java.io.StringWriter;
 
 import javax.swing.JButton;
@@ -38,6 +39,11 @@ public class TableLayoutEditor extends JFrame {
 				return new Placeholder(name);
 			}
 		});
+
+		outputTable = new Table();
+		outputTable.parse("debug * fill:x expand space:15 align:top");
+		outputTable.layout.addCell(new JLabel("cow"));
+		outputTable.layout.addCell(new JLabel("cow2"));
 
 		Table table = new Table();
 		table.layout.setName("outputTable", outputTable);
@@ -73,7 +79,7 @@ public class TableLayoutEditor extends JFrame {
 			+ "   	[JScrollPane] size:100,0 expand fill ([JTextArea])\n" //
 			+ "   } top\n" //
 			+ ")");
-		outputTable.layout.parse(codeArea.getText());
+		// outputTable.layout.parse(codeArea.getText());
 
 		codeArea.setFont(Font.decode("monospaced"));
 		codeArea.getDocument().addDocumentListener(new DocumentListener() {

@@ -498,7 +498,7 @@ abstract public class TableLayout<T> {
 		clearDebugRectangles();
 		currentX = x;
 		currentY = y;
-		if (debug.contains("table,") || debug.contains("all,")) {
+		if (debug.contains("table") || debug.contains("all")) {
 			addDebugRectangle(false, tableLayoutX + padLeft, tableLayoutY + padTop, tableLayoutWidth, tableLayoutHeight);
 			addDebugRectangle(false, x, y, tableWidth, tableHeight);
 		}
@@ -507,7 +507,7 @@ abstract public class TableLayout<T> {
 			if (c.ignore) continue;
 
 			// Widget bounds.
-			if (debug.contains("widget,") || debug.contains("all,"))
+			if (debug.contains("widget") || debug.contains("all"))
 				addDebugRectangle(false, c.widgetX, c.widgetY, c.widgetWidth, c.widgetHeight);
 
 			// Cell bounds.
@@ -516,7 +516,7 @@ abstract public class TableLayout<T> {
 				spannedCellWidth += columnWidth[column];
 			spannedCellWidth -= c.padLeftTemp + c.padRightTemp;
 			currentX += c.padLeftTemp;
-			if (debug.contains("cell,") || debug.contains("all,"))
+			if (debug.contains("cell") || debug.contains("all"))
 				addDebugRectangle(true, currentX, currentY + c.padTopTemp, spannedCellWidth, rowHeight[c.row] - c.padTopTemp
 					- c.padBottomTemp);
 			if (c.endRow) {

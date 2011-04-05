@@ -54,7 +54,7 @@ public class GdxTableLayout extends TableLayout<Actor> {
 			actor.y = c.widgetY;
 			actor.width = c.widgetWidth;
 			actor.height = c.widgetHeight;
-			if (actor instanceof Table) ((Table)actor).layout.layout();
+			if (actor instanceof Table) ((Table)actor).layout();
 		}
 		needsLayout = false;
 	}

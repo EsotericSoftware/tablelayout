@@ -100,6 +100,6 @@ public class NinePatchTest implements ApplicationListener {
 	}
 
 	public static void main (String[] args) throws Exception {
-		new LwjglApplication(new NinePatchTest(), "LibgdxTest", 800, 600, false);
+		new LwjglApplication(new NinePatchTest(), "NinePatchTest", 800, 600, false);
 	}
 }

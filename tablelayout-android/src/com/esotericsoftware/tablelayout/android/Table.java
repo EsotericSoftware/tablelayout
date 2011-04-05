@@ -1,7 +1,6 @@
 
 package com.esotericsoftware.tablelayout.android;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.graphics.Canvas;
@@ -12,65 +11,35 @@ import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.TableLayout;
 
 public class Table extends ViewGroup {
+	static private final OnHierarchyChangeListener hierarchyChangeListener = new OnHierarchyChangeListener() {
+		public void onChildViewAdded (View parent, View child) {
+			((Table)parent).layout.otherChildren.add(child);
+		}
+
+		public void onChildViewRemoved (View parent, View child) {
+			((Table)parent).layout.otherChildren.remove(child);
+		}
+	};
+
 	public final AndroidTableLayout layout;
 	public boolean sizeToBackground;
 
 	public Table () {
 		super(AndroidToolkit.context);
 		layout = new AndroidTableLayout();
-		layout.table = this;
-		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		initialize();
 	}
 
 	public Table (TableLayout parent) {
 		super(AndroidToolkit.context);
 		layout = new AndroidTableLayout(parent);
+		initialize();
+	}
+
+	private void initialize () {
 		layout.table = this;
 		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-	}
-
-	public View setName (String name, View widget) {
-		return layout.setName(name, widget);
-	}
-
-	public void parse (String tableDescription) {
-		layout.parse(tableDescription);
-	}
-
-	public void layout () {
-		layout.layout();
-	}
-
-	public View getWidget (String name) {
-		return layout.getWidget(name);
-	}
-
-	public List<View> getWidgets () {
-		return layout.getWidgets();
-	}
-
-	public List<View> getWidgets (String namePrefix) {
-		return layout.getWidgets(namePrefix);
-	}
-
-	public List<Cell> getCells (String namePrefix) {
-		return layout.getCells(namePrefix);
-	}
-
-	public void setWidget (String name, View view) {
-		layout.setWidget(name, view);
-	}
-
-	public Cell getCell (String name) {
-		return layout.getCell(name);
-	}
-
-	public List<Cell> getCells () {
-		return layout.getCells();
-	}
-
-	public Cell getCell (View widget) {
-		return layout.getCell(widget);
+		setOnHierarchyChangeListener(hierarchyChangeListener);
 	}
 
 	protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec) {
@@ -121,5 +90,49 @@ public class Table extends ViewGroup {
 	protected void dispatchDraw (Canvas canvas) {
 		super.dispatchDraw(canvas);
 		layout.drawDebug(canvas);
+	}
+
+	public View setName (String name, View widget) {
+		return layout.setName(name, widget);
+	}
+
+	public void parse (String tableDescription) {
+		layout.parse(tableDescription);
+	}
+
+	public void layout () {
+		layout.layout();
+	}
+
+	public View getWidget (String name) {
+		return layout.getWidget(name);
+	}
+
+	public List<View> getWidgets () {
+		return layout.getWidgets();
+	}
+
+	public List<View> getWidgets (String namePrefix) {
+		return layout.getWidgets(namePrefix);
+	}
+
+	public List<Cell> getCells (String namePrefix) {
+		return layout.getCells(namePrefix);
+	}
+
+	public void setWidget (String name, View view) {
+		layout.setWidget(name, view);
+	}
+
+	public Cell getCell (String name) {
+		return layout.getCell(name);
+	}
+
+	public List<Cell> getCells () {
+		return layout.getCells();
+	}
+
+	public Cell getCell (View widget) {
+		return layout.getCell(widget);
 	}
 }

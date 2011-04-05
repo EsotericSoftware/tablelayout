@@ -18,6 +18,7 @@ public class AndroidTableLayout extends TableLayout<View> {
 	static Paint paint;
 
 	Table table;
+	ArrayList<View> otherChildren = new ArrayList(1);
 	ArrayList<DebugRect> debugRects;
 
 	public AndroidTableLayout () {
@@ -34,7 +35,6 @@ public class AndroidTableLayout extends TableLayout<View> {
 
 	public View getWidget (String name) {
 		View view = super.getWidget(name);
-		if (view == null) view = AndroidToolkit.getImageView(name);
 		if (view == null) view = table.findViewWithTag(name);
 		return view;
 	}
@@ -47,6 +47,11 @@ public class AndroidTableLayout extends TableLayout<View> {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
 			((View)c.widget).layout(c.widgetX, c.widgetY, c.widgetX + c.widgetWidth, c.widgetY + c.widgetHeight);
+		}
+
+		for (int i = 0, n = otherChildren.size(); i < n; i++) {
+			View child = otherChildren.get(i);
+			child.layout(0, 0, tableLayoutWidth, tableLayoutHeight);
 		}
 	}
 
@@ -68,6 +73,21 @@ public class AndroidTableLayout extends TableLayout<View> {
 		}
 	}
 
+	public Table getTable () {
+		return table;
+	}
+
+	public Cell addCell (View widget) {
+		Cell cell = super.addCell(widget);
+		otherChildren.remove(widget);
+		return cell;
+	}
+	
+	public void setWidget (Cell cell, View widget) {
+		super.setWidget(cell, widget);
+		otherChildren.remove(widget);
+	}
+
 	public void clearDebugRectangles () {
 		if (debugRects != null) debugRects.clear();
 	}
@@ -75,10 +95,6 @@ public class AndroidTableLayout extends TableLayout<View> {
 	public void addDebugRectangle (boolean isCell, int x, int y, int w, int h) {
 		if (debugRects == null) debugRects = new ArrayList();
 		debugRects.add(new DebugRect(isCell, x, y, w, h));
-	}
-
-	public Table getTable () {
-		return table;
 	}
 
 	static private class DebugRect {

@@ -88,6 +88,7 @@ abstract public class Toolkit<T> {
 	/**
 	 * Creates a new widget from the specified class name. This method can be overriden to create widgets using shortcut names,
 	 * such as "button".
+	 * @throws Exception if the class could be found or otherwise failed to be instantiated.
 	 */
 	public Object newWidget (String className) throws Exception {
 		try {
@@ -242,9 +243,9 @@ abstract public class Toolkit<T> {
 				if (table.debug.equals("true,")) table.debug = "all,";
 
 			} else
-				throw new IllegalArgumentException("Unknown property: " + name);
+				throw new IllegalArgumentException("Unknown table property: " + name);
 		} catch (Exception ex) {
-			throw new IllegalArgumentException("Error setting property: " + name, ex);
+			throw new IllegalArgumentException("Error setting table property: " + name, ex);
 		}
 	}
 
@@ -456,9 +457,9 @@ abstract public class Toolkit<T> {
 				}
 
 			} else
-				throw new IllegalArgumentException("Unknown property.");
+				throw new IllegalArgumentException("Unknown cell property.");
 		} catch (Exception ex) {
-			throw new IllegalArgumentException("Error setting property: " + name, ex);
+			throw new IllegalArgumentException("Error setting cell property: " + name, ex);
 		}
 	}
 
@@ -513,8 +514,9 @@ abstract public class Toolkit<T> {
 		for (int i = 0, n = methods.length; i < n; i++) {
 			method = methods[i];
 			if (!method.getName().equalsIgnoreCase(name)) continue;
-			params = values.toArray();
 			Class[] paramTypes = method.getParameterTypes();
+			if (paramTypes.length != values.size()) continue;
+			params = values.toArray();
 			for (int ii = 0, nn = paramTypes.length; ii < nn; ii++) {
 				Object value = convertType(object, (String)params[ii], paramTypes[ii]);
 				if (value == null) continue outer;

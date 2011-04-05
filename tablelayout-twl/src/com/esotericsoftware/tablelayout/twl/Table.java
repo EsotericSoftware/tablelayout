@@ -1,9 +1,6 @@
 
 package com.esotericsoftware.tablelayout.twl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 import com.esotericsoftware.tablelayout.Cell;
@@ -25,6 +22,34 @@ public class Table extends Widget {
 		layout = new TwlTableLayout(parent);
 		layout.table = this;
 		setTheme("");
+	}
+
+	protected void layout () {
+		layout.layout();
+	}
+
+	public int getMinWidth () {
+		return layout.totalMinWidth;
+	}
+
+	public int getMinHeight () {
+		return layout.totalMinHeight;
+	}
+
+	public int getPreferredWidth () {
+		return layout.totalPrefWidth;
+	}
+
+	public int getPreferredHeight () {
+		return layout.totalPrefHeight;
+	}
+
+	public void invalidateLayout () {
+		super.invalidateLayout();
+	}
+
+	protected void paintOverlay (GUI gui) {
+		super.paintOverlay(gui);
 	}
 
 	public Widget setName (String name, Widget widget) {
@@ -65,33 +90,5 @@ public class Table extends Widget {
 
 	public Cell getCell (Widget widget) {
 		return layout.getCell(widget);
-	}
-
-	protected void layout () {
-		layout.layout();
-	}
-
-	public int getMinWidth () {
-		return layout.totalMinWidth;
-	}
-
-	public int getMinHeight () {
-		return layout.totalMinHeight;
-	}
-
-	public int getPreferredWidth () {
-		return layout.totalPrefWidth;
-	}
-
-	public int getPreferredHeight () {
-		return layout.totalPrefHeight;
-	}
-
-	public void invalidateLayout () {
-		super.invalidateLayout();
-	}
-
-	protected void paintOverlay (GUI gui) {
-		super.paintOverlay(gui);
 	}
 }

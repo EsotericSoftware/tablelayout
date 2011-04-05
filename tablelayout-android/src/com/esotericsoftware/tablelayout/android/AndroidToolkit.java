@@ -41,6 +41,10 @@ public class AndroidToolkit extends Toolkit<View> {
 		return (int)(super.getSize(value) * density);
 	}
 
+	public int getSize (float value) {
+		return (int)(value * density);
+	}
+
 	public void addChild (View parent, View child, String layoutString) {
 		((ViewGroup)parent).addView(child);
 	}
@@ -55,7 +59,13 @@ public class AndroidToolkit extends Toolkit<View> {
 
 	public Object newWidget (String className) throws Exception {
 		if (className.equals("button")) return new Button(context);
-		return super.newWidget(className);
+		try {
+			return super.newWidget(className);
+		} catch (Exception ex) {
+			ImageView image = getImageView(className);
+			if (image != null) return image;
+			throw ex;
+		}
 	}
 
 	public View newLabel (String text) {
