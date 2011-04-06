@@ -654,9 +654,9 @@ abstract public class BaseTableLayout<T> {
 				break;
 			}
 			if (table == null)
-				throw new RuntimeException("Table class is missing a constructor taking a TableLayout: " + getClass());
+				throw new RuntimeException("Table class is missing a constructor taking a TableLayout: " + getTable().getClass());
 		} catch (Exception ex) {
-			throw new RuntimeException("Error creating TableLayout instance: " + getClass(), ex);
+			throw new RuntimeException("Error creating TableLayout instance: " + getTable().getClass(), ex);
 		}
 
 		return layout;
