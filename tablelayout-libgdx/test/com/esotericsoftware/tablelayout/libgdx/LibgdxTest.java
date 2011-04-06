@@ -6,20 +6,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Delay;
 import com.badlogic.gdx.scenes.scene2d.actions.FadeIn;
 import com.badlogic.gdx.scenes.scene2d.actions.FadeOut;
 import com.badlogic.gdx.scenes.scene2d.actions.Forever;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveBy;
-import com.badlogic.gdx.scenes.scene2d.actions.MoveTo;
 import com.badlogic.gdx.scenes.scene2d.actions.Parallel;
-import com.badlogic.gdx.scenes.scene2d.actions.Repeat;
 import com.badlogic.gdx.scenes.scene2d.actions.RotateTo;
 import com.badlogic.gdx.scenes.scene2d.actions.ScaleTo;
 import com.badlogic.gdx.scenes.scene2d.actions.Sequence;
@@ -27,7 +22,6 @@ import com.badlogic.gdx.scenes.scene2d.actors.Image;
 
 public class LibgdxTest implements ApplicationListener {
 	private Stage stage;
-	private Table table;
 
 	public void create () {
 		GdxTableLayout.font = new BitmapFont(true);
@@ -35,10 +29,10 @@ public class LibgdxTest implements ApplicationListener {
 		stage = new Stage(640, 480, false);
 		stage.projection.setToOrtho(0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1);
 
-		table = new Table();
-		stage.addActor(table);
-		table.width = 640;
-		table.height = 480;
+		GdxTableLayout layout = new Table().layout;
+		stage.addActor(layout.getTable());
+		layout.getTable().width = 640;
+		layout.getTable().height = 480;
 
 		Texture badlogic = new Texture(Gdx.files.internal("badlogic.jpg"));
 		TextureRegion badlogicRegion = new TextureRegion(badlogic, 0, 0, 256, 256);
@@ -49,7 +43,7 @@ public class LibgdxTest implements ApplicationListener {
 		image1.originX = image1.originY = 64;
 		image1.action(Sequence.$(FadeOut.$(1), FadeIn.$(1), ScaleTo.$(0.5f, 0.5f, 1), FadeOut.$(0.5f),
 			Delay.$(Parallel.$(RotateTo.$(360, 1), FadeIn.$(1), ScaleTo.$(1, 1, 1)), 1)));
-		table.layout.register(image1);
+		layout.register(image1);
 
 		Image image2 = new Image("image2", badlogicRegion);
 		image2.width = image2.height = 64;
@@ -57,7 +51,7 @@ public class LibgdxTest implements ApplicationListener {
 		image2.action(Forever.$(Sequence.$(MoveBy.$(50, 0, 1), MoveBy.$(0, 50, 1), MoveBy.$(-50, 0, 1), MoveBy.$(0, -50, 1))));
 		stage.addActor(image2);
 
-		table.layout.parse("" //
+		layout.parse("" //
 			+ "debug" //
 			+ "* spacing:10" //
 			+ "'Sweet' (text:'moo!!!!!!!!!!.')" //
@@ -75,7 +69,7 @@ public class LibgdxTest implements ApplicationListener {
 		Table.drawDebug(stage);
 	}
 
-	public void resize (int arg0, int arg1) {
+	public void resize (int width, int height) {
 	}
 
 	public void resume () {

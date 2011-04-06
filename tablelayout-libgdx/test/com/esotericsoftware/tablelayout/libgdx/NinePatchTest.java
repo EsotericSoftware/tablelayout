@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.actors.Image;
 
 public class NinePatchTest implements ApplicationListener {
 	private Stage stage;
-	private Table table;
 
 	public void create () {
 		GdxTableLayout.font = new BitmapFont(true);
@@ -21,44 +20,44 @@ public class NinePatchTest implements ApplicationListener {
 		stage = new Stage(800, 600, false);
 		stage.projection.setToOrtho(0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1);
 
-		table = new Table();
-		stage.addActor(table);
-		table.width = 800;
-		table.height = 600;
+		GdxTableLayout layout = new Table().layout;
+		stage.addActor(layout.getTable());
+		layout.getTable().width = 800;
+		layout.getTable().height = 600;
 
 		Image nw = new Image("nw", new TextureRegion(new Texture(Gdx.files.internal("9patch-nw.png"))));
 		nw.region.flip(false, true); // Flip for use with y down coordinate system.
-		table.layout.register(nw);
+		layout.register(nw);
 
 		Image ne = new Image("ne", nw.region);
 		ne.region.flip(true, false);
-		table.layout.register(ne);
+		layout.register(ne);
 
 		Image sw = new Image("sw", nw.region);
 		sw.region.flip(false, true);
-		table.layout.register(sw);
+		layout.register(sw);
 
 		Image se = new Image("se", nw.region);
 		se.region.flip(true, true);
-		table.layout.register(se);
+		layout.register(se);
 
 		Image n = new Image("n", new TextureRegion(new Texture(Gdx.files.internal("9patch-n.png"))));
 		n.region.flip(false, true); // Flip for use with y down coordinate system.
-		table.layout.register(n);
+		layout.register(n);
 
 		Image s = new Image("s", n.region);
 		s.region.flip(false, true);
-		table.layout.register(s);
+		layout.register(s);
 
 		Image w = new Image("w", new TextureRegion(new Texture(Gdx.files.internal("9patch-w.png"))));
 		w.region.flip(false, true); // Flip for use with y down coordinate system.
-		table.layout.register(w);
+		layout.register(w);
 
 		Image e = new Image("e", w.region);
 		e.region.flip(true, false);
-		table.layout.register(e);
+		layout.register(e);
 
-		table.layout.parse("" //
+		layout.parse("" //
 			+ "" //
 			+ "* fill" //
 			+ "[nw] [n] [ne]" //
@@ -67,13 +66,13 @@ public class NinePatchTest implements ApplicationListener {
 			+ "---" //
 			+ "[sw] [s] [se]" //
 		);
-		table.layout.layout();
+		layout.layout();
 
 		Image center = new Image("center", new TextureRegion(new Texture(Gdx.files.internal("9patch-center.png"))));
 		center.region.flip(false, true); // Flip for use with y down coordinate system.
 
 		// Add a background image stretched to the size of the table named "content". Note the table must be already laid out.
-		Table contentTable = (Table)table.layout.getWidget("content");
+		Table contentTable = (Table)layout.getWidget("content");
 		center.width = contentTable.width;
 		center.height = contentTable.height;
 		contentTable.addActorAt(0, center);
@@ -86,7 +85,7 @@ public class NinePatchTest implements ApplicationListener {
 		Table.drawDebug(stage);
 	}
 
-	public void resize (int arg0, int arg1) {
+	public void resize (int width, int height) {
 	}
 
 	public void resume () {
