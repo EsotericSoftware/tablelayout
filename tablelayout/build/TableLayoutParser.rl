@@ -5,7 +5,7 @@ package com.esotericsoftware.tablelayout;
 import java.util.ArrayList;
 
 class TableLayoutParser {
-	static public void parse (TableLayout table, String input) {
+	static public void parse (BaseTableLayout table, String input) {
 		char[] data = (input + "  ").toCharArray();
 		int cs, p = 0, pe = data.length, eof = pe, top = 0;
 		int[] stack = new int[4];
@@ -14,7 +14,6 @@ class TableLayoutParser {
 		String name = null;
 		String widgetLayoutString = null;
 		String className = null;
-		Object label = null;
 
 		int columnDefaultCount = 0;
 		ArrayList<String> values = new ArrayList(4);
@@ -24,7 +23,7 @@ class TableLayoutParser {
 		RuntimeException parseRuntimeEx = null;
 		boolean hasColon = false;
 
-		boolean debug = false;
+		boolean debug = true;
 		if (debug) System.out.println();
 
 		try {
@@ -43,42 +42,46 @@ class TableLayoutParser {
 			action name {
 				name = new String(data, s, p - s);
 				s = p;
-				hasColon = false;
 			}
 			action value {
 				values.add(new String(data, s, p - s));
 			}
 			action tableProperty {
 				if (debug) System.out.println("tableProperty: " + name + " = " + values);
-				((TableLayout)parent).setTableProperty(name, values);
+				((BaseTableLayout)parent).setTableProperty(name, values);
 				values.clear();
+				name = null;
 			}
 			action cellDefaultProperty {
 				if (debug) System.out.println("cellDefaultProperty: " + name + " = " + values);
-				table.setCellProperty(((TableLayout)parent).cellDefaults, name, values);
+				table.setCellProperty(((BaseTableLayout)parent).cellDefaults, name, values);
 				values.clear();
+				name = null;
 			}
 			action startColumn {
-				columnDefaults = ((TableLayout)parent).getColumnDefaults(columnDefaultCount++);
+				columnDefaults = ((BaseTableLayout)parent).getColumnDefaults(columnDefaultCount++);
 			}
 			action columnDefaultProperty {
 				if (debug) System.out.println("columnDefaultProperty: " + name + " = " + values);
 				table.setCellProperty(columnDefaults, name, values);
 				values.clear();
+				name = null;
 			}
 			action startRow {
 				if (debug) System.out.println("startRow");
-				rowDefaults = ((TableLayout)parent).startRow();
+				rowDefaults = ((BaseTableLayout)parent).startRow();
 			}
 			action rowDefaultValue {
 				if (debug) System.out.println("rowDefaultValue: " + name + " = " + values);
 				table.setCellProperty(rowDefaults, name, values);
 				values.clear();
+				name = null;
 			}
 			action cellProperty {
 				if (debug) System.out.println("cellProperty: " + name + " = " + values);
 				table.setCellProperty(cell, name, values);
 				values.clear();
+				name = null;
 			}
 			action widgetLayoutString {
 				if (debug) System.out.println("widgetLayoutString: " + new String(data, s, p - s).trim());
@@ -87,15 +90,10 @@ class TableLayoutParser {
 			action newWidgetClassName {
 				className = new String(data, s, p - s);
 			}
-			action newWidgetLabel {
-				label = table.wrap(new String(data, s, p - s));
-			}
 			action newWidget {
-				if (debug) System.out.println("newWidget: " + name + " " + className + " " + label);
-				if (label != null) { // 'label' or ['label'] or [name:'label']
-					widget = label;
-					label = null;
-					if (name.length() > 0) table.register(name, widget);
+				if (debug) System.out.println("newWidget, name:" + name + " class:" + className + " widget:" + widget);
+				if (widget != null) { // 'label' or ['label'] or [name:'label']
+					if (name != null && name.length() > 0) table.register(name, widget);
 				} else if (className == null) {
 					if (name.length() > 0) {
 						if (hasColon) { // [name:]
@@ -119,15 +117,20 @@ class TableLayoutParser {
 					className = null;
 					if (name.length() > 0) table.register(name, widget);
 				}
+				name = null;
 			}
 			action newLabel {
 				if (debug) System.out.println("newLabel: " + new String(data, s, p - s));
 				widget = table.wrap(new String(data, s, p - s));
 			}
 			action startTable {
-				if (debug) System.out.println("startTable");
+				if (debug) System.out.println("startTable, name:" + name);
 				parents.add(parent);
-				parent = table.newTableLayout(parent instanceof TableLayout ? (TableLayout)parent : null);
+				parent = table.newTableLayout(parent instanceof BaseTableLayout ? (BaseTableLayout)parent : null);
+				if (name != null) { // [name:{}]
+					table.register(name, ((BaseTableLayout)parent).getTable());
+					name = null;
+				}
 				cell = null;
 				widget = null;
 				fcall table;
@@ -139,6 +142,24 @@ class TableLayoutParser {
 					parent = parents.remove(parents.size() - 1);
 					fret;
 				}
+			}
+			action startStack {
+				if (debug) System.out.println("startStack, name:" + name);
+				parents.add(parent);
+				parent = table.newStack();
+				if (name != null) { // [name:<>]
+					table.register(name, parent);
+					name = null;
+				}
+				cell = null;
+				widget = null;
+				fcall stack;
+			}
+			action endStack {
+				if (debug) System.out.println("endStack");
+				widget = parent;
+				parent = parents.remove(parents.size() - 1);
+				fret;
 			}
 			action startWidgetSection {
 				if (debug) System.out.println("startWidgetSection");
@@ -155,11 +176,7 @@ class TableLayoutParser {
 			}
 			action addCell {
 				if (debug) System.out.println("addCell");
-				if (widget instanceof TableLayout) {
-					TableLayout layout = (TableLayout)widget;
-					if (layout.name != null) table.register(layout.name, layout.getTable());
-				}
-				cell = ((TableLayout)parent).addCell(table.wrap(widget));
+				cell = ((BaseTableLayout)parent).addCell(table.wrap(widget));
 			}
 			action addWidget {
 				if (debug) System.out.println("addWidget");
@@ -170,6 +187,7 @@ class TableLayoutParser {
 				if (debug) System.out.println("widgetProperty: " + name + " = " + values);
 				table.setProperty(parent, name, values);
 				values.clear();
+				name = null;
 			}
 
 			propertyValue =
@@ -177,19 +195,21 @@ class TableLayoutParser {
 				('\'' ^'\''* >buffer %value '\'');
 			property = alnum+ >buffer %name (space* ':' space* propertyValue (',' propertyValue)* )?;
 
+			startTable = '{' @startTable;
+			startStack = '<' @startStack;
+			label = '\'' ^'\''* >buffer %newLabel '\'';
 			widget =
 				# Widget name.
-				'[' space* ^[\]:]* >buffer %name <:
+				'[' @{ widget = null; hasColon = false; } space* ^[\]:]* >buffer %name <:
 				space* ':'? @{ hasColon = true; } space*
 				(
+					label | startTable | startStack |
 					# Class name.
-					(^[\]':]+ >buffer %newWidgetClassName) |
-					# Label.
-					('\'' ^'\''* >buffer %newWidgetLabel '\'')
+					(^[\]':{]+ >buffer %newWidgetClassName)
 				)?
 				space* ']' @newWidget;
-			label = '\'' ^'\''* >buffer %newLabel '\'';
-			startTable = '{' @startTable;
+
+			stack := space* ((widget | label | startTable | startStack) %addWidget space*)* '>' @endStack;
 
 			startWidgetSection = '(' @startWidgetSection;
 			widgetSection := space*
@@ -198,7 +218,7 @@ class TableLayoutParser {
 				(
 					(
 						# Widget contents.
-						(widget | label | startTable) space*
+						(widget | label | startTable | startStack) space*
 						# Contents layout string.
 						(space* <: (alnum | ' ')+ >buffer %widgetLayoutString )?
 					) %addWidget <:
@@ -219,7 +239,7 @@ class TableLayoutParser {
 					('---' %startRow space* (property %rowDefaultValue (space+ property %rowDefaultValue)* )? )?
 					(
 						# Cell contents.
-						space* (widget | label | startTable) %addCell space*
+						space* (widget | label | startTable | startStack) %addCell space*
 						# Cell properties.
 						(property %cellProperty (space+ property %cellProperty)* space*)?
 						# Contents properties.

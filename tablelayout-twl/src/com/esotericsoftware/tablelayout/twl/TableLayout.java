@@ -45,6 +45,14 @@ public class TableLayout extends BaseTableLayout<Widget> {
 		return super.wrap(object);
 	}
 
+	public Widget newStack () {
+		return new Widget() {
+			protected void layout () {
+				layoutChildrenFullInnerArea();
+			}
+		};
+	}
+
 	public int getMinWidth (Widget widget) {
 		return widget.getMinWidth();
 	}

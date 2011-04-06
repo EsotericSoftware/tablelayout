@@ -48,7 +48,7 @@ public class TwlTest {
 		table.layout.parse("" //
 			+ "[scrollPane] expand fill" //
 			+ "---" //
-			+ "[fpsCounter] align:right" //
+			+ "<[fpsCounter]> align:right" //
 			+ "---" //
 			+ "[ProgressBar] fill (value:0.4)" //
 		);

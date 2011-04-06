@@ -57,25 +57,19 @@ public class NinePatchTest implements ApplicationListener {
 		e.region.flip(true, false);
 		layout.register(e);
 
+		Image bg = new Image("bg", new TextureRegion(new Texture(Gdx.files.internal("9patch-center.png"))));
+		bg.region.flip(false, true); // Flip for use with y down coordinate system.
+		layout.register(bg);
+
 		layout.parse("" //
-			+ "" //
+			+ "debug" //
 			+ "* fill" //
 			+ "[nw] [n] [ne]" //
 			+ "---" //
-			+ "[w] { debug name:content * pad:10 '1' '2' --- '3' '4' } expand [e]" //
+			+ "[w] <[bg] {* pad:10 '1' '2' --- '3' '4'}> expand [e]" //
 			+ "---" //
 			+ "[sw] [s] [se]" //
 		);
-		layout.layout();
-
-		Image center = new Image("center", new TextureRegion(new Texture(Gdx.files.internal("9patch-center.png"))));
-		center.region.flip(false, true); // Flip for use with y down coordinate system.
-
-		// Add a background image stretched to the size of the table named "content". Note the table must be already laid out.
-		Table contentTable = (Table)layout.getWidget("content");
-		center.width = contentTable.width;
-		center.height = contentTable.height;
-		contentTable.addActorAt(0, center);
 	}
 
 	public void render () {

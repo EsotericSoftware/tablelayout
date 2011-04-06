@@ -97,6 +97,7 @@ public class TableLayoutEditor extends JFrame {
 							errorArea.setText(buffer.toString());
 							outputTable.layout.clear();
 						}
+						System.out.println("----->" + outputTable.layout.getWidget("moo"));
 						outputTable.revalidate();
 						outputTable.repaint();
 					}
@@ -121,7 +122,7 @@ public class TableLayoutEditor extends JFrame {
 			}
 			if (name.toLowerCase().endsWith("edit")) return new JTextField();
 			if (name.toLowerCase().endsWith("button")) return new JButton("Button");
-			return new Placeholder(name);
+			return new Placeholder("[" + name + "]");
 		}
 	}
 

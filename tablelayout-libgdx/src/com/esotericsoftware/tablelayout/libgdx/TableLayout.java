@@ -2,7 +2,6 @@
 package com.esotericsoftware.tablelayout.libgdx;
 
 import java.awt.Rectangle;
-import java.util.List;
 
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -11,8 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.actors.Label;
 import com.badlogic.gdx.utils.Array;
-import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.BaseTableLayout;
+import com.esotericsoftware.tablelayout.Cell;
 
 public class TableLayout extends BaseTableLayout<Actor> {
 	static {
@@ -56,7 +55,10 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			actor.y = c.widgetY;
 			actor.width = c.widgetWidth;
 			actor.height = c.widgetHeight;
-			if (actor instanceof Table) ((Table)actor).layout.layout();
+			if (actor instanceof Table)
+				((Table)actor).layout.layout();
+			else if (actor instanceof Stack) //
+				((Stack)actor).layout();
 		}
 		needsLayout = false;
 	}
@@ -66,8 +68,12 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			if (font == null) font = new BitmapFont();
 			return new Label(null, font, (String)object);
 		}
-		if (object == null) return new Group(null);
+		if (object == null) return new Group();
 		return super.wrap(object);
+	}
+
+	public Actor newStack () {
+		return new Stack();
 	}
 
 	public void addChild (Actor parent, Actor child, String layoutString) {
@@ -168,6 +174,20 @@ public class TableLayout extends BaseTableLayout<Actor> {
 
 	public Table getTable () {
 		return table;
+	}
+
+	static class Stack extends Group {
+		public void layout () {
+			for (int i = 0, n = children.size(); i < n; i++) {
+				Actor actor = children.get(i);
+				actor.width = width;
+				actor.height = height;
+				if (actor instanceof Table)
+					((Table)actor).layout.layout();
+				else if (actor instanceof Stack) //
+					((Stack)actor).layout();
+			}
+		}
 	}
 
 	static private class DebugRect extends Rectangle {

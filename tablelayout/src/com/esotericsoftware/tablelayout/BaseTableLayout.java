@@ -32,7 +32,6 @@ abstract public class BaseTableLayout<T> {
 	static public final String DEBUG_CELL = "cell";
 	static public final String DEBUG_WIDGET = "widget";
 
-	public String name;
 	public int width, height;
 	public float fillWidth, fillHeight;
 	public int padTop, padLeft, padBottom, padRight;
@@ -63,6 +62,11 @@ abstract public class BaseTableLayout<T> {
 	abstract public void addChild (T parent, T child, String layoutString);
 
 	abstract public void removeChild (T parent, T child);
+
+	/**
+	 * Returns a new widget that sizes all of its children to its size.
+	 */
+	abstract public T newStack ();
 
 	abstract public int getMinWidth (T widget);
 
@@ -625,8 +629,8 @@ abstract public class BaseTableLayout<T> {
 
 	/**
 	 * Returns a new TableLayout. The default implementation creates a new TableLayout of the same concrete type as this one, using
-	 * a no-arg constructor, and calls {@link #setParent(BaseTableLayout)} if needed. It also creates a new table of the same concrete
-	 * type as returned by {@link #getTable()}, using a constructor that takes a TableLayout.
+	 * a no-arg constructor, and calls {@link #setParent(BaseTableLayout)} if needed. It also creates a new table of the same
+	 * concrete type as returned by {@link #getTable()}, using a constructor that takes a TableLayout.
 	 * @param parent If non-null, the returned TableLayout will be nested under the specified parent.
 	 */
 	public BaseTableLayout newTableLayout (BaseTableLayout parent) {
@@ -819,9 +823,6 @@ abstract public class BaseTableLayout<T> {
 					else
 						throw new IllegalArgumentException("Invalid value: " + value);
 				}
-
-			} else if (name.equals("name")) {
-				this.name = values.get(0);
 
 			} else if (name.equals("debug")) {
 				debug = "";

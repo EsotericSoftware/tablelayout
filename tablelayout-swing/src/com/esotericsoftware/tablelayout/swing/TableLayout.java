@@ -4,13 +4,13 @@ package com.esotericsoftware.tablelayout.swing;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -20,8 +20,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
-import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.BaseTableLayout;
+import com.esotericsoftware.tablelayout.Cell;
 
 public class TableLayout extends BaseTableLayout<Component> {
 	static {
@@ -81,6 +81,45 @@ public class TableLayout extends BaseTableLayout<Component> {
 		if (object == null) return new JPanel();
 		if (object instanceof LayoutManager) return new JPanel((LayoutManager)object);
 		return super.wrap(object);
+	}
+
+	public Component newStack () {
+		return new JPanel(new LayoutManager() {
+			public void layoutContainer (Container parent) {
+				int width = parent.getWidth();
+				int height = parent.getHeight();
+				for (int i = 0, n = parent.getComponentCount(); i < n; i++) {
+					parent.getComponent(i).setLocation(0, 0);
+					parent.getComponent(i).setSize(width, height);
+				}
+			}
+
+			public Dimension preferredLayoutSize (Container parent) {
+				Dimension size = new Dimension();
+				for (int i = 0, n = parent.getComponentCount(); i < n; i++) {
+					Dimension pref = parent.getComponent(i).getPreferredSize();
+					size.width = Math.max(size.width, pref.width);
+					size.height = Math.max(size.height, pref.height);
+				}
+				return size;
+			}
+
+			public Dimension minimumLayoutSize (Container parent) {
+				Dimension size = new Dimension();
+				for (int i = 0, n = parent.getComponentCount(); i < n; i++) {
+					Dimension min = parent.getComponent(i).getMinimumSize();
+					size.width = Math.max(size.width, min.width);
+					size.height = Math.max(size.height, min.height);
+				}
+				return size;
+			}
+
+			public void addLayoutComponent (String name, Component comp) {
+			}
+
+			public void removeLayoutComponent (Component comp) {
+			}
+		});
 	}
 
 	public int getMinWidth (Component widget) {
