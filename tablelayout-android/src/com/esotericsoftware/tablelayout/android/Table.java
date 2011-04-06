@@ -1,14 +1,9 @@
 
 package com.esotericsoftware.tablelayout.android;
 
-import java.util.List;
-
 import android.graphics.Canvas;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.esotericsoftware.tablelayout.Cell;
-import com.esotericsoftware.tablelayout.BaseTableLayout;
 
 public class Table extends ViewGroup {
 	static private final OnHierarchyChangeListener hierarchyChangeListener = new OnHierarchyChangeListener() {

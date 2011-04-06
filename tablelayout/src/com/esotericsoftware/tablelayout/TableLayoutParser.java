@@ -230,10 +230,10 @@ class TableLayoutParser {
 											widget = table.wrap(null);
 									} else { // [:class] and [name:class]
 										widget = table.newWidget(className);
-										className = null;
 										if (name.length() > 0) table.register(name, widget);
 									}
 									name = null;
+									className = null;
 								}
 									break;
 								case 13:

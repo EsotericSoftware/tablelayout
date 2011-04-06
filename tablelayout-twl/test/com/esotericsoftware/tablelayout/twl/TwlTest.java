@@ -9,7 +9,6 @@ import org.lwjgl.opengl.GL11;
 
 import de.matthiasmann.twl.FPSCounter;
 import de.matthiasmann.twl.GUI;
-import de.matthiasmann.twl.ProgressBar;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.TextArea;
 import de.matthiasmann.twl.Widget;
@@ -48,7 +47,7 @@ public class TwlTest {
 		table.layout.parse("" //
 			+ "[scrollPane] expand fill" //
 			+ "---" //
-			+ "<[fpsCounter]> align:right" //
+			+ "<[fpsCounter] 'test'> align:right" //
 			+ "---" //
 			+ "[ProgressBar] fill (value:0.4)" //
 		);

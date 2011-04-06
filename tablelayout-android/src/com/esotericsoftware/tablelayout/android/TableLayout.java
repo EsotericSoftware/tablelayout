@@ -24,8 +24,8 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
-import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.BaseTableLayout;
+import com.esotericsoftware.tablelayout.Cell;
 
 public class TableLayout extends BaseTableLayout<View> {
 	static {
@@ -118,6 +118,10 @@ public class TableLayout extends BaseTableLayout<View> {
 		}
 		if (object == null) return new FrameLayout(context);
 		return super.wrap(object);
+	}
+
+	public View newStack () {
+		return new FrameLayout(context);
 	}
 
 	public int getMinWidth (View view) {

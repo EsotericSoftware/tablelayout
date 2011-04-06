@@ -8,8 +8,6 @@ import java.awt.LayoutManager;
 
 import javax.swing.JComponent;
 
-import com.esotericsoftware.tablelayout.BaseTableLayout;
-
 public class Table extends JComponent {
 	public final TableLayout layout;
 

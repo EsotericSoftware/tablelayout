@@ -7,8 +7,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.esotericsoftware.tablelayout.Cell;
-import com.esotericsoftware.tablelayout.BaseTableLayout;
 
 public class Table extends Group {
 	public final TableLayout layout;

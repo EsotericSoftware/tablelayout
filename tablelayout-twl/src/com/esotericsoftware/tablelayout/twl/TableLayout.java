@@ -1,8 +1,8 @@
 
 package com.esotericsoftware.tablelayout.twl;
 
-import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.BaseTableLayout;
+import com.esotericsoftware.tablelayout.Cell;
 
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Widget;
@@ -46,11 +46,27 @@ public class TableLayout extends BaseTableLayout<Widget> {
 	}
 
 	public Widget newStack () {
-		return new Widget() {
+		Widget stack = new Widget() {
 			protected void layout () {
 				layoutChildrenFullInnerArea();
 			}
+
+			public int getMinWidth () {
+				int width = 0;
+				for (int i = 0, n = getNumChildren(); i < n; i++)
+					width = Math.max(width, getChild(i).getMinWidth());
+				return width;
+			}
+
+			public int getMinHeight () {
+				int height = 0;
+				for (int i = 0, n = getNumChildren(); i < n; i++)
+					height = Math.max(height, getChild(i).getMinHeight());
+				return height;
+			}
 		};
+		stack.setTheme("");
+		return stack;
 	}
 
 	public int getMinWidth (Widget widget) {
