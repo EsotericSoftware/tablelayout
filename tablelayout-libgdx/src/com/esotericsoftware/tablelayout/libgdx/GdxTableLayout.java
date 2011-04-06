@@ -2,35 +2,38 @@
 package com.esotericsoftware.tablelayout.libgdx;
 
 import java.awt.Rectangle;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.actors.Label;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.TableLayout;
-import com.esotericsoftware.tablelayout.Toolkit;
 
 public class GdxTableLayout extends TableLayout<Actor> {
+	static {
+		addClassPrefix("com.badlogic.gdx.scenes.scene2d.");
+		addClassPrefix("com.badlogic.gdx.scenes.scene2d.actors.");
+	}
+
+	static public BitmapFont font;
+
 	Table table;
 	boolean needsLayout = true;
 
 	private Array<DebugRect> debugRects;
 	private ImmediateModeRenderer debugRenderer;
 
-	public GdxTableLayout () {
-		super();
-	}
-
-	public GdxTableLayout (TableLayout parent) {
-		super(parent);
-	}
-
-	public Toolkit getToolkit () {
-		return GdxToolkit.instance;
+	/**
+	 * Calls {@link #register(String, Actor)} with the name of the actor.
+	 */
+	public Actor register (Actor actor) {
+		if (actor.name == null) throw new IllegalArgumentException("Actor must have a name: " + actor.getClass());
+		return register(actor.name, actor);
 	}
 
 	public Actor getWidget (String name) {
@@ -45,7 +48,6 @@ public class GdxTableLayout extends TableLayout<Actor> {
 
 		super.layout();
 
-		List<Cell> cells = getCells();
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
@@ -54,9 +56,51 @@ public class GdxTableLayout extends TableLayout<Actor> {
 			actor.y = c.widgetY;
 			actor.width = c.widgetWidth;
 			actor.height = c.widgetHeight;
-			if (actor instanceof Table) ((Table)actor).layout();
+			if (actor instanceof Table) ((Table)actor).layout.layout();
 		}
 		needsLayout = false;
+	}
+
+	public Actor wrap (Object object) {
+		if (object instanceof String) {
+			if (font == null) font = new BitmapFont();
+			return new Label(null, font, (String)object);
+		}
+		if (object == null) return new Group(null);
+		return super.wrap(object);
+	}
+
+	public void addChild (Actor parent, Actor child, String layoutString) {
+		if (child.parent != null) child.remove();
+		((Group)parent).addActor(child);
+	}
+
+	public void removeChild (Actor parent, Actor child) {
+		((Group)parent).removeActor(child);
+	}
+
+	public int getMinWidth (Actor actor) {
+		return (int)actor.width;
+	}
+
+	public int getMinHeight (Actor actor) {
+		return (int)actor.height;
+	}
+
+	public int getPrefWidth (Actor actor) {
+		return (int)actor.width;
+	}
+
+	public int getPrefHeight (Actor actor) {
+		return (int)actor.height;
+	}
+
+	public int getMaxWidth (Actor actor) {
+		return 0;
+	}
+
+	public int getMaxHeight (Actor actor) {
+		return 0;
 	}
 
 	public void invalidate () {

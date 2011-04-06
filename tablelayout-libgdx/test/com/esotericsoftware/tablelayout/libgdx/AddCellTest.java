@@ -10,14 +10,15 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actors.Label;
 
+// BOZO - Add support for <> special widget that lays out children same size.
+// BOZO - Allow to subclass tablelayout.
+
 public class AddCellTest implements ApplicationListener {
 	private Stage stage;
 	private Table table;
-	private TextureRegion blendDownRegion;
 
 	public void create () {
-		BitmapFont font = new BitmapFont(true);
-		GdxToolkit.setFont(font);
+		GdxTableLayout.font = new BitmapFont(true);
 
 		stage = new Stage(640, 480, false);
 		stage.projection.setToOrtho(0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1);
@@ -27,11 +28,10 @@ public class AddCellTest implements ApplicationListener {
 		table.width = 640;
 		table.height = 480;
 
-		table.parse("debug * fill:x expand space:15 align:top");
-		table.layout.addCell(new Label(null, font, "cow"));
-		table.layout.addCell(new Label(null, font, "meow"));
-		table.layout.addCell(new Label(null, font, "moo"));
-		table.layout();
+		table.layout.parse("debug * fill:x expand space:15 align:top");
+		table.layout.addCell(new Label(null, GdxTableLayout.font, "cow"));
+		table.layout.addCell(new Label(null, GdxTableLayout.font, "meow"));
+		table.layout.addCell(new Label(null, GdxTableLayout.font, "moo"));
 	}
 
 	public void render () {

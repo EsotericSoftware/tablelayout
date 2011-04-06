@@ -1,31 +1,18 @@
 
 package com.esotericsoftware.tablelayout.twl;
 
-import java.awt.Canvas;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.TableLayout;
-import com.esotericsoftware.tablelayout.Toolkit;
 
-import de.matthiasmann.twl.Color;
+import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Widget;
 
 public class TwlTableLayout extends TableLayout<Widget> {
+	static {
+		addClassPrefix("de.matthiasmann.twl.");
+	}
+
 	Table table;
-
-	public TwlTableLayout () {
-		super();
-	}
-
-	public TwlTableLayout (TableLayout parent) {
-		super(parent);
-	}
-
-	public Toolkit getToolkit () {
-		return TwlToolkit.instance;
-	}
 
 	public void layout () {
 		tableLayoutX = table.getBorderLeft();
@@ -35,7 +22,6 @@ public class TwlTableLayout extends TableLayout<Widget> {
 
 		super.layout();
 
-		List<Cell> cells = getCells();
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
@@ -43,6 +29,44 @@ public class TwlTableLayout extends TableLayout<Widget> {
 			cellWidget.setPosition(c.widgetX, c.widgetY);
 			cellWidget.setSize(c.widgetWidth, c.widgetHeight);
 		}
+	}
+
+	public void addChild (Widget parent, Widget child, String layoutString) {
+		parent.add(child);
+	}
+
+	public void removeChild (Widget parent, Widget child) {
+		parent.removeChild(child);
+	}
+
+	public Widget wrap (Object object) {
+		if (object instanceof String) return new Label((String)object);
+		if (object == null) return new Widget();
+		return super.wrap(object);
+	}
+
+	public int getMinWidth (Widget widget) {
+		return widget.getMinWidth();
+	}
+
+	public int getMinHeight (Widget widget) {
+		return widget.getMinHeight();
+	}
+
+	public int getPrefWidth (Widget widget) {
+		return widget.getPreferredWidth();
+	}
+
+	public int getPrefHeight (Widget widget) {
+		return widget.getPreferredHeight();
+	}
+
+	public int getMaxWidth (Widget widget) {
+		return widget.getMaxWidth();
+	}
+
+	public int getMaxHeight (Widget widget) {
+		return widget.getMaxHeight();
 	}
 
 	public void invalidate () {

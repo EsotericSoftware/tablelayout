@@ -43,9 +43,9 @@ public class TwlTest {
 		FPSCounter fpsCounter = new FPSCounter(4, 2);
 
 		Table table = new Table();
-		table.setName("scrollPane", scrollPane);
-		table.setName("fpsCounter", fpsCounter);
-		table.parse("" //
+		table.layout.register("scrollPane", scrollPane);
+		table.layout.register("fpsCounter", fpsCounter);
+		table.layout.parse("" //
 			+ "[scrollPane] expand fill" //
 			+ "---" //
 			+ "[fpsCounter] align:right" //

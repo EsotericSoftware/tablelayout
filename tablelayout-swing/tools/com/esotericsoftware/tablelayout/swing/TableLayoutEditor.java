@@ -6,7 +6,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.Label;
 import java.io.StringWriter;
 
 import javax.swing.JButton;
@@ -26,27 +25,10 @@ public class TableLayoutEditor extends JFrame {
 	public TableLayoutEditor () {
 		super("TableLayout Editor");
 
-		outputTable = new Table(new SwingTableLayout() {
-			public Component getWidget (String name) {
-				Component widget = super.getWidget(name);
-				if (widget != null) return widget;
-				try {
-					return toolkit.wrap(toolkit.newWidget(name));
-				} catch (Exception ignored) {
-				}
-				if (name.endsWith("Edit")) return new JTextField();
-				if (name.endsWith("Button")) return new JButton("Center");
-				return new Placeholder(name);
-			}
-		});
-
-		outputTable = new Table();
-		outputTable.parse("debug * fill:x expand space:15 align:top");
-		outputTable.layout.addCell(new JLabel("cow"));
-		outputTable.layout.addCell(new JLabel("cow2"));
+		outputTable = new Table(new OutputLayout());
 
 		Table table = new Table();
-		table.layout.setName("outputTable", outputTable);
+		table.layout.register("outputTable", outputTable);
 		table.layout.parse("padding:10 " //
 			+ "[JSplitPane] expand fill ( "//
 			+ "{" //
@@ -79,7 +61,7 @@ public class TableLayoutEditor extends JFrame {
 			+ "   	[JScrollPane] size:100,0 expand fill ([JTextArea])\n" //
 			+ "   } top\n" //
 			+ ")");
-		// outputTable.layout.parse(codeArea.getText());
+		outputTable.layout.parse(codeArea.getText());
 
 		codeArea.setFont(Font.decode("monospaced"));
 		codeArea.getDocument().addDocumentListener(new DocumentListener() {
@@ -127,6 +109,20 @@ public class TableLayoutEditor extends JFrame {
 		setSize(800, 600);
 		setLocationRelativeTo(null);
 		setVisible(true);
+	}
+
+	static public class OutputLayout extends SwingTableLayout {
+		public Component getWidget (String name) {
+			Component widget = super.getWidget(name);
+			if (widget != null) return widget;
+			try {
+				return newWidget(name);
+			} catch (Exception ignored) {
+			}
+			if (name.toLowerCase().endsWith("edit")) return new JTextField();
+			if (name.toLowerCase().endsWith("button")) return new JButton("Button");
+			return new Placeholder(name);
+		}
 	}
 
 	static public class Placeholder extends JLabel {

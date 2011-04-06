@@ -5,7 +5,7 @@ package com.esotericsoftware.tablelayout;
 import java.util.ArrayList;
 
 class TableLayoutParser {
-	static public void parse (TableLayout table, Toolkit toolkit, String input) {
+	static public void parse (TableLayout table, String input) {
 		char[] data = (input + "  ").toCharArray();
 		int cs, p = 0, pe = data.length, eof = pe, top = 0;
 		int[] stack = new int[4];
@@ -50,12 +50,12 @@ class TableLayoutParser {
 			}
 			action tableProperty {
 				if (debug) System.out.println("tableProperty: " + name + " = " + values);
-				toolkit.setTableProperty((TableLayout)parent, name, values);
+				((TableLayout)parent).setTableProperty(name, values);
 				values.clear();
 			}
 			action cellDefaultProperty {
 				if (debug) System.out.println("cellDefaultProperty: " + name + " = " + values);
-				toolkit.setCellProperty(((TableLayout)parent).getCellDefaults(), name, values);
+				table.setCellProperty(((TableLayout)parent).cellDefaults, name, values);
 				values.clear();
 			}
 			action startColumn {
@@ -63,7 +63,7 @@ class TableLayoutParser {
 			}
 			action columnDefaultProperty {
 				if (debug) System.out.println("columnDefaultProperty: " + name + " = " + values);
-				toolkit.setCellProperty(columnDefaults, name, values);
+				table.setCellProperty(columnDefaults, name, values);
 				values.clear();
 			}
 			action startRow {
@@ -72,20 +72,13 @@ class TableLayoutParser {
 			}
 			action rowDefaultValue {
 				if (debug) System.out.println("rowDefaultValue: " + name + " = " + values);
-				toolkit.setCellProperty(rowDefaults, name, values);
+				table.setCellProperty(rowDefaults, name, values);
 				values.clear();
 			}
 			action cellProperty {
 				if (debug) System.out.println("cellProperty: " + name + " = " + values);
-				toolkit.setCellProperty(cell, name, values);
+				table.setCellProperty(cell, name, values);
 				values.clear();
-			}
-			action setTitle {
-				if (debug) System.out.println("setTitle: " + new String(data, s, p - s));
-				if (widget instanceof TableLayout)
-					((TableLayout)widget).title = new String(data, s, p - s);
-				else
-					toolkit.setTitle(widget, new String(data, s, p - s));
 			}
 			action widgetLayoutString {
 				if (debug) System.out.println("widgetLayoutString: " + new String(data, s, p - s).trim());
@@ -95,50 +88,46 @@ class TableLayoutParser {
 				className = new String(data, s, p - s);
 			}
 			action newWidgetLabel {
-				label = toolkit.newLabel(new String(data, s, p - s));
+				label = table.wrap(new String(data, s, p - s));
 			}
 			action newWidget {
 				if (debug) System.out.println("newWidget: " + name + " " + className + " " + label);
-				widget = null;
 				if (label != null) { // 'label' or ['label'] or [name:'label']
 					widget = label;
 					label = null;
-					if (name.length() > 0) table.setName(name, widget);
+					if (name.length() > 0) table.register(name, widget);
 				} else if (className == null) {
 					if (name.length() > 0) {
 						if (hasColon) { // [name:]
-							widget = toolkit.newEmptyWidget();
-							table.setName(name, widget);
+							widget = table.wrap(null);
+							table.register(name, widget);
 						} else { // [name]
 							widget = table.getWidget(name);
 							if (widget == null) {
 								// Try the widget name as a class name.
 								try {
-									widget = toolkit.wrap(toolkit.newWidget(name));
-								} catch (Exception ex) {
+									widget = table.newWidget(name);
+								} catch (RuntimeException ex) {
 									throw new IllegalArgumentException("Widget not found with name: " + name);
 								}
 							}
 						}
-					} // else leave widget null for: []
+					} else // []
+						widget = table.wrap(null);
 				} else { // [:class] and [name:class]
-					try {
-						widget = toolkit.wrap(toolkit.newWidget(className));
-					} catch (Exception ex) {
-						throw new RuntimeException("Error creating instance of class: " + className, ex);
-					}
+					widget = table.newWidget(className);
 					className = null;
-					if (name.length() > 0) table.setName(name, widget);
+					if (name.length() > 0) table.register(name, widget);
 				}
 			}
 			action newLabel {
 				if (debug) System.out.println("newLabel: " + new String(data, s, p - s));
-				widget = toolkit.newLabel(new String(data, s, p - s));
+				widget = table.wrap(new String(data, s, p - s));
 			}
 			action startTable {
 				if (debug) System.out.println("startTable");
 				parents.add(parent);
-				parent = toolkit.newTableLayout(parent instanceof TableLayout ? (TableLayout)parent : null);
+				parent = table.newTableLayout(parent instanceof TableLayout ? (TableLayout)parent : null);
 				cell = null;
 				widget = null;
 				fcall table;
@@ -166,33 +155,23 @@ class TableLayoutParser {
 			}
 			action addCell {
 				if (debug) System.out.println("addCell");
-				if (widget == null)
-					cell = ((TableLayout)parent).addCell(toolkit.newEmptyWidget());
-				else {
-					if (widget instanceof TableLayout) {
-						TableLayout layout = (TableLayout)widget;
-						if (layout.name != null) ((TableLayout)parent).setName(layout.name, layout.getTable());
-					}
-					cell = ((TableLayout)parent).addCell(toolkit.wrap(widget));
+				if (widget instanceof TableLayout) {
+					TableLayout layout = (TableLayout)widget;
+					if (layout.name != null) table.register(layout.name, layout.getTable());
 				}
+				cell = ((TableLayout)parent).addCell(table.wrap(widget));
 			}
 			action addWidget {
 				if (debug) System.out.println("addWidget");
-				toolkit.addChild(parent, toolkit.wrap(widget), widgetLayoutString);
+				table.addChild(parent, table.wrap(widget), widgetLayoutString);
 				widgetLayoutString = null;
 			}
 			action widgetProperty {
 				if (debug) System.out.println("widgetProperty: " + name + " = " + values);
-				try {
-					toolkit.setProperty(parent, name, values);
-				} catch (RuntimeException ex) {
-					throw new RuntimeException("Error setting property: " + name + "\nClass: " + parent.getClass()
-						+ "\nValues: " + values, ex);
-				}
+				table.setProperty(parent, name, values);
 				values.clear();
 			}
 
-			title = '<' ^'>'* >buffer %setTitle '>';
 			propertyValue =
 				('-'? (alnum | '.' | '_')+ '%'?) >buffer %value |
 				('\'' ^'\''* >buffer %value '\'');
@@ -220,8 +199,6 @@ class TableLayoutParser {
 					(
 						# Widget contents.
 						(widget | label | startTable) space*
-						# Contents title.
-						(title space*)? <:
 						# Contents layout string.
 						(space* <: (alnum | ' ')+ >buffer %widgetLayoutString )?
 					) %addWidget <:
@@ -231,8 +208,6 @@ class TableLayoutParser {
 				space* ')' @endWidgetSection;
 
 			table = space*
-				# Table title.
-				(title space*)? <:
 				# Table properties.
 				(property %tableProperty (space+ property %tableProperty)* space*)?
 				# Default cell properties.
@@ -245,8 +220,6 @@ class TableLayoutParser {
 					(
 						# Cell contents.
 						space* (widget | label | startTable) %addCell space*
-						# Contents title.
-						(title space*)?
 						# Cell properties.
 						(property %cellProperty (space+ property %cellProperty)* space*)?
 						# Contents properties.
@@ -256,7 +229,7 @@ class TableLayoutParser {
 				space* '}' @endTable;
 			
 			main := 
-				space* '{'? <: table (space* title)? <: space*
+				space* '{'? <: table space*
 			;
 
 			write init;

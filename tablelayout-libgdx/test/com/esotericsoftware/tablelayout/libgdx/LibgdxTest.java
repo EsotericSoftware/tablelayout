@@ -28,10 +28,9 @@ import com.badlogic.gdx.scenes.scene2d.actors.Image;
 public class LibgdxTest implements ApplicationListener {
 	private Stage stage;
 	private Table table;
-	private TextureRegion blendDownRegion;
 
 	public void create () {
-		GdxToolkit.setFont(new BitmapFont(true));
+		GdxTableLayout.font = new BitmapFont(true);
 
 		stage = new Stage(640, 480, false);
 		stage.projection.setToOrtho(0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1);
@@ -50,7 +49,7 @@ public class LibgdxTest implements ApplicationListener {
 		image1.originX = image1.originY = 64;
 		image1.action(Sequence.$(FadeOut.$(1), FadeIn.$(1), ScaleTo.$(0.5f, 0.5f, 1), FadeOut.$(0.5f),
 			Delay.$(Parallel.$(RotateTo.$(360, 1), FadeIn.$(1), ScaleTo.$(1, 1, 1)), 1)));
-		table.add(image1);
+		table.layout.register(image1);
 
 		Image image2 = new Image("image2", badlogicRegion);
 		image2.width = image2.height = 64;
@@ -58,7 +57,7 @@ public class LibgdxTest implements ApplicationListener {
 		image2.action(Forever.$(Sequence.$(MoveBy.$(50, 0, 1), MoveBy.$(0, 50, 1), MoveBy.$(-50, 0, 1), MoveBy.$(0, -50, 1))));
 		stage.addActor(image2);
 
-		table.parse("" //
+		table.layout.parse("" //
 			+ "debug" //
 			+ "* spacing:10" //
 			+ "'Sweet' (text:'moo!!!!!!!!!!.')" //

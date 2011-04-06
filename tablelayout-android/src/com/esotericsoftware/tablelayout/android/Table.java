@@ -25,18 +25,12 @@ public class Table extends ViewGroup {
 	public boolean sizeToBackground;
 
 	public Table () {
-		super(AndroidToolkit.context);
-		layout = new AndroidTableLayout();
-		initialize();
+		this(new AndroidTableLayout());
 	}
 
-	public Table (TableLayout parent) {
-		super(AndroidToolkit.context);
-		layout = new AndroidTableLayout(parent);
-		initialize();
-	}
-
-	private void initialize () {
+	public Table (AndroidTableLayout layout) {
+		super(AndroidTableLayout.context);
+		this.layout = layout;
 		layout.table = this;
 		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		setOnHierarchyChangeListener(hierarchyChangeListener);
@@ -54,8 +48,8 @@ public class Table extends ViewGroup {
 
 		layout.layout();
 
-		int measuredWidth = widthUnspecified ? layout.totalMinWidth : layout.totalPrefWidth;
-		int measuredHeight = heightUnspecified ? layout.totalMinHeight : layout.totalPrefHeight;
+		int measuredWidth = widthUnspecified ? layout.tableMinWidth : layout.tablePrefWidth;
+		int measuredHeight = heightUnspecified ? layout.tableMinHeight : layout.tablePrefHeight;
 
 		measuredWidth = Math.max(measuredWidth, getSuggestedMinimumWidth());
 		measuredHeight = Math.max(measuredHeight, getSuggestedMinimumHeight());
@@ -76,13 +70,13 @@ public class Table extends ViewGroup {
 	}
 
 	protected int getSuggestedMinimumWidth () {
-		int width = layout.totalMinWidth;
+		int width = layout.tableMinWidth;
 		if (sizeToBackground && getBackground() != null) width = Math.max(width, getBackground().getMinimumWidth());
 		return width;
 	}
 
 	protected int getSuggestedMinimumHeight () {
-		int height = layout.totalMinHeight;
+		int height = layout.tableMinHeight;
 		if (sizeToBackground && getBackground() != null) height = Math.max(height, getBackground().getMinimumHeight());
 		return height;
 	}
@@ -90,49 +84,5 @@ public class Table extends ViewGroup {
 	protected void dispatchDraw (Canvas canvas) {
 		super.dispatchDraw(canvas);
 		layout.drawDebug(canvas);
-	}
-
-	public View setName (String name, View widget) {
-		return layout.setName(name, widget);
-	}
-
-	public void parse (String tableDescription) {
-		layout.parse(tableDescription);
-	}
-
-	public void layout () {
-		layout.layout();
-	}
-
-	public View getWidget (String name) {
-		return layout.getWidget(name);
-	}
-
-	public List<View> getWidgets () {
-		return layout.getWidgets();
-	}
-
-	public List<View> getWidgets (String namePrefix) {
-		return layout.getWidgets(namePrefix);
-	}
-
-	public List<Cell> getCells (String namePrefix) {
-		return layout.getCells(namePrefix);
-	}
-
-	public void setWidget (String name, View view) {
-		layout.setWidget(name, view);
-	}
-
-	public Cell getCell (String name) {
-		return layout.getCell(name);
-	}
-
-	public List<Cell> getCells () {
-		return layout.getCells();
-	}
-
-	public Cell getCell (View widget) {
-		return layout.getCell(widget);
 	}
 }

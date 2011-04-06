@@ -14,7 +14,11 @@ public class Table extends Group {
 	public final GdxTableLayout layout;
 
 	public Table () {
-		layout = new GdxTableLayout();
+		this(new GdxTableLayout());
+	}
+
+	public Table (GdxTableLayout layout) {
+		this.layout = layout;
 		layout.table = this;
 	}
 
@@ -24,61 +28,10 @@ public class Table extends Group {
 		layout.table = this;
 	}
 
-	public Table (TableLayout parent) {
-		layout = new GdxTableLayout(parent);
+	public Table (String name, GdxTableLayout layout) {
+		super(name);
+		this.layout = layout;
 		layout.table = this;
-	}
-
-	public Actor setName (String name, Actor actor) {
-		return layout.setName(name, actor);
-	}
-
-	/**
-	 * Calls {@link #setName(String, Actor)} with the name of the actor.
-	 */
-	public Actor add (Actor actor) {
-		if (actor.name == null) throw new IllegalArgumentException("Actor must have a name: " + actor.getClass());
-		return layout.setName(actor.name, actor);
-	}
-
-	public void parse (String tableDescription) {
-		layout.parse(tableDescription);
-	}
-
-	public void layout () {
-		layout.layout();
-	}
-
-	public Actor getWidget (String name) {
-		return layout.getWidget(name);
-	}
-
-	public List<Actor> getWidgets () {
-		return layout.getWidgets();
-	}
-
-	public List<Actor> getWidgets (String namePrefix) {
-		return layout.getWidgets(namePrefix);
-	}
-
-	public List<Cell> getCells (String namePrefix) {
-		return layout.getCells(namePrefix);
-	}
-
-	public void setWidget (String name, Actor actor) {
-		layout.setWidget(name, actor);
-	}
-
-	public Cell getCell (String name) {
-		return layout.getCell(name);
-	}
-
-	public List<Cell> getCells () {
-		return layout.getCells();
-	}
-
-	public Cell getCell (Actor actor) {
-		return layout.getCell(actor);
 	}
 
 	protected void draw (SpriteBatch batch, float parentAlpha) {

@@ -1,11 +1,6 @@
 
 package com.esotericsoftware.tablelayout.twl;
 
-import java.util.List;
-
-import com.esotericsoftware.tablelayout.Cell;
-import com.esotericsoftware.tablelayout.TableLayout;
-
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Widget;
 
@@ -13,13 +8,11 @@ public class Table extends Widget {
 	public final TwlTableLayout layout;
 
 	public Table () {
-		layout = new TwlTableLayout();
-		layout.table = this;
-		setTheme("");
+		this(new TwlTableLayout());
 	}
 
-	public Table (TableLayout parent) {
-		layout = new TwlTableLayout(parent);
+	public Table (TwlTableLayout layout) {
+		this.layout = layout;
 		layout.table = this;
 		setTheme("");
 	}
@@ -29,19 +22,19 @@ public class Table extends Widget {
 	}
 
 	public int getMinWidth () {
-		return layout.totalMinWidth;
+		return layout.tableMinWidth;
 	}
 
 	public int getMinHeight () {
-		return layout.totalMinHeight;
+		return layout.tableMinHeight;
 	}
 
 	public int getPreferredWidth () {
-		return layout.totalPrefWidth;
+		return layout.tablePrefWidth;
 	}
 
 	public int getPreferredHeight () {
-		return layout.totalPrefHeight;
+		return layout.tablePrefHeight;
 	}
 
 	public void invalidateLayout () {
@@ -50,45 +43,5 @@ public class Table extends Widget {
 
 	protected void paintOverlay (GUI gui) {
 		super.paintOverlay(gui);
-	}
-
-	public Widget setName (String name, Widget widget) {
-		return layout.setName(name, widget);
-	}
-
-	public void parse (String tableDescription) {
-		layout.parse(tableDescription);
-	}
-
-	public Widget getWidget (String name) {
-		return layout.getWidget(name);
-	}
-
-	public List<Widget> getWidgets () {
-		return layout.getWidgets();
-	}
-
-	public List<Widget> getWidgets (String namePrefix) {
-		return layout.getWidgets(namePrefix);
-	}
-
-	public List<Cell> getCells (String namePrefix) {
-		return layout.getCells(namePrefix);
-	}
-
-	public void setWidget (String name, Widget Widget) {
-		layout.setWidget(name, Widget);
-	}
-
-	public Cell getCell (String name) {
-		return layout.getCell(name);
-	}
-
-	public List<Cell> getCells () {
-		return layout.getCells();
-	}
-
-	public Cell getCell (Widget widget) {
-		return layout.getCell(widget);
 	}
 }

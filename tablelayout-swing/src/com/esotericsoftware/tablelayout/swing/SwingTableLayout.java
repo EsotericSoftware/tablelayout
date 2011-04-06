@@ -3,48 +3,39 @@ package com.esotericsoftware.tablelayout.swing;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.TableLayout;
-import com.esotericsoftware.tablelayout.Toolkit;
 
 public class SwingTableLayout extends TableLayout<Component> {
+	static {
+		addClassPrefix("javax.swing.");
+		addClassPrefix("java.awt.");
+	}
+
 	static Timer timer;
 	static ArrayList<SwingTableLayout> debugLayouts = new ArrayList(0);
 
 	Table table;
 	ArrayList<DebugRect> debugRects;
 
-	public SwingTableLayout () {
-		super();
-	}
-
-	public SwingTableLayout (TableLayout parent) {
-		super(parent);
-	}
-
-	public Toolkit getToolkit () {
-		return SwingToolkit.instance;
-	}
-
 	public void layout () {
-		if (title != null) {
-			Border border = table.getBorder();
-			if (border == null || !(border instanceof TitledBorder) || !((TitledBorder)border).getTitle().equals(title))
-				toolkit.setTitle(table, title);
-		}
-
 		Insets insets = table.getInsets();
 		tableLayoutX = insets.left;
 		tableLayoutY = insets.top;
@@ -53,7 +44,6 @@ public class SwingTableLayout extends TableLayout<Component> {
 
 		super.layout();
 
-		List<Cell> cells = getCells();
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
@@ -66,6 +56,55 @@ public class SwingTableLayout extends TableLayout<Component> {
 			timer = new Timer("TableLayout Debug", true);
 			timer.schedule(newDebugTask(), 100);
 		}
+	}
+
+	public void addChild (Component parent, Component child, String layoutString) {
+		if (parent instanceof JSplitPane && layoutString == null) {
+			if (((JSplitPane)parent).getLeftComponent() instanceof JButton)
+				layoutString = "left";
+			else if (((JSplitPane)parent).getRightComponent() instanceof JButton) //
+				layoutString = "right";
+		}
+
+		if (parent instanceof JScrollPane)
+			((JScrollPane)parent).setViewportView(child);
+		else
+			((Container)parent).add(child, layoutString);
+	}
+
+	public void removeChild (Component parent, Component child) {
+		((Container)parent).remove(child);
+	}
+
+	public Component wrap (Object object) {
+		if (object instanceof String) return new JLabel((String)object);
+		if (object == null) return new JPanel();
+		if (object instanceof LayoutManager) return new JPanel((LayoutManager)object);
+		return super.wrap(object);
+	}
+
+	public int getMinWidth (Component widget) {
+		return widget.getMinimumSize().width;
+	}
+
+	public int getMinHeight (Component widget) {
+		return widget.getMinimumSize().height;
+	}
+
+	public int getPrefWidth (Component widget) {
+		return widget.getPreferredSize().width;
+	}
+
+	public int getPrefHeight (Component widget) {
+		return widget.getPreferredSize().height;
+	}
+
+	public int getMaxWidth (Component widget) {
+		return widget.getMaximumSize().width;
+	}
+
+	public int getMaxHeight (Component widget) {
+		return widget.getMaximumSize().height;
 	}
 
 	public void invalidate () {
@@ -118,6 +157,7 @@ public class SwingTableLayout extends TableLayout<Component> {
 
 		public DebugRect (boolean isCell, int x, int y, int width, int height) {
 			super(x, y, width - 1, height - 1);
+			System.out.println(x + " " + y + " " + width + " " + height);
 			this.isCell = isCell;
 		}
 	}
