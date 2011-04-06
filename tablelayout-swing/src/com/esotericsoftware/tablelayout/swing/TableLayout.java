@@ -175,7 +175,9 @@ public class TableLayout extends BaseTableLayout<Component> {
 		if (g == null) return;
 		g.setColor(Color.red);
 		for (DebugRect rect : debugRects) {
-			g.setColor(rect.isCell ? Color.red : Color.green);
+			if (rect.type.equals(DEBUG_CELL)) g.setColor(Color.red);
+			if (rect.type.equals(DEBUG_WIDGET)) g.setColor(Color.green);
+			if (rect.type.equals(DEBUG_TABLE)) g.setColor(Color.blue);
 			g.draw(rect);
 		}
 	}
@@ -185,12 +187,12 @@ public class TableLayout extends BaseTableLayout<Component> {
 		debugRects = null;
 	}
 
-	public void addDebugRectangle (boolean isCell, int x, int y, int w, int h) {
+	public void addDebugRectangle (String type, int x, int y, int w, int h) {
 		if (debugRects == null) {
 			debugRects = new ArrayList();
 			debugLayouts.add(this);
 		}
-		debugRects.add(new DebugRect(isCell, x, y, w, h));
+		debugRects.add(new DebugRect(type, x, y, w, h));
 	}
 
 	public Table getTable () {
@@ -198,11 +200,11 @@ public class TableLayout extends BaseTableLayout<Component> {
 	}
 
 	static private class DebugRect extends Rectangle {
-		final boolean isCell;
+		final String type;
 
-		public DebugRect (boolean isCell, int x, int y, int width, int height) {
+		public DebugRect (String type, int x, int y, int width, int height) {
 			super(x, y, width - 1, height - 1);
-			this.isCell = isCell;
+			this.type = type;
 		}
 	}
 }

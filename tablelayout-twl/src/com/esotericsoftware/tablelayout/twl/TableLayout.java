@@ -106,7 +106,7 @@ public class TableLayout extends BaseTableLayout<Widget> {
 	public void clearDebugRectangles () {
 	}
 
-	public void addDebugRectangle (boolean isCell, int x, int y, int w, int h) {
+	public void addDebugRectangle (String type, int x, int y, int w, int h) {
 	}
 
 	public Table getTable () {

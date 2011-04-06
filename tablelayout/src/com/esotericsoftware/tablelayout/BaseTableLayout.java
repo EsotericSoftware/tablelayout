@@ -99,7 +99,7 @@ abstract public class BaseTableLayout<T> {
 	/**
 	 * Adds a rectangle that should be drawn for debugging.
 	 */
-	abstract public void addDebugRectangle (boolean isCell, int x, int y, int w, int h);
+	abstract public void addDebugRectangle (String type, int x, int y, int w, int h);
 
 	/**
 	 * Returns the widget that will be laid out.
@@ -574,8 +574,8 @@ abstract public class BaseTableLayout<T> {
 		currentX = x;
 		currentY = y;
 		if (debug.contains(DEBUG_TABLE) || debug.contains(DEBUG_ALL)) {
-			addDebugRectangle(false, tableLayoutX + padLeft, tableLayoutY + padTop, tableLayoutWidth, tableLayoutHeight);
-			addDebugRectangle(false, x, y, tableWidth, tableHeight);
+			addDebugRectangle(DEBUG_TABLE, tableLayoutX + padLeft, tableLayoutY + padTop, tableLayoutWidth, tableLayoutHeight);
+			addDebugRectangle(DEBUG_TABLE, x, y, tableWidth, tableHeight);
 		}
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
@@ -583,7 +583,7 @@ abstract public class BaseTableLayout<T> {
 
 			// Widget bounds.
 			if (debug.contains(DEBUG_WIDGET) || debug.contains(DEBUG_ALL))
-				addDebugRectangle(false, c.widgetX, c.widgetY, c.widgetWidth, c.widgetHeight);
+				addDebugRectangle(DEBUG_WIDGET, c.widgetX, c.widgetY, c.widgetWidth, c.widgetHeight);
 
 			// Cell bounds.
 			int spannedCellWidth = 0;
@@ -592,7 +592,7 @@ abstract public class BaseTableLayout<T> {
 			spannedCellWidth -= c.padLeftTemp + c.padRightTemp;
 			currentX += c.padLeftTemp;
 			if (debug.contains(DEBUG_CELL) || debug.contains(DEBUG_ALL))
-				addDebugRectangle(true, currentX, currentY + c.padTopTemp, spannedCellWidth, rowHeight[c.row] - c.padTopTemp
+				addDebugRectangle(DEBUG_CELL, currentX, currentY + c.padTopTemp, spannedCellWidth, rowHeight[c.row] - c.padTopTemp
 					- c.padBottomTemp);
 
 			if (c.endRow) {

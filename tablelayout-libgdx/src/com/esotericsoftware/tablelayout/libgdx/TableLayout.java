@@ -1,11 +1,10 @@
 
 package com.esotericsoftware.tablelayout.libgdx;
 
-import java.awt.Rectangle;
-
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.actors.Label;
@@ -138,27 +137,28 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			float y1 = y + rect.y;
 			float x2 = x1 + rect.width;
 			float y2 = y1 + rect.height;
-			float r = rect.isCell ? 1 : 0;
-			float g = rect.isCell ? 0 : 1;
+			float r = rect.type.equals(DEBUG_CELL) ? 1 : 0;
+			float g = rect.type.equals(DEBUG_WIDGET) ? 1 : 0;
+			float b = rect.type.equals(DEBUG_TABLE) ? 1 : 0;
 
-			debugRenderer.color(r, g, 0, 1);
+			debugRenderer.color(r, g, b, 1);
 			debugRenderer.vertex(x1, y1, 0);
-			debugRenderer.color(r, g, 0, 1);
+			debugRenderer.color(r, g, b, 1);
 			debugRenderer.vertex(x1, y2 + 1, 0);
 
-			debugRenderer.color(r, g, 0, 1);
+			debugRenderer.color(r, g, b, 1);
 			debugRenderer.vertex(x1, y2, 0);
-			debugRenderer.color(r, g, 0, 1);
+			debugRenderer.color(r, g, b, 1);
 			debugRenderer.vertex(x2, y2, 0);
 
-			debugRenderer.color(r, g, 0, 1);
+			debugRenderer.color(r, g, b, 1);
 			debugRenderer.vertex(x2, y2, 0);
-			debugRenderer.color(r, g, 0, 1);
+			debugRenderer.color(r, g, b, 1);
 			debugRenderer.vertex(x2, y1, 0);
 
-			debugRenderer.color(r, g, 0, 1);
+			debugRenderer.color(r, g, b, 1);
 			debugRenderer.vertex(x2, y1, 0);
-			debugRenderer.color(r, g, 0, 1);
+			debugRenderer.color(r, g, b, 1);
 			debugRenderer.vertex(x1, y1, 0);
 
 			if (debugRenderer.getNumVertices() == 64) {
@@ -173,9 +173,9 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		if (debugRects != null) debugRects.clear();
 	}
 
-	public void addDebugRectangle (boolean isCell, int x, int y, int w, int h) {
+	public void addDebugRectangle (String type, int x, int y, int w, int h) {
 		if (debugRects == null) debugRects = new Array();
-		debugRects.add(new DebugRect(isCell, x, y, w, h));
+		debugRects.add(new DebugRect(type, x, y, w, h));
 	}
 
 	public Table getTable () {
@@ -197,11 +197,11 @@ public class TableLayout extends BaseTableLayout<Actor> {
 	}
 
 	static private class DebugRect extends Rectangle {
-		final boolean isCell;
+		final String type;
 
-		public DebugRect (boolean isCell, int x, int y, int width, int height) {
-			super(x, y, width - 1, height - 1);
-			this.isCell = isCell;
+		public DebugRect (String type, int x, int y, int width, int height) {
+			super(x, y, width, height);
+			this.type = type;
 		}
 	}
 }

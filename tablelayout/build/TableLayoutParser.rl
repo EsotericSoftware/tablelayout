@@ -254,7 +254,7 @@ class TableLayoutParser {
 						# Contents properties.
 						startWidgetSection? space*
 					)+
-				)+
+				)*
 				space* '}' @endTable;
 			
 			main := 
