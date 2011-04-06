@@ -248,7 +248,16 @@ class TableLayoutParser {
 								{
 									if (debug) System.out.println("startTable, name:" + name);
 									parents.add(parent);
-									parent = table.newTableLayout(parent instanceof BaseTableLayout ? (BaseTableLayout)parent : null);
+									BaseTableLayout parentTable = null;
+									for (int i = parents.size() - 1; i >= 0; i--) {
+										Object object = parents.get(i);
+										if (object instanceof BaseTableLayout) {
+											parentTable = (BaseTableLayout)object;
+											break;
+										}
+									}
+									if (parentTable == null) parentTable = table;
+									parent = parentTable.newTableLayout();
 									if (name != null) { // [name:{}]
 										table.register(name, ((BaseTableLayout)parent).getTable());
 										name = null;
@@ -271,7 +280,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 15:
-									// line 138 "TableLayoutParser.rl"
+									// line 147 "TableLayoutParser.rl"
 								{
 									widget = parent;
 									if (!parents.isEmpty()) {
@@ -286,7 +295,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 16:
-									// line 146 "TableLayoutParser.rl"
+									// line 155 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("startStack, name:" + name);
 									parents.add(parent);
@@ -313,7 +322,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 17:
-									// line 158 "TableLayoutParser.rl"
+									// line 167 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("endStack");
 									widget = parent;
@@ -326,7 +335,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 18:
-									// line 164 "TableLayoutParser.rl"
+									// line 173 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("startWidgetSection");
 									parents.add(parent);
@@ -348,7 +357,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 19:
-									// line 171 "TableLayoutParser.rl"
+									// line 180 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("endWidgetSection");
 									widget = parent;
@@ -361,14 +370,14 @@ class TableLayoutParser {
 								}
 									break;
 								case 20:
-									// line 177 "TableLayoutParser.rl"
+									// line 186 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("addCell");
 									cell = ((BaseTableLayout)parent).addCell(table.wrap(widget));
 								}
 									break;
 								case 21:
-									// line 181 "TableLayoutParser.rl"
+									// line 190 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("addWidget");
 									table.addChild(parent, table.wrap(widget), widgetLayoutString);
@@ -376,7 +385,7 @@ class TableLayoutParser {
 								}
 									break;
 								case 22:
-									// line 186 "TableLayoutParser.rl"
+									// line 195 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("widgetProperty: " + name + " = " + values);
 									table.setProperty(parent, name, values);
@@ -385,19 +394,19 @@ class TableLayoutParser {
 								}
 									break;
 								case 23:
-									// line 203 "TableLayoutParser.rl"
+									// line 212 "TableLayoutParser.rl"
 								{
 									widget = null;
 									hasColon = false;
 								}
 									break;
 								case 24:
-									// line 204 "TableLayoutParser.rl"
+									// line 213 "TableLayoutParser.rl"
 								{
 									hasColon = true;
 								}
 									break;
-								// line 333 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+								// line 342 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 								}
 							}
 						}
@@ -418,7 +427,7 @@ class TableLayoutParser {
 				}
 			}
 
-			// line 257 "TableLayoutParser.rl"
+			// line 266 "TableLayoutParser.rl"
 
 		} catch (RuntimeException ex) {
 			parseRuntimeEx = ex;
@@ -435,7 +444,7 @@ class TableLayoutParser {
 				parseRuntimeEx);
 	}
 
-	// line 353 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+	// line 362 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 	private static byte[] init__tableLayout_actions_0 () {
 		return new byte[] {0, 1, 0, 1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 1, 8, 1, 9, 1, 11, 1, 12, 1, 13, 1, 14, 1, 15, 1, 16,
 			1, 17, 1, 18, 1, 19, 1, 20, 1, 21, 1, 22, 1, 23, 2, 0, 2, 2, 0, 11, 2, 0, 13, 2, 1, 3, 2, 1, 4, 2, 1, 6, 2, 1, 8, 2, 1,
@@ -600,5 +609,5 @@ class TableLayoutParser {
 	static final int tableLayout_en_main = 1;
 	static final int tableLayout_en_main_table = 69;
 
-	// line 272 "TableLayoutParser.rl"
+	// line 281 "TableLayoutParser.rl"
 }

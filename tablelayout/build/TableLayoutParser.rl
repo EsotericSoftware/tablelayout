@@ -126,7 +126,16 @@ class TableLayoutParser {
 			action startTable {
 				if (debug) System.out.println("startTable, name:" + name);
 				parents.add(parent);
-				parent = table.newTableLayout(parent instanceof BaseTableLayout ? (BaseTableLayout)parent : null);
+				BaseTableLayout parentTable = null;
+				for (int i = parents.size() - 1; i >= 0; i--) {
+					Object object = parents.get(i);
+					if (object instanceof BaseTableLayout) {
+						parentTable = (BaseTableLayout)object;
+						break;
+					}
+				}
+				if (parentTable == null) parentTable = table;
+				parent = parentTable.newTableLayout();
 				if (name != null) { // [name:{}]
 					table.register(name, ((BaseTableLayout)parent).getTable());
 					name = null;

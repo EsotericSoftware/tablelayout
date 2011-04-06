@@ -83,6 +83,12 @@ public class TableLayout extends BaseTableLayout<Component> {
 		return super.wrap(object);
 	}
 
+	public BaseTableLayout newTableLayout () {
+		TableLayout layout = new Table().layout;
+		layout.setParent(this);
+		return layout;
+	}
+
 	public Component newStack () {
 		return new JPanel(new LayoutManager() {
 			public void layoutContainer (Container parent) {
@@ -196,7 +202,6 @@ public class TableLayout extends BaseTableLayout<Component> {
 
 		public DebugRect (boolean isCell, int x, int y, int width, int height) {
 			super(x, y, width - 1, height - 1);
-			System.out.println(x + " " + y + " " + width + " " + height);
 			this.isCell = isCell;
 		}
 	}

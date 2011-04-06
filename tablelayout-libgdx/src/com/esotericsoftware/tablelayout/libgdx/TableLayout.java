@@ -72,6 +72,12 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		return super.wrap(object);
 	}
 
+	public BaseTableLayout newTableLayout () {
+		TableLayout layout = new Table().layout;
+		layout.setParent(this);
+		return layout;
+	}
+
 	public Actor newStack () {
 		return new Stack();
 	}

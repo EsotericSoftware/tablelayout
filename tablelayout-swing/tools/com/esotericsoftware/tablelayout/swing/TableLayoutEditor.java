@@ -80,6 +80,7 @@ public class TableLayoutEditor extends JFrame {
 			private void changed () {
 				EventQueue.invokeLater(new Runnable() {
 					public void run () {
+						System.out.println();
 						errorArea.setText("");
 						outputTable.layout.clear();
 						TableLayout.debugLayouts.clear();
@@ -97,7 +98,6 @@ public class TableLayoutEditor extends JFrame {
 							errorArea.setText(buffer.toString());
 							outputTable.layout.clear();
 						}
-						System.out.println("----->" + outputTable.layout.getWidget("moo"));
 						outputTable.revalidate();
 						outputTable.repaint();
 					}

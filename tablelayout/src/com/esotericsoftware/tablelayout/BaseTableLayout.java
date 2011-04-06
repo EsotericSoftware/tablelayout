@@ -64,6 +64,12 @@ abstract public class BaseTableLayout<T> {
 	abstract public void removeChild (T parent, T child);
 
 	/**
+	 * Returns a new TableLayout that will be nested under this table. The {@link #setParent(BaseTableLayout) parent} of the
+	 * returned layout must be set.
+	 */
+	abstract public BaseTableLayout newTableLayout ();
+
+	/**
 	 * Returns a new widget that sizes all of its children to its size.
 	 */
 	abstract public T newStack ();
@@ -625,41 +631,6 @@ abstract public class BaseTableLayout<T> {
 			return getMaxHeight(widget);
 		}
 		return value;
-	}
-
-	/**
-	 * Returns a new TableLayout. The default implementation creates a new TableLayout of the same concrete type as this one, using
-	 * a no-arg constructor, and calls {@link #setParent(BaseTableLayout)} if needed. It also creates a new table of the same
-	 * concrete type as returned by {@link #getTable()}, using a constructor that takes a TableLayout.
-	 * @param parent If non-null, the returned TableLayout will be nested under the specified parent.
-	 */
-	public BaseTableLayout newTableLayout (BaseTableLayout parent) {
-		BaseTableLayout layout;
-		try {
-			if (getClass().isAnonymousClass() || getClass().isLocalClass())
-				throw new RuntimeException("Nested tables cannot be used if the root TableLayout is a local or anonymous class: "
-					+ getClass());
-			layout = getClass().newInstance();
-		} catch (Exception ex) {
-			throw new RuntimeException("Error creating TableLayout instance: " + getClass(), ex);
-		}
-		if (parent != null) layout.setParent(parent);
-
-		try {
-			T table = null;
-			for (Constructor constructor : getTable().getClass().getConstructors()) {
-				Class[] ctorParamTypes = constructor.getParameterTypes();
-				if (ctorParamTypes.length != 1 || !BaseTableLayout.class.isAssignableFrom(ctorParamTypes[0])) continue;
-				table = (T)constructor.newInstance(new Object[] {layout});
-				break;
-			}
-			if (table == null)
-				throw new RuntimeException("Table class is missing a constructor taking a TableLayout: " + getTable().getClass());
-		} catch (Exception ex) {
-			throw new RuntimeException("Error creating TableLayout instance: " + getTable().getClass(), ex);
-		}
-
-		return layout;
 	}
 
 	/**

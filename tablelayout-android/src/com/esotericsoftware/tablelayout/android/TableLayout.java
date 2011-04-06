@@ -99,6 +99,12 @@ public class TableLayout extends BaseTableLayout<View> {
 		((ViewGroup)parent).removeView(child);
 	}
 
+	public BaseTableLayout newTableLayout () {
+		TableLayout layout = new Table().layout;
+		layout.setParent(this);
+		return layout;
+	}
+
 	public View newWidget (String className) {
 		if (className.equals("button")) return new Button(context);
 		try {

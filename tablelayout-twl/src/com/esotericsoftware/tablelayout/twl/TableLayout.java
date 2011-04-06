@@ -45,6 +45,12 @@ public class TableLayout extends BaseTableLayout<Widget> {
 		return super.wrap(object);
 	}
 
+	public BaseTableLayout newTableLayout () {
+		TableLayout layout = new Table().layout;
+		layout.setParent(this);
+		return layout;
+	}
+
 	public Widget newStack () {
 		Widget stack = new Widget() {
 			protected void layout () {
