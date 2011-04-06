@@ -200,7 +200,7 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		final boolean isCell;
 
 		public DebugRect (boolean isCell, int x, int y, int width, int height) {
-			super(x, y, width, height);
+			super(x, y, width - 1, height - 1);
 			this.isCell = isCell;
 		}
 	}
