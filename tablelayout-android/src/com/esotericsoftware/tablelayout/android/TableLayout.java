@@ -25,9 +25,9 @@ import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
 import com.esotericsoftware.tablelayout.Cell;
-import com.esotericsoftware.tablelayout.TableLayout;
+import com.esotericsoftware.tablelayout.BaseTableLayout;
 
-public class AndroidTableLayout extends TableLayout<View> {
+public class TableLayout extends BaseTableLayout<View> {
 	static {
 		addClassPrefix("android.view.");
 	}

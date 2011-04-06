@@ -2,12 +2,12 @@
 package com.esotericsoftware.tablelayout.twl;
 
 import com.esotericsoftware.tablelayout.Cell;
-import com.esotericsoftware.tablelayout.TableLayout;
+import com.esotericsoftware.tablelayout.BaseTableLayout;
 
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Widget;
 
-public class TwlTableLayout extends TableLayout<Widget> {
+public class TableLayout extends BaseTableLayout<Widget> {
 	static {
 		addClassPrefix("de.matthiasmann.twl.");
 	}

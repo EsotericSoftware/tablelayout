@@ -21,16 +21,16 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
 import com.esotericsoftware.tablelayout.Cell;
-import com.esotericsoftware.tablelayout.TableLayout;
+import com.esotericsoftware.tablelayout.BaseTableLayout;
 
-public class SwingTableLayout extends TableLayout<Component> {
+public class TableLayout extends BaseTableLayout<Component> {
 	static {
 		addClassPrefix("javax.swing.");
 		addClassPrefix("java.awt.");
 	}
 
 	static Timer timer;
-	static ArrayList<SwingTableLayout> debugLayouts = new ArrayList(0);
+	static ArrayList<TableLayout> debugLayouts = new ArrayList(0);
 
 	Table table;
 	ArrayList<DebugRect> debugRects;
@@ -118,7 +118,7 @@ public class SwingTableLayout extends TableLayout<Component> {
 					EventQueue.invokeLater(this);
 					return;
 				}
-				for (SwingTableLayout layout : debugLayouts)
+				for (TableLayout layout : debugLayouts)
 					layout.drawDebug();
 				timer.schedule(newDebugTask(), 250);
 			}

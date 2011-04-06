@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.esotericsoftware.tablelayout.Cell;
-import com.esotericsoftware.tablelayout.TableLayout;
+import com.esotericsoftware.tablelayout.BaseTableLayout;
 
 public class Table extends ViewGroup {
 	static private final OnHierarchyChangeListener hierarchyChangeListener = new OnHierarchyChangeListener() {
@@ -21,15 +21,15 @@ public class Table extends ViewGroup {
 		}
 	};
 
-	public final AndroidTableLayout layout;
+	public final TableLayout layout;
 	public boolean sizeToBackground;
 
 	public Table () {
-		this(new AndroidTableLayout());
+		this(new TableLayout());
 	}
 
-	public Table (AndroidTableLayout layout) {
-		super(AndroidTableLayout.context);
+	public Table (TableLayout layout) {
+		super(TableLayout.context);
 		this.layout = layout;
 		layout.table = this;
 		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));

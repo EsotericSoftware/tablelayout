@@ -15,12 +15,12 @@ public class NinePatchTest implements ApplicationListener {
 	private Stage stage;
 
 	public void create () {
-		GdxTableLayout.font = new BitmapFont(true);
+		TableLayout.font = new BitmapFont(true);
 
 		stage = new Stage(800, 600, false);
 		stage.projection.setToOrtho(0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1);
 
-		GdxTableLayout layout = new Table().layout;
+		TableLayout layout = new Table().layout;
 		stage.addActor(layout.getTable());
 		layout.getTable().width = 800;
 		layout.getTable().height = 600;

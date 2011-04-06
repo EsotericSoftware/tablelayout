@@ -12,9 +12,9 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.actors.Label;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.tablelayout.Cell;
-import com.esotericsoftware.tablelayout.TableLayout;
+import com.esotericsoftware.tablelayout.BaseTableLayout;
 
-public class GdxTableLayout extends TableLayout<Actor> {
+public class TableLayout extends BaseTableLayout<Actor> {
 	static {
 		addClassPrefix("com.badlogic.gdx.scenes.scene2d.");
 		addClassPrefix("com.badlogic.gdx.scenes.scene2d.actors.");

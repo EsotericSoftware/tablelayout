@@ -16,20 +16,20 @@ public class AddCellTest implements ApplicationListener {
 	private Stage stage;
 
 	public void create () {
-		GdxTableLayout.font = new BitmapFont(true);
+		TableLayout.font = new BitmapFont(true);
 
 		stage = new Stage(640, 480, false);
 		stage.projection.setToOrtho(0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1);
 
-		GdxTableLayout layout = new Table().layout;
+		TableLayout layout = new Table().layout;
 		stage.addActor(layout.getTable());
 		layout.getTable().width = 640;
 		layout.getTable().height = 480;
 
 		layout.parse("debug * fill:x expand space:15 align:top");
-		layout.addCell(new Label(null, GdxTableLayout.font, "cow"));
-		layout.addCell(new Label(null, GdxTableLayout.font, "meow"));
-		layout.addCell(new Label(null, GdxTableLayout.font, "moo"));
+		layout.addCell(new Label(null, TableLayout.font, "cow"));
+		layout.addCell(new Label(null, TableLayout.font, "meow"));
+		layout.addCell(new Label(null, TableLayout.font, "moo"));
 	}
 
 	public void render () {

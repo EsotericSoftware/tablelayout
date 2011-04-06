@@ -8,16 +8,16 @@ import java.awt.LayoutManager;
 
 import javax.swing.JComponent;
 
-import com.esotericsoftware.tablelayout.TableLayout;
+import com.esotericsoftware.tablelayout.BaseTableLayout;
 
 public class Table extends JComponent {
-	public final SwingTableLayout layout;
+	public final TableLayout layout;
 
 	public Table () {
-		this(new SwingTableLayout());
+		this(new TableLayout());
 	}
 
-	public Table (final SwingTableLayout layout) {
+	public Table (final TableLayout layout) {
 		this.layout = layout;
 		layout.table = this;
 

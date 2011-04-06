@@ -82,7 +82,7 @@ public class TableLayoutEditor extends JFrame {
 					public void run () {
 						errorArea.setText("");
 						outputTable.layout.clear();
-						SwingTableLayout.debugLayouts.clear();
+						TableLayout.debugLayouts.clear();
 						try {
 							outputTable.layout.parse(codeArea.getText());
 						} catch (Throwable ex) {
@@ -111,7 +111,7 @@ public class TableLayoutEditor extends JFrame {
 		setVisible(true);
 	}
 
-	static public class OutputLayout extends SwingTableLayout {
+	static public class OutputLayout extends TableLayout {
 		public Component getWidget (String name) {
 			Component widget = super.getWidget(name);
 			if (widget != null) return widget;

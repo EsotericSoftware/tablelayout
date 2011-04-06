@@ -6,7 +6,7 @@ package com.esotericsoftware.tablelayout;
 import java.util.ArrayList;
 
 class TableLayoutParser {
-	static public void parse (TableLayout table, String input) {
+	static public void parse (BaseTableLayout table, String input) {
 		char[] data = (input + "  ").toCharArray();
 		int cs, p = 0, pe = data.length, eof = pe, top = 0;
 		int[] stack = new int[4];
@@ -137,7 +137,7 @@ class TableLayoutParser {
 									// line 51 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("tableProperty: " + name + " = " + values);
-									((TableLayout)parent).setTableProperty(name, values);
+									((BaseTableLayout)parent).setTableProperty(name, values);
 									values.clear();
 								}
 									break;
@@ -145,14 +145,14 @@ class TableLayoutParser {
 									// line 56 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("cellDefaultProperty: " + name + " = " + values);
-									table.setCellProperty(((TableLayout)parent).cellDefaults, name, values);
+									table.setCellProperty(((BaseTableLayout)parent).cellDefaults, name, values);
 									values.clear();
 								}
 									break;
 								case 5:
 									// line 61 "TableLayoutParser.rl"
 								{
-									columnDefaults = ((TableLayout)parent).getColumnDefaults(columnDefaultCount++);
+									columnDefaults = ((BaseTableLayout)parent).getColumnDefaults(columnDefaultCount++);
 								}
 									break;
 								case 6:
@@ -167,7 +167,7 @@ class TableLayoutParser {
 									// line 69 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("startRow");
-									rowDefaults = ((TableLayout)parent).startRow();
+									rowDefaults = ((BaseTableLayout)parent).startRow();
 								}
 									break;
 								case 8:
@@ -251,7 +251,7 @@ class TableLayoutParser {
 								{
 									if (debug) System.out.println("startTable");
 									parents.add(parent);
-									parent = table.newTableLayout(parent instanceof TableLayout ? (TableLayout)parent : null);
+									parent = table.newTableLayout(parent instanceof BaseTableLayout ? (BaseTableLayout)parent : null);
 									cell = null;
 									widget = null;
 									{
@@ -323,11 +323,11 @@ class TableLayoutParser {
 									// line 156 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("addCell");
-									if (widget instanceof TableLayout) {
-										TableLayout layout = (TableLayout)widget;
+									if (widget instanceof BaseTableLayout) {
+										BaseTableLayout layout = (BaseTableLayout)widget;
 										if (layout.name != null) table.register(layout.name, layout.getTable());
 									}
-									cell = ((TableLayout)parent).addCell(table.wrap(widget));
+									cell = ((BaseTableLayout)parent).addCell(table.wrap(widget));
 								}
 									break;
 								case 20:

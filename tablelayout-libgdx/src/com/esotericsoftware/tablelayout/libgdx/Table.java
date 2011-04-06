@@ -8,27 +8,27 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.esotericsoftware.tablelayout.Cell;
-import com.esotericsoftware.tablelayout.TableLayout;
+import com.esotericsoftware.tablelayout.BaseTableLayout;
 
 public class Table extends Group {
-	public final GdxTableLayout layout;
+	public final TableLayout layout;
 
 	public Table () {
-		this(new GdxTableLayout());
+		this(new TableLayout());
 	}
 
-	public Table (GdxTableLayout layout) {
+	public Table (TableLayout layout) {
 		this.layout = layout;
 		layout.table = this;
 	}
 
 	public Table (String name) {
 		super(name);
-		layout = new GdxTableLayout();
+		layout = new TableLayout();
 		layout.table = this;
 	}
 
-	public Table (String name, GdxTableLayout layout) {
+	public Table (String name, TableLayout layout) {
 		super(name);
 		this.layout = layout;
 		layout.table = this;

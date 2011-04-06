@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 
 // BOZO - Clarify table fill.
 
-abstract public class TableLayout<T> {
+abstract public class BaseTableLayout<T> {
 	static private final ArrayList<String> classPrefixes = new ArrayList();
 
 	static public final int CENTER = 1 << 0;
@@ -100,7 +100,7 @@ abstract public class TableLayout<T> {
 	 * Sets that this table is nested under the specified parent. This allows the root table to look up widgets and cells in nested
 	 * tables, fo convenience.
 	 */
-	public void setParent (TableLayout parent) {
+	public void setParent (BaseTableLayout parent) {
 		// Shared per table hierarchy.
 		nameToWidget = parent.nameToWidget;
 		widgetToCell = parent.widgetToCell;
@@ -625,12 +625,12 @@ abstract public class TableLayout<T> {
 
 	/**
 	 * Returns a new TableLayout. The default implementation creates a new TableLayout of the same concrete type as this one, using
-	 * a no-arg constructor, and calls {@link #setParent(TableLayout)} if needed. It also creates a new table of the same concrete
+	 * a no-arg constructor, and calls {@link #setParent(BaseTableLayout)} if needed. It also creates a new table of the same concrete
 	 * type as returned by {@link #getTable()}, using a constructor that takes a TableLayout.
 	 * @param parent If non-null, the returned TableLayout will be nested under the specified parent.
 	 */
-	public TableLayout newTableLayout (TableLayout parent) {
-		TableLayout layout;
+	public BaseTableLayout newTableLayout (BaseTableLayout parent) {
+		BaseTableLayout layout;
 		try {
 			if (getClass().isAnonymousClass() || getClass().isLocalClass())
 				throw new RuntimeException("Nested tables cannot be used if the root TableLayout is a local or anonymous class: "
@@ -645,7 +645,7 @@ abstract public class TableLayout<T> {
 			T table = null;
 			for (Constructor constructor : getTable().getClass().getConstructors()) {
 				Class[] ctorParamTypes = constructor.getParameterTypes();
-				if (ctorParamTypes.length != 1 || !TableLayout.class.isAssignableFrom(ctorParamTypes[0])) continue;
+				if (ctorParamTypes.length != 1 || !BaseTableLayout.class.isAssignableFrom(ctorParamTypes[0])) continue;
 				table = (T)constructor.newInstance(new Object[] {layout});
 				break;
 			}
@@ -687,7 +687,7 @@ abstract public class TableLayout<T> {
 	 * @throws RuntimeException if the object could not be wrapped.
 	 */
 	public T wrap (Object object) {
-		if (object instanceof TableLayout) return (T)((TableLayout)object).getTable();
+		if (object instanceof BaseTableLayout) return (T)((BaseTableLayout)object).getTable();
 		try {
 			return (T)object;
 		} catch (ClassCastException ex) {
@@ -1055,12 +1055,12 @@ abstract public class TableLayout<T> {
 	/**
 	 * Interprets the specified value as a size. This can be used to scale all sizes applied to a cell, implement size units (eg,
 	 * 23px or 23em), etc. The default implementation supports integers and also "min", "pref", and "max" for
-	 * {@link TableLayout#MIN}, {@link TableLayout#PREF} and {@link TableLayout#MAX}.
+	 * {@link BaseTableLayout#MIN}, {@link BaseTableLayout#PREF} and {@link BaseTableLayout#MAX}.
 	 */
 	public int size (String value) {
-		if (value.equals("min")) return TableLayout.MIN;
-		if (value.equals("pref")) return TableLayout.PREF;
-		if (value.equals("max")) return TableLayout.MAX;
+		if (value.equals("min")) return BaseTableLayout.MIN;
+		if (value.equals("pref")) return BaseTableLayout.PREF;
+		if (value.equals("max")) return BaseTableLayout.MAX;
 		return Integer.parseInt(value);
 	}
 

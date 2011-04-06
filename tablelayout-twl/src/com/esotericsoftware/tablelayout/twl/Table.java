@@ -5,13 +5,13 @@ import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Widget;
 
 public class Table extends Widget {
-	public final TwlTableLayout layout;
+	public final TableLayout layout;
 
 	public Table () {
-		this(new TwlTableLayout());
+		this(new TableLayout());
 	}
 
-	public Table (TwlTableLayout layout) {
+	public Table (TableLayout layout) {
 		this.layout = layout;
 		layout.table = this;
 		setTheme("");

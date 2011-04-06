@@ -1,7 +1,7 @@
 
 package com.esotericsoftware.tablelayout;
 
-import static com.esotericsoftware.tablelayout.TableLayout.*;
+import static com.esotericsoftware.tablelayout.BaseTableLayout.*;
 
 public class Cell {
 	public Integer minWidth, minHeight;
