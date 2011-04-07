@@ -1,4 +1,3 @@
-name: tablelayout-twl
 source:
 - src|**/*.java 
 - ../tablelayout/src|**/*.java 

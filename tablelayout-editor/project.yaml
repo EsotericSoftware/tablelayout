@@ -1,0 +1,7 @@
+source:
+- src|**/*.java 
+- ../tablelayout/src|**/*.java 
+- ../tablelayout-swing/src|**/*.java 
+---
+build(project);
+oneJAR(project);
