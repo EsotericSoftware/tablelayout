@@ -54,10 +54,7 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			actor.y = c.widgetY;
 			actor.width = c.widgetWidth;
 			actor.height = c.widgetHeight;
-			if (actor instanceof Table)
-				((Table)actor).layout.layout();
-			else if (actor instanceof Stack) //
-				((Stack)actor).layout();
+			if (actor instanceof Layout) ((Layout)actor).layout();
 		}
 		needsLayout = false;
 	}
@@ -91,18 +88,22 @@ public class TableLayout extends BaseTableLayout<Actor> {
 	}
 
 	public int getMinWidth (Actor actor) {
+		if (actor instanceof Layout) return (int)((Layout)actor).getPrefWidth();
 		return (int)actor.width;
 	}
 
 	public int getMinHeight (Actor actor) {
+		if (actor instanceof Layout) return (int)((Layout)actor).getPrefHeight();
 		return (int)actor.height;
 	}
 
 	public int getPrefWidth (Actor actor) {
+		if (actor instanceof Layout) return (int)((Layout)actor).getPrefWidth();
 		return (int)actor.width;
 	}
 
 	public int getPrefHeight (Actor actor) {
+		if (actor instanceof Layout) return (int)((Layout)actor).getPrefHeight();
 		return (int)actor.height;
 	}
 
@@ -125,8 +126,13 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		int x = 0, y = 0;
 		Actor parent = table;
 		while (parent != null) {
-			x += parent.x;
-			y += parent.y;
+			if (parent instanceof Table) {
+				x += parent.x;
+				y += parent.y;
+			} else {
+				x += parent.x;
+				y += parent.y;
+			}
 			parent = parent.parent;
 		}
 
@@ -182,17 +188,28 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		return table;
 	}
 
-	static class Stack extends Group {
+	class Stack extends Group implements Layout {
 		public void layout () {
 			for (int i = 0, n = children.size(); i < n; i++) {
 				Actor actor = children.get(i);
 				actor.width = width;
 				actor.height = height;
-				if (actor instanceof Table)
-					((Table)actor).layout.layout();
-				else if (actor instanceof Stack) //
-					((Stack)actor).layout();
+				if (actor instanceof Layout) ((Layout)actor).layout();
 			}
+		}
+
+		public float getPrefWidth () {
+			float width = 0;
+			for (int i = 0, n = children.size(); i < n; i++)
+				width = Math.max(width, TableLayout.this.getPrefWidth(children.get(i)));
+			return width;
+		}
+
+		public float getPrefHeight () {
+			float height = 0;
+			for (int i = 0, n = children.size(); i < n; i++)
+				height = Math.max(height, TableLayout.this.getPrefHeight(children.get(i)));
+			return height;
 		}
 	}
 

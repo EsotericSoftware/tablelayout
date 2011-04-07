@@ -438,10 +438,10 @@ class TableLayoutParser {
 			for (int i = 0; i < p; i++)
 				if (data[i] == '\n') lineNumber++;
 			throw new IllegalArgumentException("Error parsing layout on line " + lineNumber + " near: "
-				+ new String(data, p, pe - p), parseRuntimeEx);
+				+ new String(data, p, Math.min(64, pe - p)), parseRuntimeEx);
 		} else if (top > 0)
-			throw new IllegalArgumentException("Error parsing layout (possibly an unmatched brace or quote): " + input,
-				parseRuntimeEx);
+			throw new IllegalArgumentException("Error parsing layout (possibly an unmatched brace or quote): "
+				+ new String(data, 0, Math.min(64, pe)), parseRuntimeEx);
 	}
 
 	// line 362 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"

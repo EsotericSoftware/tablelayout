@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
-public class Table extends Group {
+public class Table extends Group implements Layout {
 	public final TableLayout layout;
 
 	public Table () {
@@ -35,6 +35,24 @@ public class Table extends Group {
 	protected void draw (SpriteBatch batch, float parentAlpha) {
 		if (layout.needsLayout) layout.layout();
 		super.draw(batch, parentAlpha);
+	}
+
+	public void layout () {
+		layout.layout();
+	}
+
+	public float getPrefWidth () {
+		layout.tableLayoutWidth = 0;
+		layout.tableLayoutHeight = 0;
+		layout.layout();
+		return layout.tableMinWidth;
+	}
+
+	public float getPrefHeight () {
+		layout.tableLayoutWidth = 0;
+		layout.tableLayoutHeight = 0;
+		layout.layout();
+		return layout.tableMinHeight;
 	}
 
 	/**
