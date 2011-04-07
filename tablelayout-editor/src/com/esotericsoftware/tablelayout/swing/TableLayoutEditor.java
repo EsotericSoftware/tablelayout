@@ -37,7 +37,7 @@ public class TableLayoutEditor extends JFrame {
 	public TableLayoutEditor () {
 		super("TableLayout Editor");
 
-		System.setProperty(TokenMakerFactory.PROPERTY_DEFAULT_TOKEN_MAKER_FACTORY, Factory.class.getName());
+		TokenMakerFactory.setDefaultInstance(new Factory());
 
 		codeText = new RSyntaxTextArea();
 		codeText.setSyntaxEditingStyle("tablelayout");
