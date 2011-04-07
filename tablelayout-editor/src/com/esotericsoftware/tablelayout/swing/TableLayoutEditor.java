@@ -17,13 +17,18 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Highlighter;
 
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SquiggleUnderlineHighlightPainter;
 import org.fife.ui.rsyntaxtextarea.Style;
 import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.RTextScrollPane;
+
+import com.esotericsoftware.tablelayout.ParseException;
 
 import static com.esotericsoftware.tablelayout.swing.TableLayoutTokenizer.*;
 
@@ -33,6 +38,7 @@ public class TableLayoutEditor extends JFrame {
 	RSyntaxTextArea codeText;
 	JTextArea errorText;
 	Table outputTable;
+	SquiggleUnderlineHighlightPainter errorPainter = new SquiggleUnderlineHighlightPainter(Color.red);
 
 	public TableLayoutEditor () {
 		super("TableLayout Editor");
@@ -132,15 +138,29 @@ public class TableLayoutEditor extends JFrame {
 						errorText.setText("");
 						outputTable.layout.clear();
 						TableLayout.debugLayouts.clear();
+						codeText.getHighlighter().removeAllHighlights();
 						try {
 							outputTable.layout.parse(codeText.getText());
 						} catch (Throwable ex) {
 							ex.printStackTrace();
+
 							StringWriter buffer = new StringWriter(1024);
-							if (ex.getCause() != null) ex = ex.getCause();
+							// if (ex.getCause() != null) ex = ex.getCause();
 							while (ex != null) {
 								buffer.append(ex.getMessage());
 								buffer.append('\n');
+
+								if (ex instanceof ParseException) {
+									ParseException parseEx = (ParseException)ex;
+									try {
+										int start = codeText.getLineStartOffset(parseEx.line - 1) + parseEx.column;
+										int end = codeText.getLineEndOffset(parseEx.line - 1);
+										if (start == end) start -= parseEx.column;
+										codeText.getHighlighter().addHighlight(start, end, errorPainter);
+									} catch (BadLocationException ignored) {
+									}
+								}
+
 								ex = ex.getCause();
 							}
 							errorText.setText(buffer.toString());

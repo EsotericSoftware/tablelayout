@@ -435,12 +435,20 @@ class TableLayoutParser {
 
 		if (p < pe) {
 			int lineNumber = 1;
-			for (int i = 0; i < p; i++)
-				if (data[i] == '\n') lineNumber++;
-			throw new IllegalArgumentException("Error parsing layout on line " + lineNumber + " near: "
-				+ new String(data, p, Math.min(64, pe - p)), parseRuntimeEx);
+			int lineStartOffset = 0;
+			for (int i = 0; i < p; i++) {
+				if (data[i] == '\n') {
+					lineNumber++;
+					lineStartOffset = i;
+				}
+			}
+			ParseException ex = new ParseException("Error parsing layout on line " + lineNumber + ":" + (p - lineStartOffset)
+				+ " near: " + new String(data, p, Math.min(64, pe - p)), parseRuntimeEx);
+			ex.line = lineNumber;
+			ex.column = p - lineStartOffset;
+			throw ex;
 		} else if (top > 0)
-			throw new IllegalArgumentException("Error parsing layout (possibly an unmatched brace or quote): "
+			throw new ParseException("Error parsing layout (possibly an unmatched brace or quote): "
 				+ new String(data, 0, Math.min(64, pe)), parseRuntimeEx);
 	}
 
