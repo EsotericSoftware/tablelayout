@@ -26,6 +26,7 @@ public class TableLayoutEditor extends JFrame {
 		super("TableLayout Editor");
 
 		outputTable = new Table(new OutputLayout());
+		outputTable.setBackground(Color.white);
 
 		Table table = new Table();
 		table.layout.register("outputTable", outputTable);
@@ -132,6 +133,7 @@ public class TableLayoutEditor extends JFrame {
 
 		public Placeholder (String text) {
 			super(text);
+			setOpaque(true);
 		}
 
 	}
