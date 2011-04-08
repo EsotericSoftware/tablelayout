@@ -29,7 +29,6 @@ public class TableLayoutTokenizer extends RagelTokenMaker {
 		action name { addToken(NAME); }
 		action bracketChar { addCharToken(BRACKET); }
 		action string { addToken(STRING); }
-		action stringChar { addCharToken(STRING); }
 		action property { addToken(keywords, KEYWORD, PROPERTY); }
 		action value {
 			addToken(constants, CONSTANT, VALUE);
@@ -41,9 +40,9 @@ public class TableLayoutTokenizer extends RagelTokenMaker {
 		action constant { addToken(CONSTANT); }
 
 		whitespace = space* >buffer %plain;
-		string = '\'' @stringChar ^'\''* >buffer %string '\''? @stringChar;
+		string = ('\'' ^'\''*  '\''?) >buffer %string;
 		propertyValue = ('-'? (alnum | '.' | '_')+ '%'?) @0 >buffer %value | string;
-		property = (alnum+) >buffer %property whitespace 
+		property = alnum+ >buffer %property whitespace 
 			(':' @symbolChar whitespace (propertyValue (',' @symbolChar propertyValue)* )? )?;
 		structure = [{}<>]+ >buffer %structure;
 		symbol = [.,*|:\-()]+ >buffer %symbol;

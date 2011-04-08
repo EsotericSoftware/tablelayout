@@ -4,4 +4,5 @@ source:
 - ../tablelayout-swing/src|**/*.java 
 ---
 build(project);
-oneJAR(project);
+keystore("keystore", "tablelayout", "tuoyalelbat", "Esoteric Software", "TableLayout Editor");
+jws(project, false, "keystore", "tablelayout", "tuoyalelbat");

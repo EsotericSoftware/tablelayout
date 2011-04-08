@@ -373,14 +373,16 @@ class TableLayoutParser {
 									// line 186 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("addCell");
-									cell = ((BaseTableLayout)parent).addCell(table.wrap(widget));
+									widget = table.wrap(widget);
+									cell = ((BaseTableLayout)parent).addCell(widget);
 								}
 									break;
 								case 21:
 									// line 190 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("addWidget");
-									table.addChild(parent, table.wrap(widget), widgetLayoutString);
+									widget = table.wrap(widget);
+									table.addChild(parent, widget, widgetLayoutString);
 									widgetLayoutString = null;
 								}
 									break;
@@ -621,7 +623,6 @@ class TableLayoutParser {
 	static final int tableLayout_first_final = 112;
 	static final int tableLayout_error = 0;
 
-	static final int tableLayout_en_widgetSection = 75;
 	static final int tableLayout_en_stack = 99;
 	static final int tableLayout_en_main = 1;
 	static final int tableLayout_en_main_table = 70;

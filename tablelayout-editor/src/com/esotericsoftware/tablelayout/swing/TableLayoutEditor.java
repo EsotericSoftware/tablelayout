@@ -18,7 +18,6 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Highlighter;
 
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -33,6 +32,7 @@ import com.esotericsoftware.tablelayout.ParseException;
 import static com.esotericsoftware.tablelayout.swing.TableLayoutTokenizer.*;
 
 // BOZO - Save last markup.
+// BOZO - Support paste/copy of Java strings.
 
 public class TableLayoutEditor extends JFrame {
 	RSyntaxTextArea codeText;
@@ -88,9 +88,9 @@ public class TableLayoutEditor extends JFrame {
 		table.layout.parse("padding:10 " //
 			+ "[JSplitPane] expand fill ( setResizeWeight:0.4 background:white"//
 			+ "{" //
-			+ "[codeScroll] size:300,0 expand:3 fill" //
+			+ "[codeScroll] size:300,0 expand fill" //
 			+ "---" //
-			+ "[JScrollPane] size:300,50 expand:1 fill ([errorText:JTextArea])" //
+			+ "[JScrollPane] size:300,100 fill ([errorText:JTextArea])" //
 			+ "}" //
 			+ "[outputTable]" //
 			+ ")");
