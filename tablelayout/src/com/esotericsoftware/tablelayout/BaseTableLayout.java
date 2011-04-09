@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-// BOZO - Clarify table fill.
-
 abstract public class BaseTableLayout<T> {
 	static private final ArrayList<String> classPrefixes = new ArrayList();
 
@@ -33,7 +31,6 @@ abstract public class BaseTableLayout<T> {
 	static public final String DEBUG_WIDGET = "widget";
 
 	public int width, height;
-	public float fillWidth, fillHeight;
 	public int padTop, padLeft, padBottom, padRight;
 	public int align = CENTER;
 	public String debug;
@@ -371,8 +368,6 @@ abstract public class BaseTableLayout<T> {
 			tableMinHeight += rowMinHeight[i];
 			tablePrefHeight += Math.max(rowMinHeight[i], rowPrefHeight[i]);
 		}
-		int width = fillWidth != 0 ? (int)(tableLayoutWidth * fillWidth) : this.width;
-		int height = fillHeight != 0 ? (int)(tableLayoutHeight * fillHeight) : this.height;
 		tableMinWidth = Math.max(tableMinWidth, width);
 		tableMinHeight = Math.max(tableMinHeight, height);
 		tablePrefWidth = Math.max(tablePrefWidth, width);
@@ -720,28 +715,6 @@ abstract public class BaseTableLayout<T> {
 
 			} else if (name.equals("height") || name.equals("h")) {
 				height = size(values.get(0));
-
-			} else if (name.equals("fill")) {
-				switch (values.size()) {
-				case 0:
-					fillWidth = fillHeight = 1f;
-					break;
-				case 1:
-					value = values.get(0);
-					if (value.equals("x"))
-						fillWidth = 1f;
-					else if (value.equals("y")) //
-						fillHeight = 1f;
-					else
-						fillWidth = fillHeight = Integer.parseInt(value) / 100f;
-					break;
-				case 2:
-					value = values.get(0);
-					if (value.length() > 0) fillWidth = Integer.parseInt(value) / 100f;
-					value = values.get(1);
-					if (value.length() > 0) fillHeight = Integer.parseInt(value) / 100f;
-					break;
-				}
 
 			} else if (name.equals("padding") || name.equals("pad")) {
 				switch (values.size()) {
