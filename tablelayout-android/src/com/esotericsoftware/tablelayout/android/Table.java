@@ -1,6 +1,8 @@
 
 package com.esotericsoftware.tablelayout.android;
 
+import com.esotericsoftware.tablelayout.Cell;
+
 import android.graphics.Canvas;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +42,16 @@ public class Table extends ViewGroup {
 
 		measureChildren(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
 			MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+
+		// Measure GONE children to 0x0.
+		for (int i = 0, n = layout.cells.size(); i < n; i++) {
+			Cell c = layout.cells.get(i);
+			if (c.ignore) continue;
+			if (((View)c.widget).getVisibility() == GONE) {
+				((View)c.widget).measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY),
+					MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY));
+			}
+		}
 
 		layout.layout();
 

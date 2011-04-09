@@ -49,6 +49,12 @@ public class TableLayout extends BaseTableLayout<View> {
 	}
 
 	public void layout () {
+		for (int i = 0, n = cells.size(); i < n; i++) {
+			Cell c = cells.get(i);
+			if (c.ignore) continue;
+			((View)c.widget).layout(c.widgetX, c.widgetY, c.widgetX + c.widgetWidth, c.widgetY + c.widgetHeight);
+		}
+
 		super.layout();
 
 		for (int i = 0, n = cells.size(); i < n; i++) {
