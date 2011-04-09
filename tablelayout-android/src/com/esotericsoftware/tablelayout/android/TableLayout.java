@@ -127,7 +127,7 @@ public class TableLayout extends BaseTableLayout<View> {
 	}
 
 	public View newStack () {
-		return new FrameLayout(context);
+		return new Stack(context);
 	}
 
 	public int getMinWidth (View view) {
@@ -170,7 +170,7 @@ public class TableLayout extends BaseTableLayout<View> {
 			int r = rect.type.equals(DEBUG_CELL) ? 255 : 0;
 			int g = rect.type.equals(DEBUG_WIDGET) ? 255 : 0;
 			int b = rect.type.equals(DEBUG_TABLE) ? 255 : 0;
-			paint.setColor(Color.argb(1, r, g, b));
+			paint.setColor(Color.argb(255, r, g, b));
 			canvas.drawRect(rect.rect, paint);
 		}
 	}
@@ -296,6 +296,17 @@ public class TableLayout extends BaseTableLayout<View> {
 	 * Marker class to know when the background is no longer the default.
 	 */
 	static class CustomizedStateListDrawable extends StateListDrawable {
+	}
+
+	static private class Stack extends FrameLayout {
+		public Stack (Context context) {
+			super(context);
+		}
+
+		protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
+			for (int i = 0, n = getChildCount(); i < n; i++)
+				getChildAt(i).layout(left, top, right, bottom);
+		}
 	}
 
 	static private class DebugRect {
