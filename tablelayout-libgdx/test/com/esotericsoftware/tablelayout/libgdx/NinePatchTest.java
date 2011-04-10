@@ -62,6 +62,11 @@ public class NinePatchTest implements ApplicationListener {
 		Image buttonBg = new Image("buttonBg", new TextureRegion(new Texture(Gdx.files.internal("button-bg.png"))));
 		layout.register(buttonBg);
 
+		String longText = "0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 "
+			+ "0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 "
+			+ "0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 "
+			+ "0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789";
+
 		// @off
 		layout.parse(""
 			+ "* fill"
@@ -70,7 +75,7 @@ public class NinePatchTest implements ApplicationListener {
 			+ "[w]"
 			+ "<"
 			+ "   [bg]"
-			+ "   { debug"
+			+ "   { debug:widgets"
 			+ "      <"
 			+ "         [footerBg]"
 			+ "         [footerLayout:{"
@@ -79,7 +84,7 @@ public class NinePatchTest implements ApplicationListener {
 			+ "         }]"
 			+ "      > fill:x"
 			+ "      ---"
-			+ "      'Content' expand"
+			+ "      'Content\nMultiple lines\nof content.\n" + longText + "' fill expand (type:wrapped,left valign:top)"
 			+ "      ---"
 			+ "      'headerBg' fill:x"
 			+ "   }"

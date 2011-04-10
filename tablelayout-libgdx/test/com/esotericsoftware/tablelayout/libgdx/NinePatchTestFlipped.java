@@ -69,6 +69,11 @@ public class NinePatchTestFlipped implements ApplicationListener {
 		buttonBg.region.flip(false, true); // Flip for use with y down coordinate system.
 		layout.register(buttonBg);
 
+		String longText = "0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 "
+			+ "0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 "
+			+ "0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 "
+			+ "0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789";
+
 		// @off
 		layout.parse(""
 			+ "* fill"
@@ -80,7 +85,7 @@ public class NinePatchTestFlipped implements ApplicationListener {
 			+ "   { debug"
 			+ "      'headerBg' fill:x"
 			+ "      ---"
-			+ "      'Content' expand"
+			+ "      'Content\nMultiple lines\nof content.\n" + longText + "' fill expand (type:wrapped,left valign:top)"
 			+ "      ---"
 			+ "      <"
 			+ "         [footerBg]"

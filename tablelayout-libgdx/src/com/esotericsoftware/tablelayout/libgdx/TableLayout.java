@@ -4,12 +4,15 @@ package com.esotericsoftware.tablelayout.libgdx;
 import java.util.HashMap;
 import java.util.List;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.Layout;
 import com.badlogic.gdx.scenes.scene2d.actors.Label;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.tablelayout.BaseTableLayout;
@@ -29,6 +32,10 @@ public class TableLayout extends BaseTableLayout<Actor> {
 
 	private Array<DebugRect> debugRects;
 	private ImmediateModeRenderer debugRenderer;
+
+	public void parse (FileHandle file) {
+		super.parse(file.readString());
+	}
 
 	/**
 	 * Calls {@link #register(String, Actor)} with the name of the actor.
@@ -74,8 +81,26 @@ public class TableLayout extends BaseTableLayout<Actor> {
 
 	public void setProperty (Actor object, String name, List<String> values) {
 		if (object instanceof Label) {
+			Label label = ((Label)object);
+			String value = values.get(0);
+			if (name.equals("type")) {
+				if (value.equals("multiline")) {
+					label.setMultiLineText(label.text);
+					return;
+				}
+				if (value.equals("wrapped")) {
+					HAlignment alignment = HAlignment.LEFT;
+					if (values.size() > 1) alignment = HAlignment.valueOf(values.get(1).toUpperCase());
+					label.setWrappedText(label.text, alignment);
+					return;
+				}
+				if (value.equals("singleline")) {
+					label.setText(label.text);
+					return;
+				}
+			}
 			if (name.equals("font")) {
-				((Label)object).setFont(getFont(values.get(0)));
+				label.setFont(getFont(value));
 				return;
 			}
 		}

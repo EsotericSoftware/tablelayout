@@ -999,14 +999,14 @@ abstract public class BaseTableLayout<T> {
 
 	/**
 	 * Interprets the specified value as a size. This can be used to scale all sizes applied to a cell, implement size units (eg,
-	 * 23px or 23em), etc. The default implementation supports integers and also "min", "pref", and "max" for
-	 * {@link BaseTableLayout#MIN}, {@link BaseTableLayout#PREF} and {@link BaseTableLayout#MAX}.
+	 * 23px or 23em), etc. The default implementation returns {@link BaseTableLayout#MIN}, {@link BaseTableLayout#PREF} and
+	 * {@link BaseTableLayout#MAX} for "min", "pref", and "max". Otherwise is converts to an int and calls {@link #size(float)}.
 	 */
 	public int size (String value) {
 		if (value.equals("min")) return BaseTableLayout.MIN;
 		if (value.equals("pref")) return BaseTableLayout.PREF;
 		if (value.equals("max")) return BaseTableLayout.MAX;
-		return Integer.parseInt(value);
+		return size(Integer.parseInt(value));
 	}
 
 	/**
