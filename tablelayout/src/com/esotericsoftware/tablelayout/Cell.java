@@ -3,6 +3,8 @@ package com.esotericsoftware.tablelayout;
 
 import static com.esotericsoftware.tablelayout.BaseTableLayout.*;
 
+// BOZO - Methods for convenience, setPadding?
+
 public class Cell {
 	public Integer minWidth, minHeight;
 	public Integer prefWidth, prefHeight;

@@ -679,7 +679,7 @@ abstract public class BaseTableLayout<T> {
 			} catch (NoSuchMethodException ex2) {
 				try {
 					Field field = object.getClass().getField(name);
-					Object value = convertType(object, values.get(0), field.getType());
+					Object value = convertType(object, values.get(0), field.getType(), name);
 					if (value != null) field.set(object, value);
 				} catch (Exception ex3) {
 					throw new RuntimeException("No method, bean property, or field found: " + name + "\nClass: " + object.getClass()
@@ -1000,7 +1000,7 @@ abstract public class BaseTableLayout<T> {
 	/**
 	 * Interprets the specified value as a size. This can be used to scale all sizes applied to a cell, implement size units (eg,
 	 * 23px or 23em), etc. The default implementation returns {@link BaseTableLayout#MIN}, {@link BaseTableLayout#PREF} and
-	 * {@link BaseTableLayout#MAX} for "min", "pref", and "max". Otherwise is converts to an int and calls {@link #size(float)}.
+	 * {@link BaseTableLayout#MAX} for "min", "pref", and "max". Otherwise it converts to an int and calls {@link #size(float)}.
 	 */
 	public int size (String value) {
 		if (value.equals("min")) return BaseTableLayout.MIN;
@@ -1017,7 +1017,7 @@ abstract public class BaseTableLayout<T> {
 		return (int)value;
 	}
 
-	static private void invokeMethod (Object object, String name, List<String> values) throws NoSuchMethodException {
+	private void invokeMethod (Object object, String name, List<String> values) throws NoSuchMethodException {
 		Object[] params = values.toArray();
 		// Prefer methods with string parameters.
 		Class[] stringParamTypes = new Class[params.length];
@@ -1052,7 +1052,7 @@ abstract public class BaseTableLayout<T> {
 			if (paramTypes.length != values.size()) continue;
 			params = values.toArray();
 			for (int ii = 0, nn = paramTypes.length; ii < nn; ii++) {
-				Object value = convertType(object, (String)params[ii], paramTypes[ii]);
+				Object value = convertType(object, (String)params[ii], paramTypes[ii], name);
 				if (value == null) continue outer;
 				params[ii] = value;
 			}
@@ -1066,28 +1066,34 @@ abstract public class BaseTableLayout<T> {
 		throw new NoSuchMethodException();
 	}
 
-	static private Object convertType (Object parentObject, String value, Class paramType) {
-		if (paramType == String.class || paramType == CharSequence.class) return value;
+	/**
+	 * Attempts to convert a string value to a non-string type to match a field or method on the specified parentObject. The
+	 * default implementation tries all primitive type wrappers and looks for a static field with the name on both the specified
+	 * type and the parentObject's type.
+	 * @return the converted type, or null if it could not be converted.
+	 */
+	protected Object convertType (Object parentObject, String value, Class type, String memberName) {
+		if (type == String.class || type == CharSequence.class) return value;
 		try {
-			if (paramType == int.class || paramType == Integer.class) return Integer.valueOf(value);
-			if (paramType == float.class || paramType == Float.class) return Float.valueOf(value);
-			if (paramType == long.class || paramType == Long.class) return Long.valueOf(value);
-			if (paramType == double.class || paramType == Double.class) return Double.valueOf(value);
+			if (type == int.class || type == Integer.class) return Integer.valueOf(value);
+			if (type == float.class || type == Float.class) return Float.valueOf(value);
+			if (type == long.class || type == Long.class) return Long.valueOf(value);
+			if (type == double.class || type == Double.class) return Double.valueOf(value);
 		} catch (NumberFormatException ignored) {
 		}
-		if (paramType == boolean.class || paramType == Boolean.class) return Boolean.valueOf(value);
-		if (paramType == char.class || paramType == Character.class) return value.charAt(0);
-		if (paramType == short.class || paramType == Short.class) return Short.valueOf(value);
-		if (paramType == byte.class || paramType == Byte.class) return Byte.valueOf(value);
+		if (type == boolean.class || type == Boolean.class) return Boolean.valueOf(value);
+		if (type == char.class || type == Character.class) return value.charAt(0);
+		if (type == short.class || type == Short.class) return Short.valueOf(value);
+		if (type == byte.class || type == Byte.class) return Byte.valueOf(value);
 		// Look for a static field.
 		try {
-			Field field = getField(paramType, value);
-			if (field != null && paramType == field.getType()) return field.get(null);
+			Field field = getField(type, value);
+			if (field != null && type == field.getType()) return field.get(null);
 		} catch (Exception ignored) {
 		}
 		try {
 			Field field = getField(parentObject.getClass(), value);
-			if (field != null && paramType == field.getType()) return field.get(null);
+			if (field != null && type == field.getType()) return field.get(null);
 		} catch (Exception ignored) {
 		}
 		return null;

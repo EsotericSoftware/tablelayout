@@ -9,6 +9,7 @@ import java.util.List;
 import android.R;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -87,10 +88,6 @@ public class TableLayout extends BaseTableLayout<View> {
 	public void addDebugRectangle (String type, int x, int y, int w, int h) {
 		if (debugRects == null) debugRects = new ArrayList();
 		debugRects.add(new DebugRect(type, x, y, w, h));
-	}
-
-	public int size (String value) {
-		return (int)(super.size(value) * density);
 	}
 
 	public int size (float value) {
@@ -188,12 +185,30 @@ public class TableLayout extends BaseTableLayout<View> {
 	public void setProperty (View view, String name, List<String> values) {
 		if (values.size() == 1) {
 			if (setBackground(view, name, values.get(0))) return;
+
 			if (view instanceof TextView) {
 				if (setCompoundDrawable((TextView)view, name, values.get(0))) return;
 			}
 		}
 
 		super.setProperty(view, name, values);
+	}
+
+	protected Object convertType (Object parentObject, String value, Class type, String memberName) {
+		Object newType = super.convertType(parentObject, value, type, memberName);
+		if (newType == null && type == int.class) {
+			try {
+				return Color.parseColor(value);
+			} catch (IllegalArgumentException ignored) {
+			}
+		}
+		return newType;
+	}
+
+	static public int getDrawableID (String name) {
+		Integer id = drawableToID.get(name);
+		if (id == null) return 0;
+		return id;
 	}
 
 	static public Drawable getDrawable (String name) {
@@ -204,13 +219,15 @@ public class TableLayout extends BaseTableLayout<View> {
 
 	static public ImageView getImageView (String name) {
 		Integer id = drawableToID.get(name);
-		if (id != null) {
-			ImageView view = new ImageView(context);
-			view.setScaleType(ScaleType.FIT_XY);
-			view.setImageResource(id);
-			return view;
-		}
+		if (id != null) return getImageView(id);
 		return null;
+	}
+
+	static public ImageView getImageView (int id) {
+		ImageView view = new ImageView(context);
+		view.setScaleType(ScaleType.FIT_XY);
+		view.setImageResource(id);
+		return view;
 	}
 
 	static public boolean setCompoundDrawable (TextView view, String name, String value) {
@@ -310,8 +327,10 @@ public class TableLayout extends BaseTableLayout<View> {
 		}
 
 		protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
+			int width = right - left;
+			int height = bottom - top;
 			for (int i = 0, n = getChildCount(); i < n; i++)
-				getChildAt(i).layout(left, top, right, bottom);
+				getChildAt(i).layout(0, 0, width, height);
 		}
 	}
 
