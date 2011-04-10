@@ -15,7 +15,7 @@ public class AddCellTest implements ApplicationListener {
 	private Stage stage;
 
 	public void create () {
-		TableLayout.font = new BitmapFont(true);
+		TableLayout.defaultFont = new BitmapFont(true);
 
 		stage = new Stage(640, 480, false);
 		stage.projection.setToOrtho(0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1);
@@ -26,9 +26,9 @@ public class AddCellTest implements ApplicationListener {
 		layout.getTable().height = 480;
 
 		layout.parse("debug * fill:x expand space:15 align:top");
-		layout.addCell(new Label(null, TableLayout.font, "cow"));
-		layout.addCell(new Label(null, TableLayout.font, "meow"));
-		layout.addCell(new Label(null, TableLayout.font, "moo"));
+		layout.addCell(new Label(null, TableLayout.defaultFont, "cow"));
+		layout.addCell(new Label(null, TableLayout.defaultFont, "meow"));
+		layout.addCell(new Label(null, TableLayout.defaultFont, "moo"));
 	}
 
 	public void render () {

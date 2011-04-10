@@ -15,7 +15,7 @@ public class NinePatchTestFlipped implements ApplicationListener {
 	private Stage stage;
 
 	@Override public void create () {
-		TableLayout.font = new BitmapFont(true);
+		TableLayout.defaultFont = new BitmapFont(true);
 
 		stage = new Stage(800, 600, false);
 		stage.projection.setToOrtho(0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1);

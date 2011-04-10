@@ -15,7 +15,7 @@ public class NinePatchTest implements ApplicationListener {
 	private Stage stage;
 
 	@Override public void create () {
-		TableLayout.font = new BitmapFont();
+		TableLayout.defaultFont = new BitmapFont();
 
 		stage = new Stage(800, 600, false);
 

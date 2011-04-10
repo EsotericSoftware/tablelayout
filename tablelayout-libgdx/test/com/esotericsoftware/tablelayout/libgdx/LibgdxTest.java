@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -24,7 +25,12 @@ public class LibgdxTest implements ApplicationListener {
 	private Stage stage;
 
 	public void create () {
-		TableLayout.font = new BitmapFont(true);
+		TableLayout.defaultFont = new BitmapFont(true);
+
+		BitmapFont largeFont = new BitmapFont(true);
+		largeFont.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		largeFont.scale(1);
+		TableLayout.registerFont("large", largeFont);
 
 		stage = new Stage(640, 480, false);
 		stage.projection.setToOrtho(0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1);
@@ -54,8 +60,8 @@ public class LibgdxTest implements ApplicationListener {
 		layout.parse("" //
 			+ "debug" //
 			+ "* spacing:10" //
-			+ "'Sweet' (text:'moo!!!!!!!!!!.')" //
-			+ "'moo'" //
+			+ "'Sweet' (text:'Moo!!!!!!!!!!.')" //
+			+ "'Moo' (font:large)" //
 			+ "---" //
 			+ "{'Hi' 'and stuff'} align:bottom,right" //
 			+ "[image1]" //

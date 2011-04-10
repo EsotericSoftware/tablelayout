@@ -1,6 +1,9 @@
 
 package com.esotericsoftware.tablelayout.libgdx;
 
+import java.util.HashMap;
+import java.util.List;
+
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer;
@@ -18,7 +21,8 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		addClassPrefix("com.badlogic.gdx.scenes.scene2d.actors.");
 	}
 
-	static public BitmapFont font;
+	static public BitmapFont defaultFont;
+	static private HashMap<String, BitmapFont> fonts = new HashMap();
 
 	Table table;
 	boolean needsLayout = true;
@@ -61,11 +65,21 @@ public class TableLayout extends BaseTableLayout<Actor> {
 
 	public Actor wrap (Object object) {
 		if (object instanceof String) {
-			if (font == null) font = new BitmapFont();
-			return new Label(null, font, (String)object);
+			if (defaultFont == null) throw new IllegalStateException("No default font has been set.");
+			return new Label(null, defaultFont, (String)object);
 		}
 		if (object == null) return new Group();
 		return super.wrap(object);
+	}
+
+	public void setProperty (Actor object, String name, List<String> values) {
+		if (object instanceof Label) {
+			if (name.equals("font")) {
+				((Label)object).setFont(getFont(values.get(0)));
+				return;
+			}
+		}
+		super.setProperty(object, name, values);
 	}
 
 	public BaseTableLayout newTableLayout () {
@@ -186,6 +200,20 @@ public class TableLayout extends BaseTableLayout<Actor> {
 
 	public Table getTable () {
 		return table;
+	}
+
+	/**
+	 * Sets the name of a font.
+	 */
+	static public void registerFont (String name, BitmapFont font) {
+		fonts.put(name, font);
+		if (defaultFont == null) defaultFont = font;
+	}
+
+	static public BitmapFont getFont (String name) {
+		BitmapFont font = fonts.get(name);
+		if (font == null) throw new IllegalArgumentException("Font not found: " + name);
+		return font;
 	}
 
 	class Stack extends Group implements Layout {
