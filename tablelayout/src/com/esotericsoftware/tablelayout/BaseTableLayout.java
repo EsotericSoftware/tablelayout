@@ -375,8 +375,8 @@ abstract public class BaseTableLayout<T> {
 		}
 		int width = this.width - (padLeft + padRight);
 		int height = this.height - (padTop + padBottom);
-		tableMinWidth = Math.max(tableMinWidth, width);
-		tableMinHeight = Math.max(tableMinHeight, height);
+		tableMinWidth = Math.max(tableMinWidth + padLeft + padRight, width);
+		tableMinHeight = Math.max(tableMinHeight + padTop + padBottom, height);
 		tablePrefWidth = Math.max(tablePrefWidth, tableMinWidth);
 		tablePrefHeight = Math.max(tablePrefHeight, tableMinHeight);
 
@@ -576,7 +576,7 @@ abstract public class BaseTableLayout<T> {
 		currentX = x;
 		currentY = y;
 		if (debug.contains(DEBUG_TABLE) || debug.contains(DEBUG_ALL)) {
-			addDebugRectangle(DEBUG_TABLE, tableLayoutX + padLeft, tableLayoutY + padTop, tableLayoutWidth, tableLayoutHeight);
+			addDebugRectangle(DEBUG_TABLE, tableLayoutX, tableLayoutY, this.tableLayoutWidth, this.tableLayoutHeight);
 			addDebugRectangle(DEBUG_TABLE, x, y, tableWidth, tableHeight);
 		}
 		for (int i = 0, n = cells.size(); i < n; i++) {
