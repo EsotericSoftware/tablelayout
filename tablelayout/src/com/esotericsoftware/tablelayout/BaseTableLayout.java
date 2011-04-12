@@ -377,11 +377,11 @@ abstract public class BaseTableLayout<T> {
 		int height = this.height - (padTop + padBottom);
 		tableMinWidth = Math.max(tableMinWidth + padLeft + padRight, width);
 		tableMinHeight = Math.max(tableMinHeight + padTop + padBottom, height);
-		tablePrefWidth = Math.max(tablePrefWidth, tableMinWidth);
-		tablePrefHeight = Math.max(tablePrefHeight, tableMinHeight);
+		tablePrefWidth = Math.max(tablePrefWidth + padLeft + padRight, tableMinWidth);
+		tablePrefHeight = Math.max(tablePrefHeight + padTop + padBottom, tableMinHeight);
 
 		int[] columnMaxWidth;
-		int tableLayoutWidth = this.tableLayoutWidth - (padLeft + padRight);
+		int tableLayoutWidth = this.tableLayoutWidth;
 		int totalGrowWidth = tablePrefWidth - tableMinWidth;
 		if (totalGrowWidth == 0)
 			columnMaxWidth = columnMinWidth;
@@ -396,7 +396,7 @@ abstract public class BaseTableLayout<T> {
 		}
 
 		int[] rowMaxHeight;
-		int tableLayoutHeight = this.tableLayoutHeight - padTop - padBottom;
+		int tableLayoutHeight = this.tableLayoutHeight;
 		int totalGrowHeight = tablePrefHeight - tableMinHeight;
 		if (totalGrowHeight == 0)
 			rowMaxHeight = rowMinHeight;
@@ -506,10 +506,10 @@ abstract public class BaseTableLayout<T> {
 		int tableWidth = 0, tableHeight = 0;
 		for (int i = 0; i < columns; i++)
 			tableWidth += columnWidth[i];
-		tableWidth = Math.max(tableWidth, width);
+		tableWidth = Math.max(tableWidth + padLeft + padRight, width);
 		for (int i = 0; i < rows; i++)
 			tableHeight += rowHeight[i];
-		tableHeight = Math.max(tableHeight, height);
+		tableHeight = Math.max(tableHeight + padTop + padBottom, height);
 
 		// Position table within the container.
 		int x = tableLayoutX + padLeft;
@@ -576,8 +576,8 @@ abstract public class BaseTableLayout<T> {
 		currentX = x;
 		currentY = y;
 		if (debug.contains(DEBUG_TABLE) || debug.contains(DEBUG_ALL)) {
-			addDebugRectangle(DEBUG_TABLE, tableLayoutX, tableLayoutY, this.tableLayoutWidth, this.tableLayoutHeight);
-			addDebugRectangle(DEBUG_TABLE, x, y, tableWidth, tableHeight);
+			addDebugRectangle(DEBUG_TABLE, tableLayoutX , tableLayoutY , tableLayoutWidth, tableLayoutHeight);
+			addDebugRectangle(DEBUG_TABLE, x, y, tableWidth - (padLeft + padRight), tableHeight - (padTop + padBottom));
 		}
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);

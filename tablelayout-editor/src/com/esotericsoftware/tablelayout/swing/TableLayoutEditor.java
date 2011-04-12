@@ -203,6 +203,13 @@ public class TableLayoutEditor extends JFrame {
 			setOpaque(true);
 		}
 
+		public Dimension getMinimumSize () {
+			return min;
+		}
+
+		public Dimension getMaximumSize () {
+			return max;
+		}
 	}
 
 	static public class Factory extends AbstractTokenMakerFactory {
