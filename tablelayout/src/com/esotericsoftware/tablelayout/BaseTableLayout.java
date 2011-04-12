@@ -238,6 +238,11 @@ abstract public class BaseTableLayout<T> {
 		rows = 0;
 		columns = 0;
 		rowDefaults = null;
+		padTop = 0;
+		padLeft = 0;
+		padBottom = 0;
+		padRight = 0;
+		align = CENTER;
 		if (debug != null) clearDebugRectangles();
 	}
 
