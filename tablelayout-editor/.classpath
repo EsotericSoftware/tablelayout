@@ -5,5 +5,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/tablelayout-swing"/>
 	<classpathentry kind="lib" path="lib/rsyntaxtextarea-r302.jar"/>
+	<classpathentry kind="lib" path="lib/autocomplete-r302.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

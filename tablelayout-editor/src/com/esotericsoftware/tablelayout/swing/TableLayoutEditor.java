@@ -19,6 +19,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 
+import org.fife.ui.autocomplete.AbstractCompletion;
+import org.fife.ui.autocomplete.AutoCompletion;
+import org.fife.ui.autocomplete.DefaultCompletionProvider;
+import org.fife.ui.autocomplete.ShorthandCompletion;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SquiggleUnderlineHighlightPainter;
@@ -39,6 +43,7 @@ public class TableLayoutEditor extends JFrame {
 	JTextArea errorText;
 	Table outputTable;
 	SquiggleUnderlineHighlightPainter errorPainter = new SquiggleUnderlineHighlightPainter(Color.red);
+	private AutoCompletion autoCompletion;
 
 	public TableLayoutEditor () {
 		super("TableLayout Editor");
@@ -54,6 +59,51 @@ public class TableLayoutEditor extends JFrame {
 		codeText.setSelectionColor(new Color(0xd4eaff));
 		codeText.setTextAntiAliasHint("VALUE_TEXT_ANTIALIAS_ON");
 		codeText.setTabSize(3);
+
+		DefaultCompletionProvider provider = new DefaultCompletionProvider();
+		provider.addCompletion(new ShorthandCompletion(provider, "debug", "debug"));
+		provider.addCompletion(new ShorthandCompletion(provider, "size", "size"));
+		provider.addCompletion(new ShorthandCompletion(provider, "width", "width"));
+		provider.addCompletion(new ShorthandCompletion(provider, "height", "height"));
+		provider.addCompletion(new ShorthandCompletion(provider, "expand", "expand"));
+		provider.addCompletion(new ShorthandCompletion(provider, "fill", "fill"));
+		provider.addCompletion(new ShorthandCompletion(provider, "align", "align"));
+		provider.addCompletion(new ShorthandCompletion(provider, "colspan", "colspan"));
+		provider.addCompletion(new ShorthandCompletion(provider, "uniform", "uniform"));
+		provider.addCompletion(new ShorthandCompletion(provider, "padding", "padding"));
+		provider.addCompletion(new ShorthandCompletion(provider, "paddingTop", "paddingTop"));
+		provider.addCompletion(new ShorthandCompletion(provider, "paddingLeft", "paddingLeft"));
+		provider.addCompletion(new ShorthandCompletion(provider, "paddingBottom", "paddingBottom"));
+		provider.addCompletion(new ShorthandCompletion(provider, "paddingRight", "paddingRight"));
+		provider.addCompletion(new ShorthandCompletion(provider, "spacing", "spacing"));
+		provider.addCompletion(new ShorthandCompletion(provider, "spacingTop", "spacingTop"));
+		provider.addCompletion(new ShorthandCompletion(provider, "spacingLeft", "spacingLeft"));
+		provider.addCompletion(new ShorthandCompletion(provider, "spacingBottom", "spacingBottom"));
+		provider.addCompletion(new ShorthandCompletion(provider, "spacingRight", "spacingRight"));
+		provider.addCompletion(new ShorthandCompletion(provider, "ignore", "ignore"));
+		provider.addCompletion(new ShorthandCompletion(provider, "pad", "pad"));
+		provider.addCompletion(new ShorthandCompletion(provider, "padTop", "padTop"));
+		provider.addCompletion(new ShorthandCompletion(provider, "padLeft", "padLeft"));
+		provider.addCompletion(new ShorthandCompletion(provider, "padBottom", "padBottom"));
+		provider.addCompletion(new ShorthandCompletion(provider, "padRight", "padRight"));
+		provider.addCompletion(new ShorthandCompletion(provider, "space", "space"));
+		provider.addCompletion(new ShorthandCompletion(provider, "spaceTop", "spaceTop"));
+		provider.addCompletion(new ShorthandCompletion(provider, "spaceLeft", "spaceLeft"));
+		provider.addCompletion(new ShorthandCompletion(provider, "spaceBottom", "spaceBottom"));
+		provider.addCompletion(new ShorthandCompletion(provider, "spaceRight", "spaceRight"));
+		autoCompletion = new AutoCompletion(provider);
+		autoCompletion.setChoicesWindowSize(200, 300);
+		autoCompletion.setAutoCompleteSingleChoices(true);
+		autoCompletion.install(codeText);
+		new AbstractCompletion(provider) {
+			public String getSummary () {
+				return null;
+			}
+
+			public String getReplacementText () {
+				return null;
+			}
+		};
 
 		RTextScrollPane codeScroll = new RTextScrollPane(codeText);
 
