@@ -368,10 +368,10 @@ abstract public class BaseTableLayout<T> {
 			tableMinHeight += rowMinHeight[i];
 			tablePrefHeight += Math.max(rowMinHeight[i], rowPrefHeight[i]);
 		}
-		tableMinWidth = Math.max(tableMinWidth, width);
-		tableMinHeight = Math.max(tableMinHeight, height);
-		tablePrefWidth = Math.max(tablePrefWidth, width);
-		tablePrefHeight = Math.max(tablePrefHeight, height);
+		tableMinWidth = Math.max(tableMinWidth + padLeft + padRight, width);
+		tableMinHeight = Math.max(tableMinHeight + padTop + padBottom, height);
+		tablePrefWidth = Math.max(tablePrefWidth, tableMinWidth);
+		tablePrefHeight = Math.max(tablePrefHeight, tableMinHeight);
 
 		int[] columnMaxWidth;
 		int tableLayoutWidth = this.tableLayoutWidth - (padLeft + padRight);
