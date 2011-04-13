@@ -79,8 +79,8 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			return new Label(null, defaultFont, (String)object);
 		}
 		if (object == null) return new Group();
-		if (object instanceof Texture) new FastImage(null, (Texture)object);
-		if (object instanceof TextureRegion) new FastImage(null, (TextureRegion)object);
+		if (object instanceof Texture) return new FastImage(null, (Texture)object);
+		if (object instanceof TextureRegion) return new FastImage(null, (TextureRegion)object);
 		return super.wrap(object);
 	}
 
