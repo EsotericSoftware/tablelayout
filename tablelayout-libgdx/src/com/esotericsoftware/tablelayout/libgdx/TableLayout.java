@@ -6,13 +6,16 @@ import java.util.List;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Layout;
+import com.badlogic.gdx.scenes.scene2d.actors.FastImage;
 import com.badlogic.gdx.scenes.scene2d.actors.Label;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.tablelayout.BaseTableLayout;
@@ -76,6 +79,8 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			return new Label(null, defaultFont, (String)object);
 		}
 		if (object == null) return new Group();
+		if (object instanceof Texture) new FastImage(null, (Texture)object);
+		if (object instanceof TextureRegion) new FastImage(null, (TextureRegion)object);
 		return super.wrap(object);
 	}
 
