@@ -31,7 +31,7 @@ import com.esotericsoftware.tablelayout.Cell;
 public class TableLayout extends BaseTableLayout<View> {
 	static {
 		addClassPrefix("android.view.");
-		//addClassPrefix("android.widget.");
+		addClassPrefix("android.widget.");
 	}
 
 	static public Context context;
@@ -120,15 +120,15 @@ public class TableLayout extends BaseTableLayout<View> {
 		}
 	}
 
-//	protected View newInstance (String className) throws Exception {
-//		try {
-//			return super.newInstance(className);
-//		} catch (Exception ex) {
-//			Class type = Class.forName(className);
-//			Constructor constructor = type.getConstructor(Context.class);
-//			return (View)constructor.newInstance(context);
-//		}
-//	}
+	protected View newInstance (String className) throws Exception {
+		try {
+			return super.newInstance(className);
+		} catch (Exception ex) {
+			Class type = Class.forName(className);
+			Constructor constructor = type.getConstructor(Context.class);
+			return (View)constructor.newInstance(context);
+		}
+	}
 
 	public View wrap (Object object) {
 		if (object instanceof String) {
