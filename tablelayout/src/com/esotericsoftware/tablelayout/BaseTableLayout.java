@@ -1,7 +1,6 @@
 
 package com.esotericsoftware.tablelayout;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -373,12 +372,14 @@ abstract public class BaseTableLayout<T> {
 			tableMinHeight += rowMinHeight[i];
 			tablePrefHeight += Math.max(rowMinHeight[i], rowPrefHeight[i]);
 		}
-		int width = this.width - (padLeft + padRight);
-		int height = this.height - (padTop + padBottom);
-		tableMinWidth = Math.max(tableMinWidth + padLeft + padRight, width);
-		tableMinHeight = Math.max(tableMinHeight + padTop + padBottom, height);
-		tablePrefWidth = Math.max(tablePrefWidth + padLeft + padRight, tableMinWidth);
-		tablePrefHeight = Math.max(tablePrefHeight + padTop + padBottom, tableMinHeight);
+		int hpadding = padLeft + padRight;
+		int vpadding = hpadding;
+		int width = this.width - hpadding;
+		int height = this.height - vpadding;
+		tableMinWidth = Math.max(tableMinWidth + hpadding, width);
+		tableMinHeight = Math.max(tableMinHeight + vpadding, height);
+		tablePrefWidth = Math.max(tablePrefWidth + hpadding, tableMinWidth);
+		tablePrefHeight = Math.max(tablePrefHeight + vpadding, tableMinHeight);
 
 		int[] columnMaxWidth;
 		int tableLayoutWidth = this.tableLayoutWidth;
@@ -463,10 +464,22 @@ abstract public class BaseTableLayout<T> {
 			for (int i = 0, n = cells.size(); i < n; i++) {
 				Cell c = cells.get(i);
 				if (c.ignore) continue;
-				if (uniformMaxWidth > 0 && c.uniformWidth != null)
-					columnWidth[c.column] = Math.max(uniformMaxWidth, columnWidth[c.column]);
-				if (uniformMaxHeight > 0 && c.uniformHeight != null) //
-					rowHeight[c.row] = Math.max(uniformMaxHeight, rowHeight[c.row]);
+				if (uniformMaxWidth > 0 && c.uniformWidth != null) {
+					int diff = uniformMaxWidth - columnWidth[c.column];
+					if (diff > 0) {
+						columnWidth[c.column] = uniformMaxWidth;
+						tableMinWidth += diff;
+						tablePrefWidth += diff;
+					}
+				}
+				if (uniformMaxHeight > 0 && c.uniformHeight != null) {
+					int diff = uniformMaxHeight - rowHeight[c.row];
+					if (diff > 0) {
+						rowHeight[c.row] = uniformMaxHeight;
+						tableMinHeight += diff;
+						tablePrefHeight += diff;
+					}
+				}
 				continue outer;
 			}
 		}
@@ -506,10 +519,10 @@ abstract public class BaseTableLayout<T> {
 		int tableWidth = 0, tableHeight = 0;
 		for (int i = 0; i < columns; i++)
 			tableWidth += columnWidth[i];
-		tableWidth = Math.max(tableWidth + padLeft + padRight, width);
+		tableWidth = Math.max(tableWidth + hpadding, width);
 		for (int i = 0; i < rows; i++)
 			tableHeight += rowHeight[i];
-		tableHeight = Math.max(tableHeight + padTop + padBottom, height);
+		tableHeight = Math.max(tableHeight + vpadding, height);
 
 		// Position table within the container.
 		int x = tableLayoutX + padLeft;
@@ -576,8 +589,8 @@ abstract public class BaseTableLayout<T> {
 		currentX = x;
 		currentY = y;
 		if (debug.contains(DEBUG_TABLE) || debug.contains(DEBUG_ALL)) {
-			addDebugRectangle(DEBUG_TABLE, tableLayoutX , tableLayoutY , tableLayoutWidth, tableLayoutHeight);
-			addDebugRectangle(DEBUG_TABLE, x, y, tableWidth - (padLeft + padRight), tableHeight - (padTop + padBottom));
+			addDebugRectangle(DEBUG_TABLE, tableLayoutX, tableLayoutY, tableLayoutWidth, tableLayoutHeight);
+			addDebugRectangle(DEBUG_TABLE, x, y, tableWidth - hpadding, tableHeight - vpadding);
 		}
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
