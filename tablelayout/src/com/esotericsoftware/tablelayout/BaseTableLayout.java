@@ -373,7 +373,7 @@ abstract public class BaseTableLayout<T> {
 			tablePrefHeight += Math.max(rowMinHeight[i], rowPrefHeight[i]);
 		}
 		int hpadding = padLeft + padRight;
-		int vpadding = hpadding;
+		int vpadding = padTop + padBottom;
 		int width = this.width - hpadding;
 		int height = this.height - vpadding;
 		tableMinWidth = Math.max(tableMinWidth + hpadding, width);
@@ -661,12 +661,20 @@ abstract public class BaseTableLayout<T> {
 			for (int i = 0, n = classPrefixes.size(); i < n; i++) {
 				String prefix = classPrefixes.get(i);
 				try {
-					return (T)Class.forName(prefix + className).newInstance();
+					return newInstance(prefix + className);
 				} catch (Exception ignored) {
 				}
 			}
 			throw new RuntimeException("Error creating instance of class: " + className, ex);
 		}
+	}
+
+	/**
+	 * Returns an instance of the specified class. The default uses Class.forName(className).newInstance();
+	 * @throws Exception if the class cannot be found or instantiated.
+	 */
+	protected T newInstance (String className) throws Exception {
+		return (T)Class.forName(className).newInstance();
 	}
 
 	/**

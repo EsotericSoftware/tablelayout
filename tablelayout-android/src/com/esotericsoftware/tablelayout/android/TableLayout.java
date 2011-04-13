@@ -1,6 +1,7 @@
 
 package com.esotericsoftware.tablelayout.android;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +10,6 @@ import java.util.List;
 import android.R;
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -31,6 +31,7 @@ import com.esotericsoftware.tablelayout.Cell;
 public class TableLayout extends BaseTableLayout<View> {
 	static {
 		addClassPrefix("android.view.");
+		//addClassPrefix("android.widget.");
 	}
 
 	static public Context context;
@@ -118,6 +119,16 @@ public class TableLayout extends BaseTableLayout<View> {
 			throw ex;
 		}
 	}
+
+//	protected View newInstance (String className) throws Exception {
+//		try {
+//			return super.newInstance(className);
+//		} catch (Exception ex) {
+//			Class type = Class.forName(className);
+//			Constructor constructor = type.getConstructor(Context.class);
+//			return (View)constructor.newInstance(context);
+//		}
+//	}
 
 	public View wrap (Object object) {
 		if (object instanceof String) {
