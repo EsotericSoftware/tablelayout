@@ -4,18 +4,20 @@ package com.esotericsoftware.tablelayout.libgdx;
 import java.util.HashMap;
 import java.util.List;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Layout;
-import com.badlogic.gdx.scenes.scene2d.actors.FastImage;
+import com.badlogic.gdx.scenes.scene2d.actors.Button;
+import com.badlogic.gdx.scenes.scene2d.actors.Image;
 import com.badlogic.gdx.scenes.scene2d.actors.Label;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.tablelayout.BaseTableLayout;
@@ -29,6 +31,9 @@ public class TableLayout extends BaseTableLayout<Actor> {
 
 	static public BitmapFont defaultFont;
 	static private HashMap<String, BitmapFont> fonts = new HashMap();
+
+	/** The atlas to use to find texture regions. */
+	public TextureAtlas atlas;
 
 	Table table;
 	boolean needsLayout = true;
@@ -48,15 +53,29 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		return register(actor.name, actor);
 	}
 
+	/**
+	 * Finds the texture region in the {@link #atlas}, creates an {@link Image} and registers it with the specified name.
+	 */
+	public Actor registerImage (String name) {
+		return register(new Image(name, atlas.findRegion(name)));
+	}
+
 	public Actor getWidget (String name) {
 		Actor actor = super.getWidget(name);
-		if (actor == null) actor = table.findActor(name);
+		if (actor == null) {
+			actor = table.findActor(name);
+			if (actor == null) {
+				AtlasRegion region = atlas.findRegion(name);
+				if (region != null) return new Image(name, region);
+			}
+		}
 		return actor;
 	}
 
 	public void layout () {
 		tableLayoutWidth = (int)table.width;
-		tableLayoutHeight = (int)table.height;
+		int height = (int)table.height;
+		tableLayoutHeight = height;
 
 		super.layout();
 
@@ -65,7 +84,7 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			if (c.ignore) continue;
 			Actor actor = (Actor)c.widget;
 			actor.x = c.widgetX;
-			actor.y = c.widgetY;
+			actor.y = height - c.widgetY - c.widgetHeight;
 			actor.width = c.widgetWidth;
 			actor.height = c.widgetHeight;
 			if (actor instanceof Layout) ((Layout)actor).layout();
@@ -80,6 +99,11 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		}
 		if (object == null) return new Group();
 		return super.wrap(object);
+	}
+
+	public Actor newWidget (String className) {
+		if (className.equals("button")) return new Button(null);
+		return super.newWidget(className);
 	}
 
 	public void setProperty (Actor object, String name, List<String> values) {
@@ -97,6 +121,19 @@ public class TableLayout extends BaseTableLayout<Actor> {
 				return;
 			}
 		}
+
+		if (object instanceof Button) {
+			Button button = (Button)object;
+			if (name.equals("up")) {
+				button.unpressedRegion = atlas.findRegion(values.get(0));
+				return;
+			}
+			if (name.equals("down")) {
+				button.pressedRegion = atlas.findRegion(values.get(0));
+				return;
+			}
+		}
+
 		super.setProperty(object, name, values);
 	}
 
@@ -168,11 +205,13 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			parent = parent.parent;
 		}
 
+		int viewHeight = Gdx.graphics.getHeight();
+
 		debugRenderer.begin(GL10.GL_LINES);
 		for (int i = 0, n = debugRects.size; i < n; i++) {
 			DebugRect rect = debugRects.get(i);
-			float x1 = x + rect.x + 1;
-			float y1 = y + rect.y;
+			float x1 = x + rect.x;
+			float y1 = viewHeight - (y + rect.y) - rect.height;
 			float x2 = x1 + rect.width;
 			float y2 = y1 + rect.height;
 			float r = rect.type.equals(DEBUG_CELL) ? 1 : 0;
@@ -180,9 +219,9 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			float b = rect.type.equals(DEBUG_TABLE) ? 1 : 0;
 
 			debugRenderer.color(r, g, b, 1);
-			debugRenderer.vertex(x1, y1, 0);
+			debugRenderer.vertex(x1, y1 - 1, 0);
 			debugRenderer.color(r, g, b, 1);
-			debugRenderer.vertex(x1, y2 + 1, 0);
+			debugRenderer.vertex(x1, y2, 0);
 
 			debugRenderer.color(r, g, b, 1);
 			debugRenderer.vertex(x1, y2, 0);

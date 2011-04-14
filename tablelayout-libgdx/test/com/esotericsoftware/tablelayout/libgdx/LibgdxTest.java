@@ -25,15 +25,14 @@ public class LibgdxTest implements ApplicationListener {
 	private Stage stage;
 
 	public void create () {
-		TableLayout.defaultFont = new BitmapFont(true);
+		TableLayout.defaultFont = new BitmapFont();
 
-		BitmapFont largeFont = new BitmapFont(true);
+		BitmapFont largeFont = new BitmapFont();
 		largeFont.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		largeFont.scale(1);
 		TableLayout.registerFont("large", largeFont);
 
 		stage = new Stage(640, 480, false);
-		stage.projection.setToOrtho(0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1);
 
 		TableLayout layout = new Table().layout;
 		stage.addActor(layout.getTable());
@@ -42,7 +41,6 @@ public class LibgdxTest implements ApplicationListener {
 
 		Texture badlogic = new Texture(Gdx.files.internal("badlogic.jpg"));
 		TextureRegion badlogicRegion = new TextureRegion(badlogic, 0, 0, 256, 256);
-		badlogicRegion.flip(false, true);
 
 		Image image1 = new Image("image1", badlogicRegion);
 		image1.width = image1.height = 128;

@@ -15,10 +15,9 @@ public class AddCellTest implements ApplicationListener {
 	private Stage stage;
 
 	public void create () {
-		TableLayout.defaultFont = new BitmapFont(true);
+		TableLayout.defaultFont = new BitmapFont();
 
 		stage = new Stage(640, 480, false);
-		stage.projection.setToOrtho(0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1);
 
 		TableLayout layout = new Table().layout;
 		stage.addActor(layout.getTable());

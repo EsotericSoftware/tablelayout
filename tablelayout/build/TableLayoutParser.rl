@@ -200,7 +200,7 @@ action widgetProperty {
 }
 
 propertyValue =
-	('-'? (alnum | '.' | '_')+ '%'?) >buffer %value |
+	((alnum | '.' | '_' |'%')+ '-'?)+ >buffer %value |
 	('\'' ^'\''* >buffer %value '\'');
 property = alnum+ >buffer %name (space* ':' space* propertyValue (',' propertyValue)* )?;
 
