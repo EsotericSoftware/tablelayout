@@ -20,17 +20,17 @@ abstract public class BaseTableLayout<T> {
 	static public final int X = 1 << 5;
 	static public final int Y = 1 << 6;
 
-	static public final int MIN = -1;
-	static public final int PREF = -2;
-	static public final int MAX = -3;
+	static public final String MIN = "min";
+	static public final String PREF = "pref";
+	static public final String MAX = "max";
 
 	static public final String DEBUG_ALL = "all";
 	static public final String DEBUG_TABLE = "table";
 	static public final String DEBUG_CELL = "cell";
 	static public final String DEBUG_WIDGET = "widget";
 
-	public int width, height;
-	public int padTop, padLeft, padBottom, padRight;
+	public String width, height;
+	public String padTop, padLeft, padBottom, padRight;
 	public int align = CENTER;
 	public String debug;
 
@@ -237,10 +237,10 @@ abstract public class BaseTableLayout<T> {
 		rows = 0;
 		columns = 0;
 		rowDefaults = null;
-		padTop = 0;
-		padLeft = 0;
-		padBottom = 0;
-		padRight = 0;
+		padTop = null;
+		padLeft = null;
+		padBottom = null;
+		padRight = null;
 		align = CENTER;
 		if (debug != null) clearDebugRectangles();
 	}
@@ -335,12 +335,13 @@ abstract public class BaseTableLayout<T> {
 			if (c.ignore) continue;
 
 			// Spacing between widgets isn't additive, the larger is used. Also, no spacing around edges.
-			c.padLeftTemp = c.column == 0 ? c.padLeft : c.padLeft + Math.max(0, c.spaceLeft - spaceRightLast);
-			c.padTopTemp = c.cellAboveIndex == -1 ? c.padTop : c.padTop
-				+ Math.max(0, c.spaceTop - cells.get(c.cellAboveIndex).spaceBottom);
-			c.padRightTemp = c.column + c.colspan == columns ? c.padRight : c.padRight + c.spaceRight;
-			c.padBottomTemp = c.row == rows - 1 ? c.padBottom : c.padBottom + c.spaceBottom;
-			spaceRightLast = c.spaceRight;
+			c.padLeftTemp = c.column == 0 ? width(c.padLeft) : width(c.padLeft) + Math.max(0, width(c.spaceLeft) - spaceRightLast);
+			c.padTopTemp = c.cellAboveIndex == -1 ? height(c.padTop) : height(c.padTop)
+				+ Math.max(0, height(c.spaceTop) - height(cells.get(c.cellAboveIndex).spaceBottom));
+			int spaceRight = width(c.spaceRight);
+			c.padRightTemp = c.column + c.colspan == columns ? width(c.padRight) : width(c.padRight) + spaceRight;
+			c.padBottomTemp = c.row == rows - 1 ? height(c.padBottom) : height(c.padBottom) + height(c.spaceBottom);
+			spaceRightLast = spaceRight;
 
 			int prefWidth = getWidth((T)c.widget, c.prefWidth);
 			int prefHeight = getHeight((T)c.widget, c.prefHeight);
@@ -350,13 +351,13 @@ abstract public class BaseTableLayout<T> {
 			if (prefHeight < minHeight) prefHeight = minHeight;
 
 			if (c.colspan == 1) {
-				int padLeftRight = c.padLeftTemp + c.padRightTemp;
-				columnPrefWidth[c.column] = Math.max(columnPrefWidth[c.column], prefWidth + padLeftRight);
-				columnMinWidth[c.column] = Math.max(columnMinWidth[c.column], minWidth + padLeftRight);
+				int hpadding = c.padLeftTemp + c.padRightTemp;
+				columnPrefWidth[c.column] = Math.max(columnPrefWidth[c.column], prefWidth + hpadding);
+				columnMinWidth[c.column] = Math.max(columnMinWidth[c.column], minWidth + hpadding);
 			}
-			int padTopBottom = c.padTopTemp + c.padBottomTemp;
-			rowPrefHeight[c.row] = Math.max(rowPrefHeight[c.row], prefHeight + padTopBottom);
-			rowMinHeight[c.row] = Math.max(rowMinHeight[c.row], minHeight + padTopBottom);
+			int vpadding = c.padTopTemp + c.padBottomTemp;
+			rowPrefHeight[c.row] = Math.max(rowPrefHeight[c.row], prefHeight + vpadding);
+			rowMinHeight[c.row] = Math.max(rowMinHeight[c.row], minHeight + vpadding);
 		}
 
 		// Determine maximum cell sizes using (preferred - min) size to weight distribution of extra space.
@@ -372,10 +373,10 @@ abstract public class BaseTableLayout<T> {
 			tableMinHeight += rowMinHeight[i];
 			tablePrefHeight += Math.max(rowMinHeight[i], rowPrefHeight[i]);
 		}
-		int hpadding = padLeft + padRight;
-		int vpadding = padTop + padBottom;
-		int width = this.width - hpadding;
-		int height = this.height - vpadding;
+		int hpadding = width(padLeft) + width(padRight);
+		int vpadding = height(padTop) + height(padBottom);
+		int width = width(this.width) - hpadding;
+		int height = height(this.height) - vpadding;
 		tableMinWidth = Math.max(tableMinWidth + hpadding, width);
 		tableMinHeight = Math.max(tableMinHeight + vpadding, height);
 		tablePrefWidth = Math.max(tablePrefWidth + hpadding, tableMinWidth);
@@ -525,13 +526,13 @@ abstract public class BaseTableLayout<T> {
 		tableHeight = Math.max(tableHeight + vpadding, height);
 
 		// Position table within the container.
-		int x = tableLayoutX + padLeft;
+		int x = tableLayoutX + width(padLeft);
 		if ((align & RIGHT) != 0)
 			x += tableLayoutWidth - tableWidth;
 		else if ((align & LEFT) == 0) // Center
 			x += (tableLayoutWidth - tableWidth) / 2;
 
-		int y = tableLayoutY + padTop;
+		int y = tableLayoutY + height(padTop);
 		if ((align & BOTTOM) != 0)
 			y += tableLayoutHeight - tableHeight;
 		else if ((align & TOP) == 0) // Center
@@ -621,31 +622,21 @@ abstract public class BaseTableLayout<T> {
 	/**
 	 * Returns the value unless it is one of the special integers representing min, pref, or max height.
 	 */
-	int getWidth (T widget, int value) {
-		switch (value) {
-		case MIN:
-			return getMinWidth(widget);
-		case PREF:
-			return getPrefWidth(widget);
-		case MAX:
-			return getMaxWidth(widget);
-		}
-		return value;
+	int getWidth (T widget, String value) {
+		if (value.equals(MIN)) return getMinWidth(widget);
+		if (value.equals(PREF)) return getPrefWidth(widget);
+		if (value.equals(MAX)) return getMaxWidth(widget);
+		return width(value);
 	}
 
 	/**
 	 * Returns the value unless it is one of the special integers representing min, pref, or max height.
 	 */
-	int getHeight (T widget, int value) {
-		switch (value) {
-		case MIN:
-			return getMinHeight(widget);
-		case PREF:
-			return getPrefHeight(widget);
-		case MAX:
-			return getMaxHeight(widget);
-		}
-		return value;
+	int getHeight (T widget, String value) {
+		if (value.equals(MIN)) return getMinHeight(widget);
+		if (value.equals(PREF)) return getPrefHeight(widget);
+		if (value.equals(MAX)) return getMaxHeight(widget);
+		return height(value);
 	}
 
 	/**
@@ -730,36 +721,36 @@ abstract public class BaseTableLayout<T> {
 			if (name.equals("size")) {
 				switch (values.size()) {
 				case 1:
-					width = height = size(values.get(0));
+					width = height = values.get(0);
 					break;
 				case 2:
-					width = size(values.get(0));
-					height = size(values.get(1));
+					width = values.get(0);
+					height = values.get(1);
 					break;
 				}
 
 			} else if (name.equals("width") || name.equals("w")) {
-				width = size(values.get(0));
+				width = values.get(0);
 
 			} else if (name.equals("height") || name.equals("h")) {
-				height = size(values.get(0));
+				height = values.get(0);
 
 			} else if (name.equals("padding") || name.equals("pad")) {
 				switch (values.size()) {
 				case 4:
 					value = values.get(3);
-					if (value.length() > 0) padRight = size(value);
+					if (value.length() > 0) padRight = value;
 				case 3:
 					value = values.get(2);
-					if (value.length() > 0) padBottom = size(value);
+					if (value.length() > 0) padBottom = value;
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) padTop = size(value);
+					if (value.length() > 0) padTop = value;
 					value = values.get(1);
-					if (value.length() > 0) padLeft = size(value);
+					if (value.length() > 0) padLeft = value;
 					break;
 				case 1:
-					padTop = padLeft = padBottom = padRight = size(values.get(0));
+					padTop = padLeft = padBottom = padRight = values.get(0);
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -768,13 +759,13 @@ abstract public class BaseTableLayout<T> {
 			} else if (name.startsWith("padding") || name.startsWith("pad")) {
 				name = name.replace("padding", "").replace("pad", "");
 				if (name.equals("top") || name.equals("t"))
-					padTop = size(values.get(0));
+					padTop = values.get(0);
 				else if (name.equals("left") || name.equals("l"))
-					padLeft = size(values.get(0));
+					padLeft = values.get(0);
 				else if (name.equals("bottom") || name.equals("b"))
-					padBottom = size(values.get(0));
+					padBottom = values.get(0);
 				else if (name.equals("right") || name.equals("r"))
-					padRight = size(values.get(0));
+					padRight = values.get(0);
 				else
 					throw new IllegalArgumentException("Unknown property.");
 
@@ -868,13 +859,13 @@ abstract public class BaseTableLayout<T> {
 				switch (values.size()) {
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = c.prefWidth = size(value);
+					if (value.length() > 0) c.minWidth = c.prefWidth = value;
 					value = values.get(1);
-					if (value.length() > 0) c.minHeight = c.prefHeight = size(value);
+					if (value.length() > 0) c.minHeight = c.prefHeight = value;
 					break;
 				case 1:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = c.minHeight = c.prefWidth = c.prefHeight = size(value);
+					if (value.length() > 0) c.minWidth = c.minHeight = c.prefWidth = c.prefHeight = value;
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -884,13 +875,13 @@ abstract public class BaseTableLayout<T> {
 				switch (values.size()) {
 				case 3:
 					value = values.get(0);
-					if (value.length() > 0) c.maxWidth = size(value);
+					if (value.length() > 0) c.maxWidth = value;
 				case 2:
 					value = values.get(1);
-					if (value.length() > 0) c.prefWidth = size(value);
+					if (value.length() > 0) c.prefWidth = value;
 				case 1:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = size(value);
+					if (value.length() > 0) c.minWidth = value;
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -900,13 +891,13 @@ abstract public class BaseTableLayout<T> {
 				switch (values.size()) {
 				case 3:
 					value = values.get(0);
-					if (value.length() > 0) c.maxHeight = size(value);
+					if (value.length() > 0) c.maxHeight = value;
 				case 2:
 					value = values.get(1);
-					if (value.length() > 0) c.prefHeight = size(value);
+					if (value.length() > 0) c.prefHeight = value;
 				case 1:
 					value = values.get(0);
-					if (value.length() > 0) c.minHeight = size(value);
+					if (value.length() > 0) c.minHeight = value;
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -916,18 +907,18 @@ abstract public class BaseTableLayout<T> {
 				switch (values.size()) {
 				case 4:
 					value = values.get(3);
-					if (value.length() > 0) c.spaceRight = size(value);
+					if (value.length() > 0) c.spaceRight = value;
 				case 3:
 					value = values.get(2);
-					if (value.length() > 0) c.spaceBottom = size(value);
+					if (value.length() > 0) c.spaceBottom = value;
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) c.spaceTop = size(value);
+					if (value.length() > 0) c.spaceTop = value;
 					value = values.get(1);
-					if (value.length() > 0) c.spaceLeft = size(value);
+					if (value.length() > 0) c.spaceLeft = value;
 					break;
 				case 1:
-					c.spaceTop = c.spaceLeft = c.spaceBottom = c.spaceRight = size(values.get(0));
+					c.spaceTop = c.spaceLeft = c.spaceBottom = c.spaceRight = values.get(0);
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -937,18 +928,18 @@ abstract public class BaseTableLayout<T> {
 				switch (values.size()) {
 				case 4:
 					value = values.get(3);
-					if (value.length() > 0) c.padRight = size(value);
+					if (value.length() > 0) c.padRight = value;
 				case 3:
 					value = values.get(2);
-					if (value.length() > 0) c.padBottom = size(value);
+					if (value.length() > 0) c.padBottom = value;
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) c.padTop = size(value);
+					if (value.length() > 0) c.padTop = value;
 					value = values.get(1);
-					if (value.length() > 0) c.padLeft = size(value);
+					if (value.length() > 0) c.padLeft = value;
 					break;
 				case 1:
-					c.padTop = c.padLeft = c.padBottom = c.padRight = size(values.get(0));
+					c.padTop = c.padLeft = c.padBottom = c.padRight = values.get(0);
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -957,26 +948,26 @@ abstract public class BaseTableLayout<T> {
 			} else if (name.startsWith("padding") || name.startsWith("pad")) {
 				name = name.replace("padding", "").replace("pad", "");
 				if (name.equals("top") || name.equals("t"))
-					c.padTop = size(values.get(0));
+					c.padTop = values.get(0);
 				else if (name.equals("left") || name.equals("l"))
-					c.padLeft = size(values.get(0));
+					c.padLeft = values.get(0);
 				else if (name.equals("bottom") || name.equals("b"))
-					c.padBottom = size(values.get(0));
+					c.padBottom = values.get(0);
 				else if (name.equals("right") || name.equals("r")) //
-					c.padRight = size(values.get(0));
+					c.padRight = values.get(0);
 				else
 					throw new IllegalArgumentException("Unknown property.");
 
 			} else if (name.startsWith("spacing") || name.startsWith("space")) {
 				name = name.replace("spacing", "").replace("space", "");
 				if (name.equals("top") || name.equals("t"))
-					c.spaceTop = size(values.get(0));
+					c.spaceTop = values.get(0);
 				else if (name.equals("left") || name.equals("l"))
-					c.spaceLeft = size(values.get(0));
+					c.spaceLeft = values.get(0);
 				else if (name.equals("bottom") || name.equals("b"))
-					c.spaceBottom = size(values.get(0));
+					c.spaceBottom = values.get(0);
 				else if (name.equals("right") || name.equals("r")) //
-					c.spaceRight = size(values.get(0));
+					c.spaceRight = values.get(0);
 				else
 					throw new IllegalArgumentException("Unknown property.");
 
@@ -1026,22 +1017,48 @@ abstract public class BaseTableLayout<T> {
 	}
 
 	/**
-	 * Interprets the specified value as a size. This can be used to scale all sizes applied to a cell, implement size units (eg,
-	 * 23px or 23em), etc. The default implementation returns {@link BaseTableLayout#MIN}, {@link BaseTableLayout#PREF} and
-	 * {@link BaseTableLayout#MAX} for "min", "pref", and "max". Otherwise it converts to an int and calls {@link #size(float)}.
+	 * Interprets the specified value as a width. This can be used to scale all sizes applied to a cell, implement size units (eg,
+	 * 23px or 23em), etc. The default implementation converts to an int and calls {@link #width(float)}. Zero is used for null and
+	 * empty string. If the last character is '%', the value is converted to an int, divided by 100, and multiplied by
+	 * {@link #tableLayoutWidth}.
+	 * @param value May be null.
 	 */
-	public int size (String value) {
-		if (value.equals("min")) return BaseTableLayout.MIN;
-		if (value.equals("pref")) return BaseTableLayout.PREF;
-		if (value.equals("max")) return BaseTableLayout.MAX;
-		return size(Integer.parseInt(value));
+	public int width (String value) {
+		int length;
+		if (value == null || (length = value.length()) == 0) return width(0);
+		if (value.charAt(length - 1) == '%' && length > 1)
+			return width(tableLayoutWidth * Integer.parseInt(value.substring(0, length - 1)) / 100f);
+		return width(value == null ? 0 : Integer.parseInt(value));
 	}
 
 	/**
 	 * Interprets the specified value as a size. This can be used to scale all sizes applied to a cell. The default implementation
 	 * just casts to int.
 	 */
-	public int size (float value) {
+	public int width (float value) {
+		return (int)value;
+	}
+
+	/**
+	 * Interprets the specified value as a height. This can be used to scale all sizes applied to a cell, implement size units (eg,
+	 * 23px or 23em), etc. The default implementation converts to an int and calls {@link #height(float)}. Zero is used for null
+	 * and empty string. If the last character is '%', the value is converted to an int, divided by 100, and multiplied by
+	 * {@link #tableLayoutHeight}.
+	 * @param value May be null.
+	 */
+	public int height (String value) {
+		int length;
+		if (value == null || (length = value.length()) == 0) return height(0);
+		if (value.charAt(length - 1) == '%' && length > 1)
+			return width(tableLayoutHeight * Integer.parseInt(value.substring(0, length - 1)) / 100f);
+		return width(value == null ? 0 : Integer.parseInt(value));
+	}
+
+	/**
+	 * Interprets the specified value as a size. This can be used to scale all sizes applied to a cell. The default implementation
+	 * just casts to int.
+	 */
+	public int height (float value) {
 		return (int)value;
 	}
 

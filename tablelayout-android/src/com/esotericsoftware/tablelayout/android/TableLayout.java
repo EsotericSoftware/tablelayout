@@ -91,7 +91,11 @@ public class TableLayout extends BaseTableLayout<View> {
 		debugRects.add(new DebugRect(type, x, y, w, h));
 	}
 
-	public int size (float value) {
+	public int width (float value) {
+		return (int)(value * density);
+	}
+
+	public int height (float value) {
 		return (int)(value * density);
 	}
 

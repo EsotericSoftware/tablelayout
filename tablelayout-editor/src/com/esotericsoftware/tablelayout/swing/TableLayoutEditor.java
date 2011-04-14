@@ -52,8 +52,10 @@ public class TableLayoutEditor extends JFrame {
 
 		codeText = new RSyntaxTextArea();
 		codeText.setSyntaxEditingStyle("tablelayout");
-		codeText.setHighlightCurrentLine(false);
 		codeText.setCloseCurlyBraces(false);
+		codeText.setAutoIndentEnabled(true);
+		codeText.setHighlightCurrentLine(false);
+		codeText.setLineWrap(true);
 		codeText.setCaretColor(Color.black);
 		codeText.setBackground(Color.white);
 		codeText.setSelectionColor(new Color(0xd4eaff));
@@ -119,9 +121,9 @@ public class TableLayoutEditor extends JFrame {
 			scheme.setStyle(PLAIN, new Style(new Color(0, 0, 0), null));
 			scheme.setStyle(STRUCTURE, new Style(new Color(0, 0, 128), null, monoBold));
 			scheme.setStyle(SYMBOL, new Style(new Color(0, 0, 255), null, monoBold));
-			scheme.setStyle(BRACKET, new Style(new Color(0, 0, 128), new Color(240, 240, 240), monoBold));
-			scheme.setStyle(NAME, new Style(new Color(0, 0, 128), new Color(240, 240, 240), mono));
-			scheme.setStyle(STRING, new Style(new Color(0, 127, 127), new Color(240, 240, 240)));
+			scheme.setStyle(BRACKET, new Style(new Color(0, 0, 128), new Color(230, 230, 230), monoBold));
+			scheme.setStyle(NAME, new Style(new Color(0, 0, 128), new Color(230, 230, 230), mono));
+			scheme.setStyle(STRING, new Style(new Color(0, 127, 127), new Color(230, 230, 230)));
 			scheme.setStyle(KEYWORD, new Style(new Color(0, 0, 128), null));
 			scheme.setStyle(PROPERTY, new Style(new Color(105, 0, 191), null));
 			scheme.setStyle(CONSTANT, new Style(new Color(0, 0, 255), null));
@@ -152,19 +154,19 @@ public class TableLayoutEditor extends JFrame {
 		errorText.setForeground(Color.red);
 
 		codeText.setText("[split:JSplitPane] expand fill (\n" //
-			+ "   dividerSize:25\n" //
-			+ "   setResizeWeight:0.4\n" //
-			+ "   orientation:VERTICAL_SPLIT\n" //
-			+ "   {\n" //
-			+ "      debug\n" //
-			+ "      'Table on the bottom!'\n" //
-			+ "      ---\n" //
-			+ "      [someEdit] fill\n" //
-			+ "   } bottom\n" //
-			+ "   {\n" //
-			+ "   	'Top widget'\n" //
-			+ "   	[JScrollPane] size:100,0 expand fill ([JTextArea])\n" //
-			+ "   } top\n" //
+			+ "\tdividerSize:25\n" //
+			+ "\tsetResizeWeight:0.4\n" //
+			+ "\torientation:VERTICAL_SPLIT\n" //
+			+ "\t{\n" //
+			+ "\t\tdebug\n" //
+			+ "\t\t'Table on the bottom!' width:50%\n" //
+			+ "\t\t---\n" //
+			+ "\t\t[someEdit] fill\n" //
+			+ "\t} bottom\n" //
+			+ "\t{\n" //
+			+ "\t\t'Top widget'\n" //
+			+ "\t\t[JScrollPane] expand fill ([JTextArea])\n" //
+			+ "\t} top\n" //
 			+ ")");
 		outputTable.layout.parse(codeText.getText());
 

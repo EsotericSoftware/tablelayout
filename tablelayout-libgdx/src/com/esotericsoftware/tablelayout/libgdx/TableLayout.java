@@ -79,8 +79,6 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			return new Label(null, defaultFont, (String)object);
 		}
 		if (object == null) return new Group();
-		if (object instanceof Texture) return new FastImage(null, (Texture)object);
-		if (object instanceof TextureRegion) return new FastImage(null, (TextureRegion)object);
 		return super.wrap(object);
 	}
 
@@ -88,21 +86,11 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		if (object instanceof Label) {
 			Label label = ((Label)object);
 			String value = values.get(0);
-			if (name.equals("type")) {
-				if (value.equals("multiline")) {
-					label.setMultiLineText(label.text);
-					return;
-				}
-				if (value.equals("wrapped")) {
-					HAlignment alignment = HAlignment.LEFT;
-					if (values.size() > 1) alignment = HAlignment.valueOf(values.get(1).toUpperCase());
-					label.setWrappedText(label.text, alignment);
-					return;
-				}
-				if (value.equals("singleline")) {
-					label.setText(label.text);
-					return;
-				}
+			if (name.equals("wrappedText") && values.size() > 0) {
+				HAlignment alignment = HAlignment.LEFT;
+				if (values.size() > 1) alignment = HAlignment.valueOf(values.get(1).toUpperCase());
+				label.setWrappedText((String)values.get(0), alignment);
+				return;
 			}
 			if (name.equals("font")) {
 				label.setFont(getFont(value));

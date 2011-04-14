@@ -6,11 +6,11 @@ import static com.esotericsoftware.tablelayout.BaseTableLayout.*;
 // BOZO - Methods for convenience, setPadding?
 
 public class Cell {
-	public Integer minWidth, minHeight;
-	public Integer prefWidth, prefHeight;
-	public Integer maxWidth, maxHeight;
-	public Integer spaceTop, spaceLeft, spaceBottom, spaceRight;
-	public Integer padTop, padLeft, padBottom, padRight;
+	public String minWidth, minHeight;
+	public String prefWidth, prefHeight;
+	public String maxWidth, maxHeight;
+	public String spaceTop, spaceLeft, spaceBottom, spaceRight;
+	public String padTop, padLeft, padBottom, padRight;
 	public Float fillWidth, fillHeight;
 	public Integer align;
 	public Integer expandWidth, expandHeight;
@@ -92,14 +92,14 @@ public class Cell {
 		defaults.prefHeight = PREF;
 		defaults.maxWidth = MAX;
 		defaults.maxHeight = MAX;
-		defaults.spaceTop = 0;
-		defaults.spaceLeft = 0;
-		defaults.spaceBottom = 0;
-		defaults.spaceRight = 0;
-		defaults.padTop = 0;
-		defaults.padLeft = 0;
-		defaults.padBottom = 0;
-		defaults.padRight = 0;
+		defaults.spaceTop = null;
+		defaults.spaceLeft = null;
+		defaults.spaceBottom = null;
+		defaults.spaceRight = null;
+		defaults.padTop = null;
+		defaults.padLeft = null;
+		defaults.padBottom = null;
+		defaults.padRight = null;
 		defaults.fillWidth = 0f;
 		defaults.fillHeight = 0f;
 		defaults.align = CENTER;

@@ -32,16 +32,15 @@ public class TableLayoutTokenizer extends RagelTokenMaker {
 		action property { addToken(keywords, KEYWORD, PROPERTY); }
 		action value {
 			addToken(constants, CONSTANT, VALUE);
-			try {
-				Integer.parseInt(currentToken.getLexeme());
-				currentToken.type = CONSTANT;
-			} catch (NumberFormatException ignored) {}
 		}
 		action constant { addToken(CONSTANT); }
 
 		whitespace = space* >buffer %plain;
 		string = ('\'' ^'\''*  '\''?) >buffer %string;
-		propertyValue = ('-'? (alnum | '.' | '_')+ '%'?) @0 >buffer %value | string;
+		propertyValue = 
+			('-'? (digit | '.')+ '%'?) $1 >buffer %constant |
+			(alnum | '.' | '_' | '-' | '%')+ $0 >buffer %value |
+			string;
 		property = alnum+ >buffer %property whitespace 
 			(':' @symbolChar whitespace (propertyValue (',' @symbolChar propertyValue)* )? )?;
 		structure = [{}<>]+ >buffer %structure;
