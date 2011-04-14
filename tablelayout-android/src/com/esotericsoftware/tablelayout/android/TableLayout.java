@@ -91,6 +91,16 @@ public class TableLayout extends BaseTableLayout<View> {
 		debugRects.add(new DebugRect(type, x, y, w, h));
 	}
 
+	public int width (String value) {
+		if (value != null && value.endsWith("px")) return Integer.parseInt(value.substring(0, value.length() - 2));
+		return super.width(value);
+	}
+
+	public int height (String value) {
+		if (value != null && value.endsWith("px")) return Integer.parseInt(value.substring(0, value.length() - 2));
+		return super.width(value);
+	}
+
 	public int width (float value) {
 		return (int)(value * density);
 	}
