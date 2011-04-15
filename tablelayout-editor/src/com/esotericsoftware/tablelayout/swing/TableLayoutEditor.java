@@ -19,7 +19,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 
-import org.fife.ui.autocomplete.AbstractCompletion;
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.ShorthandCompletion;
@@ -97,15 +96,6 @@ public class TableLayoutEditor extends JFrame {
 		autoCompletion.setChoicesWindowSize(200, 300);
 		autoCompletion.setAutoCompleteSingleChoices(true);
 		autoCompletion.install(codeText);
-		new AbstractCompletion(provider) {
-			public String getSummary () {
-				return null;
-			}
-
-			public String getReplacementText () {
-				return null;
-			}
-		};
 
 		RTextScrollPane codeScroll = new RTextScrollPane(codeText);
 
@@ -197,7 +187,6 @@ public class TableLayoutEditor extends JFrame {
 							ex.printStackTrace();
 
 							StringWriter buffer = new StringWriter(1024);
-							// if (ex.getCause() != null) ex = ex.getCause();
 							while (ex != null) {
 								buffer.append(ex.getMessage());
 								buffer.append('\n');
@@ -243,6 +232,11 @@ public class TableLayoutEditor extends JFrame {
 			if (name.toLowerCase().endsWith("edit")) return new JTextField();
 			if (name.toLowerCase().endsWith("button")) return new JButton("Button");
 			return new Placeholder("[" + name + "]");
+		}
+
+		protected String validateSize (String size) {
+			if (!size.equals(MIN) && !size.equals(PREF) && !size.equals(MAX)) width(size);
+			return size;
 		}
 	}
 

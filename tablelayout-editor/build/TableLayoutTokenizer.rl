@@ -35,11 +35,11 @@ public class TableLayoutTokenizer extends RagelTokenMaker {
 		}
 		action constant { addToken(CONSTANT); }
 
-		whitespace = space* >buffer %plain;
+		whitespace = (space+ >buffer %plain)?;
 		string = ('\'' ^'\''*  '\''?) >buffer %string;
 		propertyValue = 
 			('-'? (digit | '.')+ '%'?) $1 >buffer %constant |
-			(alnum | '.' | '_' | '-' | '%')+ $0 >buffer %value |
+			(alnum | '.' | '_' | '%')+ $0 >buffer %value |
 			string;
 		property = alnum+ >buffer %property whitespace 
 			(':' @symbolChar whitespace (propertyValue (',' @symbolChar propertyValue)* )? )?;

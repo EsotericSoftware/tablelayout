@@ -192,7 +192,7 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		if (debug == null || debugRects == null) return;
 		if (debugRenderer == null) debugRenderer = new ImmediateModeRenderer(64);
 
-		int x = 0, y = 0;
+		float x = 0, y = table.height;
 		Actor parent = table;
 		while (parent != null) {
 			if (parent instanceof Table) {
@@ -211,7 +211,7 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		for (int i = 0, n = debugRects.size; i < n; i++) {
 			DebugRect rect = debugRects.get(i);
 			float x1 = x + rect.x;
-			float y1 = viewHeight - (y + rect.y) - rect.height;
+			float y1 = y - rect.y - rect.height;
 			float x2 = x1 + rect.width;
 			float y2 = y1 + rect.height;
 			float r = rect.type.equals(DEBUG_CELL) ? 1 : 0;

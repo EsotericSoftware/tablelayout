@@ -200,7 +200,7 @@ action widgetProperty {
 }
 
 propertyValue =
-	((alnum | '.' | '_' |'%')+ '-'?)+ >buffer %value |
+	('-'? (alnum | '.' | '_' |'%')+) >buffer %value |
 	('\'' ^'\''* >buffer %value '\'');
 property = alnum+ >buffer %name (space* ':' space* propertyValue (',' propertyValue)* )?;
 
@@ -251,7 +251,7 @@ table = space*
 	('|' %startColumn space* (property %columnDefaultProperty (space+ property %columnDefaultProperty)* space*)? '|'? space*)*
 	(
 		# Start row and default row properties.
-		('---' %startRow space* (property %rowDefaultValue (space+ property %rowDefaultValue)* )? ) |
+		('---' %startRow space* (property %rowDefaultValue (space+ property %rowDefaultValue)* )? )? :>
 		(
 			# Cell widget.
 			space* (widget | label | startTable | startStack) %addCell space*
@@ -276,11 +276,21 @@ write exec;
 
 		if (p < pe) {
 			int lineNumber = 1;
-			for (int i = 0; i < p; i++)
-				if (data[i] == '\n') lineNumber++;
-			throw new IllegalArgumentException("Error parsing layout on line " + lineNumber + " near: " + new String(data, p, pe - p), parseRuntimeEx);
-		} else if (top > 0) 
-			throw new IllegalArgumentException("Error parsing layout (possibly an unmatched brace or quote): " + input, parseRuntimeEx);
+			int lineStartOffset = 0;
+			for (int i = 0; i < p; i++) {
+				if (data[i] == '\n') {
+					lineNumber++;
+					lineStartOffset = i;
+				}
+			}
+			ParseException ex = new ParseException("Error parsing layout on line " + lineNumber + ":" + (p - lineStartOffset)
+				+ " near: " + new String(data, p, Math.min(64, pe - p)), parseRuntimeEx);
+			ex.line = lineNumber;
+			ex.column = p - lineStartOffset;
+			throw ex;
+		} else if (top > 0)
+			throw new ParseException("Error parsing layout (possibly an unmatched brace or quote): "
+				+ new String(data, 0, Math.min(64, pe)), parseRuntimeEx);
 	}
 
 	%% write data;

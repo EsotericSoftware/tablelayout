@@ -640,6 +640,14 @@ abstract public class BaseTableLayout<T> {
 	}
 
 	/**
+	 * Validates the specified size is properly formatted. All sizes that are stored as strings pass through this method, providing
+	 * a hook to validate sizes at parse time. The default implementation just returns the specified string.
+	 */
+	protected String validateSize (String size) {
+		return size;
+	}
+
+	/**
 	 * Creates a new widget from the specified class name. This method can be overriden to create widgets using shortcut names (eg,
 	 * "button"). The default implementation creates an instance of the class and calls {@link #wrap(Object)}.
 	 * @see #addClassPrefix(String)
@@ -721,36 +729,36 @@ abstract public class BaseTableLayout<T> {
 			if (name.equals("size")) {
 				switch (values.size()) {
 				case 1:
-					width = height = values.get(0);
+					width = height = validateSize(values.get(0));
 					break;
 				case 2:
-					width = values.get(0);
-					height = values.get(1);
+					width = validateSize(values.get(0));
+					height = validateSize(values.get(1));
 					break;
 				}
 
 			} else if (name.equals("width") || name.equals("w")) {
-				width = values.get(0);
+				width = validateSize(values.get(0));
 
 			} else if (name.equals("height") || name.equals("h")) {
-				height = values.get(0);
+				height = validateSize(values.get(0));
 
 			} else if (name.equals("padding") || name.equals("pad")) {
 				switch (values.size()) {
 				case 4:
 					value = values.get(3);
-					if (value.length() > 0) padRight = value;
+					if (value.length() > 0) padRight = validateSize(value);
 				case 3:
 					value = values.get(2);
-					if (value.length() > 0) padBottom = value;
+					if (value.length() > 0) padBottom = validateSize(value);
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) padTop = value;
+					if (value.length() > 0) padTop = validateSize(value);
 					value = values.get(1);
-					if (value.length() > 0) padLeft = value;
+					if (value.length() > 0) padLeft = validateSize(value);
 					break;
 				case 1:
-					padTop = padLeft = padBottom = padRight = values.get(0);
+					padTop = padLeft = padBottom = padRight = validateSize(values.get(0));
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -759,13 +767,13 @@ abstract public class BaseTableLayout<T> {
 			} else if (name.startsWith("padding") || name.startsWith("pad")) {
 				name = name.replace("padding", "").replace("pad", "");
 				if (name.equals("top") || name.equals("t"))
-					padTop = values.get(0);
+					padTop = validateSize(values.get(0));
 				else if (name.equals("left") || name.equals("l"))
-					padLeft = values.get(0);
+					padLeft = validateSize(values.get(0));
 				else if (name.equals("bottom") || name.equals("b"))
-					padBottom = values.get(0);
+					padBottom = validateSize(values.get(0));
 				else if (name.equals("right") || name.equals("r"))
-					padRight = values.get(0);
+					padRight = validateSize(values.get(0));
 				else
 					throw new IllegalArgumentException("Unknown property.");
 
@@ -859,13 +867,13 @@ abstract public class BaseTableLayout<T> {
 				switch (values.size()) {
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = c.prefWidth = value;
+					if (value.length() > 0) c.minWidth = c.prefWidth = validateSize(value);
 					value = values.get(1);
-					if (value.length() > 0) c.minHeight = c.prefHeight = value;
+					if (value.length() > 0) c.minHeight = c.prefHeight = validateSize(value);
 					break;
 				case 1:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = c.minHeight = c.prefWidth = c.prefHeight = value;
+					if (value.length() > 0) c.minWidth = c.minHeight = c.prefWidth = c.prefHeight = validateSize(value);
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -875,13 +883,13 @@ abstract public class BaseTableLayout<T> {
 				switch (values.size()) {
 				case 3:
 					value = values.get(0);
-					if (value.length() > 0) c.maxWidth = value;
+					if (value.length() > 0) c.maxWidth = validateSize(value);
 				case 2:
 					value = values.get(1);
-					if (value.length() > 0) c.prefWidth = value;
+					if (value.length() > 0) c.prefWidth = validateSize(value);
 				case 1:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = value;
+					if (value.length() > 0) c.minWidth = validateSize(value);
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -891,13 +899,13 @@ abstract public class BaseTableLayout<T> {
 				switch (values.size()) {
 				case 3:
 					value = values.get(0);
-					if (value.length() > 0) c.maxHeight = value;
+					if (value.length() > 0) c.maxHeight = validateSize(value);
 				case 2:
 					value = values.get(1);
-					if (value.length() > 0) c.prefHeight = value;
+					if (value.length() > 0) c.prefHeight = validateSize(value);
 				case 1:
 					value = values.get(0);
-					if (value.length() > 0) c.minHeight = value;
+					if (value.length() > 0) c.minHeight = validateSize(value);
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -907,18 +915,18 @@ abstract public class BaseTableLayout<T> {
 				switch (values.size()) {
 				case 4:
 					value = values.get(3);
-					if (value.length() > 0) c.spaceRight = value;
+					if (value.length() > 0) c.spaceRight = validateSize(value);
 				case 3:
 					value = values.get(2);
-					if (value.length() > 0) c.spaceBottom = value;
+					if (value.length() > 0) c.spaceBottom = validateSize(value);
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) c.spaceTop = value;
+					if (value.length() > 0) c.spaceTop = validateSize(value);
 					value = values.get(1);
-					if (value.length() > 0) c.spaceLeft = value;
+					if (value.length() > 0) c.spaceLeft = validateSize(value);
 					break;
 				case 1:
-					c.spaceTop = c.spaceLeft = c.spaceBottom = c.spaceRight = values.get(0);
+					c.spaceTop = c.spaceLeft = c.spaceBottom = c.spaceRight = validateSize(values.get(0));
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -928,18 +936,18 @@ abstract public class BaseTableLayout<T> {
 				switch (values.size()) {
 				case 4:
 					value = values.get(3);
-					if (value.length() > 0) c.padRight = value;
+					if (value.length() > 0) c.padRight = validateSize(value);
 				case 3:
 					value = values.get(2);
-					if (value.length() > 0) c.padBottom = value;
+					if (value.length() > 0) c.padBottom = validateSize(value);
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) c.padTop = value;
+					if (value.length() > 0) c.padTop = validateSize(value);
 					value = values.get(1);
-					if (value.length() > 0) c.padLeft = value;
+					if (value.length() > 0) c.padLeft = validateSize(value);
 					break;
 				case 1:
-					c.padTop = c.padLeft = c.padBottom = c.padRight = values.get(0);
+					c.padTop = c.padLeft = c.padBottom = c.padRight = validateSize(values.get(0));
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
@@ -948,26 +956,26 @@ abstract public class BaseTableLayout<T> {
 			} else if (name.startsWith("padding") || name.startsWith("pad")) {
 				name = name.replace("padding", "").replace("pad", "");
 				if (name.equals("top") || name.equals("t"))
-					c.padTop = values.get(0);
+					c.padTop = validateSize(values.get(0));
 				else if (name.equals("left") || name.equals("l"))
-					c.padLeft = values.get(0);
+					c.padLeft = validateSize(values.get(0));
 				else if (name.equals("bottom") || name.equals("b"))
-					c.padBottom = values.get(0);
+					c.padBottom = validateSize(values.get(0));
 				else if (name.equals("right") || name.equals("r")) //
-					c.padRight = values.get(0);
+					c.padRight = validateSize(values.get(0));
 				else
 					throw new IllegalArgumentException("Unknown property.");
 
 			} else if (name.startsWith("spacing") || name.startsWith("space")) {
 				name = name.replace("spacing", "").replace("space", "");
 				if (name.equals("top") || name.equals("t"))
-					c.spaceTop = values.get(0);
+					c.spaceTop = validateSize(values.get(0));
 				else if (name.equals("left") || name.equals("l"))
-					c.spaceLeft = values.get(0);
+					c.spaceLeft = validateSize(values.get(0));
 				else if (name.equals("bottom") || name.equals("b"))
-					c.spaceBottom = values.get(0);
+					c.spaceBottom = validateSize(values.get(0));
 				else if (name.equals("right") || name.equals("r")) //
-					c.spaceRight = values.get(0);
+					c.spaceRight = validateSize(values.get(0));
 				else
 					throw new IllegalArgumentException("Unknown property.");
 
