@@ -487,14 +487,28 @@ abstract public class BaseTableLayout<T> {
 
 		// Distribute remaining space to any expanding columns/rows.
 		if (totalExpandWidth > 0) {
-			int amount = Math.max(0, tableLayoutWidth - tablePrefWidth);
-			for (int i = 0; i < columns; i++)
-				if (expandWidth[i] != 0) columnWidth[i] += amount * expandWidth[i] / totalExpandWidth;
+			int extra = Math.max(0, tableLayoutWidth - tablePrefWidth);
+			int used = 0, lastIndex = 0;
+			for (int i = 0; i < columns; i++) {
+				if (expandWidth[i] == 0) continue;
+				int amount = (int)(extra * expandWidth[i] / totalExpandWidth);
+				columnWidth[i] += amount;
+				used += amount;
+				lastIndex = i;
+			}
+			columnWidth[lastIndex] += extra - used;
 		}
 		if (totalExpandHeight > 0) {
-			int amount = Math.max(0, (int)(tableLayoutHeight - tablePrefHeight));
-			for (int i = 0; i < rows; i++)
-				if (expandHeight[i] != 0) rowHeight[i] += amount * expandHeight[i] / totalExpandHeight;
+			int extra = Math.max(0, tableLayoutHeight - tablePrefHeight);
+			int used = 0, lastIndex = 0;
+			for (int i = 0; i < rows; i++) {
+				if (expandHeight[i] == 0) continue;
+				int amount = (int)(extra * expandHeight[i] / totalExpandHeight);
+				rowHeight[i] += amount;
+				used += amount;
+				lastIndex = i;
+			}
+			rowHeight[lastIndex] += extra - used;
 		}
 
 		// Distribute any additional width added by colspanned cells evenly to the columns spanned.
@@ -590,6 +604,7 @@ abstract public class BaseTableLayout<T> {
 		currentX = x;
 		currentY = y;
 		if (debug.contains(DEBUG_TABLE) || debug.contains(DEBUG_ALL)) {
+			if (tableLayoutWidth != 0) System.out.println("XX");
 			addDebugRectangle(DEBUG_TABLE, tableLayoutX, tableLayoutY, tableLayoutWidth, tableLayoutHeight);
 			addDebugRectangle(DEBUG_TABLE, x, y, tableWidth - hpadding, tableHeight - vpadding);
 		}
