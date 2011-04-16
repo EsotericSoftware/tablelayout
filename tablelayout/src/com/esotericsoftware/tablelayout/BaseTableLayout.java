@@ -604,7 +604,6 @@ abstract public class BaseTableLayout<T> {
 		currentX = x;
 		currentY = y;
 		if (debug.contains(DEBUG_TABLE) || debug.contains(DEBUG_ALL)) {
-			if (tableLayoutWidth != 0) System.out.println("XX");
 			addDebugRectangle(DEBUG_TABLE, tableLayoutX, tableLayoutY, tableLayoutWidth, tableLayoutHeight);
 			addDebugRectangle(DEBUG_TABLE, x, y, tableWidth - hpadding, tableHeight - vpadding);
 		}

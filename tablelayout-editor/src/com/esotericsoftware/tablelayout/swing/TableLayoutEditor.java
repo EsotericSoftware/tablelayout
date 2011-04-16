@@ -241,16 +241,11 @@ public class TableLayoutEditor extends JFrame {
 	}
 
 	static public class Placeholder extends JLabel {
-		private Dimension min = new Dimension();
 		private Dimension max = new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
 		public Placeholder (String text) {
 			super(text);
 			setOpaque(true);
-		}
-
-		public Dimension getMinimumSize () {
-			return min;
 		}
 
 		public Dimension getMaximumSize () {
