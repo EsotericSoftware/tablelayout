@@ -60,6 +60,7 @@ public class TableLayoutEditor extends JFrame {
 		codeText.setSelectionColor(new Color(0xd4eaff));
 		codeText.setTextAntiAliasHint("VALUE_TEXT_ANTIALIAS_ON");
 		codeText.setTabSize(3);
+		codeText.setPaintTabLines(true);
 
 		DefaultCompletionProvider provider = new DefaultCompletionProvider();
 		provider.addCompletion(new ShorthandCompletion(provider, "debug", "debug"));
