@@ -15,6 +15,7 @@ public class TableLayoutTokenizer extends RagelTokenMaker {
 	static public final int KEYWORD = 8;
 	static public final int VALUE = 9;
 	static public final int CONSTANT = 10;
+	static public final int WHITESPACE = 11;
 
 	protected void parse (int initialTokenType) {
 		%%{
@@ -22,6 +23,7 @@ public class TableLayoutTokenizer extends RagelTokenMaker {
 
 		action buffer { s = p; }
 		action plain { addToken(PLAIN); }
+		action whitespace { addToken(WHITESPACE); }
 		action structure { addToken(STRUCTURE); }
 		action structureChar { addCharToken(STRUCTURE); }
 		action symbol { addToken(SYMBOL); }
@@ -35,18 +37,18 @@ public class TableLayoutTokenizer extends RagelTokenMaker {
 		}
 		action constant { addToken(CONSTANT); }
 
-		whitespace = (space+ >buffer %plain)?;
+		whitespace = space+ >buffer %whitespace;
 		string = ('\'' ^'\''*  '\''?) >buffer %string;
 		propertyValue = 
 			('-'? (digit | '.')+ '%'?) $1 >buffer %constant |
 			(alnum | '.' | '_' | '%')+ $0 >buffer %value |
 			string;
-		property = alnum+ >buffer %property whitespace 
-			(':' @symbolChar whitespace (propertyValue (',' @symbolChar propertyValue)* )? )?;
+		property = alnum+ >buffer %property whitespace? 
+			(':' @symbolChar whitespace? (propertyValue (',' @symbolChar propertyValue)* )? )?;
 		structure = [{}<>]+ >buffer %structure;
 		symbol = [.,*|:\-()]+ >buffer %symbol;
 		widget = '[' @bracketChar ^[\]:]* >buffer %name <:
-			whitespace ':'? @symbolChar whitespace
+			whitespace? ':'? @symbolChar whitespace?
 			# Class name.
 			<: (^[\]':{]+ >buffer %plain)?;
 
@@ -57,6 +59,7 @@ public class TableLayoutTokenizer extends RagelTokenMaker {
 			structure $1 |
 			symbol $1 |
 			property $1 |
+			whitespace $1 |
 			any+ $0 >buffer %plain
 		)**;
 

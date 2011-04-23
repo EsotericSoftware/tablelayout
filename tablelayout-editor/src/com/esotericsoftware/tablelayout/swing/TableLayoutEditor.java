@@ -119,6 +119,7 @@ public class TableLayoutEditor extends JFrame {
 			scheme.setStyle(PROPERTY, new Style(new Color(105, 0, 191), null));
 			scheme.setStyle(CONSTANT, new Style(new Color(0, 0, 255), null));
 			scheme.setStyle(VALUE, new Style(new Color(0, 127, 127), null));
+			scheme.setStyle(WHITESPACE, new Style(new Color(255, 0, 0), null));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
