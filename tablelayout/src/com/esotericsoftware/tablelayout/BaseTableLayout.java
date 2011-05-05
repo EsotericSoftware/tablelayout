@@ -896,7 +896,7 @@ abstract public class BaseTableLayout<T> {
 			} else if (name.equals("width") || name.equals("w")) {
 				switch (values.size()) {
 				case 3:
-					value = values.get(0);
+					value = values.get(2);
 					if (value.length() > 0) c.maxWidth = validateSize(value);
 				case 2:
 					value = values.get(1);
@@ -912,7 +912,7 @@ abstract public class BaseTableLayout<T> {
 			} else if (name.equals("height") || name.equals("h")) {
 				switch (values.size()) {
 				case 3:
-					value = values.get(0);
+					value = values.get(2);
 					if (value.length() > 0) c.maxHeight = validateSize(value);
 				case 2:
 					value = values.get(1);
