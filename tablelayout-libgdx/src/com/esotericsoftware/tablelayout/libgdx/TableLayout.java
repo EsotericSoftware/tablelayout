@@ -63,11 +63,11 @@ public class TableLayout extends BaseTableLayout<Actor> {
 	public Actor getWidget (String name) {
 		Actor actor = super.getWidget(name);
 		if (actor == null) {
-			actor = table.findActor(name);
-			if (actor == null) {
-				AtlasRegion region = atlas.findRegion(name);
-				if (region != null) return new Image(name, region);
-			}
+			AtlasRegion region = atlas.findRegion(name);
+			if (region != null)
+				actor = new Image(name, region);
+			else
+				actor = table.findActor(name);
 		}
 		return actor;
 	}
