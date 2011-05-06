@@ -62,13 +62,7 @@ public class TableLayout extends BaseTableLayout<Actor> {
 
 	public Actor getWidget (String name) {
 		Actor actor = super.getWidget(name);
-		if (actor == null) {
-			AtlasRegion region = atlas.findRegion(name);
-			if (region != null)
-				actor = new Image(name, region);
-			else
-				actor = table.findActor(name);
-		}
+		if (actor == null) actor = table.findActor(name);
 		return actor;
 	}
 
@@ -102,6 +96,8 @@ public class TableLayout extends BaseTableLayout<Actor> {
 	}
 
 	public Actor newWidget (String className) {
+		AtlasRegion region = atlas.findRegion(className);
+		if (region != null) return new Image(className, region);
 		if (className.equals("button")) return new Button(null);
 		return super.newWidget(className);
 	}
