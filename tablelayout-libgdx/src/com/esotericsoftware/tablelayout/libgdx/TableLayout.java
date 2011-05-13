@@ -67,6 +67,8 @@ public class TableLayout extends BaseTableLayout<Actor> {
 	}
 
 	public void layout () {
+		if (!needsLayout) return;
+
 		tableLayoutWidth = (int)table.width;
 		int height = (int)table.height;
 		tableLayoutHeight = height;
@@ -81,7 +83,11 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			actor.y = height - c.widgetY - c.widgetHeight;
 			actor.width = c.widgetWidth;
 			actor.height = c.widgetHeight;
-			if (actor instanceof Layout) ((Layout)actor).layout();
+			if (actor instanceof Layout) {
+				Layout layout = (Layout)actor;
+				layout.invalidate();
+				layout.layout();
+			}
 		}
 		needsLayout = false;
 	}
@@ -276,6 +282,13 @@ public class TableLayout extends BaseTableLayout<Actor> {
 				actor.width = width;
 				actor.height = height;
 				if (actor instanceof Layout) ((Layout)actor).layout();
+			}
+		}
+
+		public void invalidate () {
+			for (int i = 0, n = children.size(); i < n; i++) {
+				Actor actor = children.get(i);
+				if (actor instanceof Layout) ((Layout)actor).invalidate();
 			}
 		}
 

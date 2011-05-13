@@ -42,6 +42,10 @@ public class Table extends Group implements Layout {
 		layout.layout();
 	}
 
+	public void invalidate () {
+		layout.invalidate();
+	}
+
 	public float getPrefWidth () {
 		layout.tableLayoutWidth = 0;
 		layout.tableLayoutHeight = 0;
