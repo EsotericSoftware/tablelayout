@@ -68,6 +68,7 @@ public class TableLayout extends BaseTableLayout<Actor> {
 
 	public void layout () {
 		if (!needsLayout) return;
+		needsLayout = false;
 
 		tableLayoutWidth = (int)table.width;
 		int height = (int)table.height;
@@ -89,7 +90,6 @@ public class TableLayout extends BaseTableLayout<Actor> {
 				layout.layout();
 			}
 		}
-		needsLayout = false;
 	}
 
 	public Actor wrap (Object object) {
@@ -276,20 +276,25 @@ public class TableLayout extends BaseTableLayout<Actor> {
 	}
 
 	class Stack extends Group implements Layout {
+		private boolean needsLayout = true;
+
 		public void layout () {
+			if (!needsLayout) return;
+			needsLayout = false;
 			for (int i = 0, n = children.size(); i < n; i++) {
 				Actor actor = children.get(i);
 				actor.width = width;
 				actor.height = height;
-				if (actor instanceof Layout) ((Layout)actor).layout();
+				if (actor instanceof Layout) {
+					Layout layout = (Layout)actor;
+					layout.invalidate();
+					layout.layout();
+				}
 			}
 		}
 
 		public void invalidate () {
-			for (int i = 0, n = children.size(); i < n; i++) {
-				Actor actor = children.get(i);
-				if (actor instanceof Layout) ((Layout)actor).invalidate();
-			}
+			needsLayout = true;
 		}
 
 		public float getPrefWidth () {
