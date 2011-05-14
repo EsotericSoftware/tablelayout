@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+/**
+ * Base layout functionality. Subclasses must implement {@link #newTableLayout()}.
+ */
 abstract public class BaseTableLayout<T> {
 	static private final ArrayList<String> classPrefixes = new ArrayList();
 
@@ -104,7 +107,7 @@ abstract public class BaseTableLayout<T> {
 
 	/**
 	 * Sets that this table is nested under the specified parent. This allows the root table to look up widgets and cells in nested
-	 * tables, fo convenience.
+	 * tables, for convenience.
 	 */
 	public void setParent (BaseTableLayout parent) {
 		// Shared per table hierarchy.
@@ -1043,15 +1046,16 @@ abstract public class BaseTableLayout<T> {
 	/**
 	 * Interprets the specified value as a width. This can be used to scale all sizes applied to a cell, implement size units (eg,
 	 * 23px or 23em), etc. The default implementation converts to an int and calls {@link #width(float)}. Zero is used for null and
-	 * empty string. If the last character is '%', the value is converted to an int, divided by 100, and multiplied by
-	 * {@link #tableLayoutWidth}.
+	 * empty string. If the suffix is "%", the value is converted to an int, divided by 100, and multiplied by
+	 * {@link #tableLayoutWidth}. If the suffix is "px", the value is converted to int without the suffix and returned unscaled.
 	 * @param value May be null.
 	 */
 	public int width (String value) {
 		int length;
 		if (value == null || (length = value.length()) == 0) return width(0);
 		if (value.charAt(length - 1) == '%' && length > 1)
-			return width(tableLayoutWidth * Integer.parseInt(value.substring(0, length - 1)) / 100f);
+			return (int)(tableLayoutWidth * Integer.parseInt(value.substring(0, length - 1)) / 100f);
+		if (value.endsWith("px")) return Integer.parseInt(value.substring(0, value.length() - 2));
 		return width(value == null ? 0 : Integer.parseInt(value));
 	}
 
@@ -1066,15 +1070,16 @@ abstract public class BaseTableLayout<T> {
 	/**
 	 * Interprets the specified value as a height. This can be used to scale all sizes applied to a cell, implement size units (eg,
 	 * 23px or 23em), etc. The default implementation converts to an int and calls {@link #height(float)}. Zero is used for null
-	 * and empty string. If the last character is '%', the value is converted to an int, divided by 100, and multiplied by
-	 * {@link #tableLayoutHeight}.
+	 * and empty string. If the suffix is "%", the value is converted to an int, divided by 100, and multiplied by
+	 * {@link #tableLayoutHeight}. If the suffix is "px", the value is converted to int without the suffix and returned unscaled.
 	 * @param value May be null.
 	 */
 	public int height (String value) {
 		int length;
 		if (value == null || (length = value.length()) == 0) return height(0);
 		if (value.charAt(length - 1) == '%' && length > 1)
-			return height(tableLayoutHeight * Integer.parseInt(value.substring(0, length - 1)) / 100f);
+			return (int)(tableLayoutHeight * Integer.parseInt(value.substring(0, length - 1)) / 100f);
+		if (value.endsWith("px")) return Integer.parseInt(value.substring(0, value.length() - 2));
 		return height(value == null ? 0 : Integer.parseInt(value));
 	}
 

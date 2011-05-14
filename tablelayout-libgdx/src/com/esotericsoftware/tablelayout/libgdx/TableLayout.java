@@ -236,7 +236,7 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			debugRenderer.vertex(x2, y1, 0);
 
 			debugRenderer.color(r, g, b, 1);
-			debugRenderer.vertex(x2 + 1, y1, 0);
+			debugRenderer.vertex(x2, y1, 0);
 			debugRenderer.color(r, g, b, 1);
 			debugRenderer.vertex(x1, y1, 0);
 
@@ -316,7 +316,7 @@ public class TableLayout extends BaseTableLayout<Actor> {
 		final String type;
 
 		public DebugRect (String type, int x, int y, int width, int height) {
-			super(x, y, width - 1, height - 1);
+			super(x, y, width, height - 1);
 			this.type = type;
 		}
 	}
