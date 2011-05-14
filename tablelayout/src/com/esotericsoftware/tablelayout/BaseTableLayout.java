@@ -654,8 +654,10 @@ abstract public class BaseTableLayout<T> {
 	}
 
 	/**
-	 * Validates the specified size is properly formatted. All sizes that are stored as strings pass through this method, providing
-	 * a hook to validate sizes at parse time. The default implementation just returns the specified string.
+	 * Validates the specified size is properly formatted. A size is valid if it can be parsed by {@link #width(String)} and
+	 * {@link #height(String)}. All sizes that are stored as strings pass through this method, providing a hook to validate sizes
+	 * at parse time rather than layout time. The default implementation just returns the specified string. If the specified String
+	 * is invalid, an exception should be thrown.
 	 */
 	protected String validateSize (String size) {
 		return size;
@@ -1072,8 +1074,8 @@ abstract public class BaseTableLayout<T> {
 		int length;
 		if (value == null || (length = value.length()) == 0) return height(0);
 		if (value.charAt(length - 1) == '%' && length > 1)
-			return width(tableLayoutHeight * Integer.parseInt(value.substring(0, length - 1)) / 100f);
-		return width(value == null ? 0 : Integer.parseInt(value));
+			return height(tableLayoutHeight * Integer.parseInt(value.substring(0, length - 1)) / 100f);
+		return height(value == null ? 0 : Integer.parseInt(value));
 	}
 
 	/**
