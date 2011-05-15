@@ -301,14 +301,14 @@ public class TableLayout extends BaseTableLayout<Actor> {
 			float width = 0;
 			for (int i = 0, n = children.size(); i < n; i++)
 				width = Math.max(width, TableLayout.this.getPrefWidth(children.get(i)));
-			return width;
+			return width * scaleX;
 		}
 
 		public float getPrefHeight () {
 			float height = 0;
 			for (int i = 0, n = children.size(); i < n; i++)
 				height = Math.max(height, TableLayout.this.getPrefHeight(children.get(i)));
-			return height;
+			return height * scaleY;
 		}
 	}
 
