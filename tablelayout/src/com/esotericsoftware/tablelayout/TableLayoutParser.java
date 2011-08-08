@@ -26,7 +26,7 @@ class TableLayoutParser {
 		RuntimeException parseRuntimeEx = null;
 		boolean hasColon = false;
 
-		boolean debug = true;
+		boolean debug = false;
 		if (debug) System.out.println();
 
 		try {
@@ -399,19 +399,19 @@ class TableLayoutParser {
 								}
 									break;
 								case 23:
-								// line 215 "TableLayoutParser.rl"
+								// line 218 "TableLayoutParser.rl"
 								{
 									widget = null;
 									hasColon = false;
 								}
 									break;
 								case 24:
-								// line 216 "TableLayoutParser.rl"
+								// line 219 "TableLayoutParser.rl"
 								{
 									hasColon = true;
 								}
 									break;
-								// line 343 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+								// line 346 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 								}
 							}
 						}
@@ -432,7 +432,7 @@ class TableLayoutParser {
 				}
 			}
 
-			// line 275 "TableLayoutParser.rl"
+			// line 278 "TableLayoutParser.rl"
 
 		} catch (RuntimeException ex) {
 			parseRuntimeEx = ex;
@@ -457,7 +457,7 @@ class TableLayoutParser {
 				+ new String(data, 0, Math.min(64, pe)), parseRuntimeEx);
 	}
 
-	// line 363 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
+	// line 366 "../src/com/esotericsoftware/tablelayout/TableLayoutParser.java"
 	private static byte[] init__tableLayout_actions_0 () {
 		return new byte[] {0, 1, 0, 1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 1, 8, 1, 9, 1, 11, 1, 12, 1, 13, 1, 14, 1, 15, 1, 16,
 			1, 17, 1, 18, 1, 19, 1, 20, 1, 21, 1, 22, 1, 23, 2, 0, 2, 2, 0, 11, 2, 0, 13, 2, 1, 3, 2, 1, 4, 2, 1, 6, 2, 1, 8, 2, 1,
@@ -620,5 +620,5 @@ class TableLayoutParser {
 	static final int tableLayout_en_main = 1;
 	static final int tableLayout_en_main_table = 62;
 
-	// line 300 "TableLayoutParser.rl"
+	// line 303 "TableLayoutParser.rl"
 }
