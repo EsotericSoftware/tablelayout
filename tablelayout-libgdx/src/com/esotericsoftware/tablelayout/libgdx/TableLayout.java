@@ -1,3 +1,29 @@
+/*******************************************************************************
+ * Copyright (c) 2011, Nathan Sweet <nathan.sweet@gmail.com>
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the <organization> nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ******************************************************************************/
 
 package com.esotericsoftware.tablelayout.libgdx;
 
@@ -6,9 +32,13 @@ import java.util.List;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer;
+import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer10;
+import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Layout;
 import com.badlogic.gdx.scenes.scene2d.actors.Image;
 import com.badlogic.gdx.utils.Array;
@@ -16,7 +46,8 @@ import com.esotericsoftware.tablelayout.BaseTableLayout;
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.libgdx.LibgdxToolkit.DebugRect;
 
-public class TableLayout extends BaseTableLayout<Actor, Table, LibgdxToolkit> {
+/** @author Nathan Sweet */
+public class TableLayout extends BaseTableLayout<Actor, Table, TableLayout, LibgdxToolkit> {
 	/** The atlas to use to find texture regions. */
 	public TextureAtlas atlas;
 
@@ -58,8 +89,7 @@ public class TableLayout extends BaseTableLayout<Actor, Table, LibgdxToolkit> {
 		needsLayout = false;
 
 		Table table = getTable();
-		int height = (int)table.height;
-		setLayoutSize(0, 0, (int)table.width, height);
+		setLayoutSize(0, 0, (int)table.width, (int)table.height);
 
 		super.layout();
 
@@ -70,7 +100,7 @@ public class TableLayout extends BaseTableLayout<Actor, Table, LibgdxToolkit> {
 			Actor actor = (Actor)c.getWidget();
 			actor.x = c.getWidgetX();
 			int widgetHeight = c.getWidgetHeight();
-			actor.y = height - c.getWidgetY() - widgetHeight;
+			actor.y = table.height - c.getWidgetY() - widgetHeight;
 			actor.width = c.getWidgetWidth();
 			actor.height = widgetHeight;
 			if (actor instanceof Layout) {
@@ -85,26 +115,39 @@ public class TableLayout extends BaseTableLayout<Actor, Table, LibgdxToolkit> {
 		needsLayout = true;
 	}
 
-	public void drawDebug () {
-		if (getDebug() == DEBUG_NONE || debugRects == null) return;
-		if (debugRenderer == null) debugRenderer = new ImmediateModeRenderer(64);
-
-		Actor parent = getTable();
-		float x = 0, y = parent.height;
+	public void invalidateHierarchy () {
+		invalidate();
+		Actor parent = getTable().parent;
 		while (parent != null) {
-			if (parent instanceof Table) {
-				x += parent.x;
-				y += parent.y;
-			} else {
+			if (parent instanceof Layout) ((Layout)parent).invalidate();
+			parent = parent.parent;
+		}
+	}
+
+	public void drawDebug (SpriteBatch batch) {
+		if (getDebug() == DEBUG_NONE || debugRects == null) return;
+		if (debugRenderer == null) {
+			if (Gdx.graphics.isGL20Available())
+				debugRenderer = new ImmediateModeRenderer20(64, false, true, 0);
+			else
+				debugRenderer = new ImmediateModeRenderer10(64);
+		}
+
+		Table table = getTable();
+		Actor parent = table.parent;
+		float x = 0, y = 0;
+		while (parent != null) {
+			if (parent instanceof Group) {
 				x += parent.x;
 				y += parent.y;
 			}
 			parent = parent.parent;
 		}
+		y = table.y + table.height - y;
 
 		int viewHeight = Gdx.graphics.getHeight();
 
-		debugRenderer.begin(GL10.GL_LINES);
+		debugRenderer.begin(batch.getProjectionMatrix(), GL10.GL_LINES);
 		for (int i = 0, n = debugRects.size; i < n; i++) {
 			DebugRect rect = debugRects.get(i);
 			float x1 = x + rect.x;
@@ -137,7 +180,7 @@ public class TableLayout extends BaseTableLayout<Actor, Table, LibgdxToolkit> {
 
 			if (debugRenderer.getNumVertices() == 64) {
 				debugRenderer.end();
-				debugRenderer.begin(GL10.GL_LINES);
+				debugRenderer.begin(batch.getProjectionMatrix(), GL10.GL_LINES);
 			}
 		}
 		debugRenderer.end();

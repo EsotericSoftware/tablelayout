@@ -1,3 +1,29 @@
+/*******************************************************************************
+ * Copyright (c) 2011, Nathan Sweet <nathan.sweet@gmail.com>
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the <organization> nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ******************************************************************************/
 
 package com.esotericsoftware.tablelayout;
 
@@ -6,8 +32,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-/** Base layout functionality. */
-abstract public class BaseTableLayout<C, T extends C, K extends Toolkit> {
+/** Base layout functionality.
+ * @author Nathan Sweet */
+abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout, K extends Toolkit> {
 	static public final int CENTER = 1 << 0;
 	static public final int TOP = 1 << 1;
 	static public final int BOTTOM = 1 << 2;
@@ -51,6 +78,8 @@ abstract public class BaseTableLayout<C, T extends C, K extends Toolkit> {
 	}
 
 	abstract public void invalidate ();
+
+	abstract public void invalidateHierarchy ();
 
 	/** The position within it's parent and size of the widget that will be laid out. Must be set before layout. */
 	public void setLayoutSize (int tableLayoutX, int tableLayoutY, int tableLayoutWidth, int tableLayoutHeight) {
@@ -147,7 +176,7 @@ abstract public class BaseTableLayout<C, T extends C, K extends Toolkit> {
 	}
 
 	/** Gets the cell values that will be used as the defaults for all cells in the specified column. */
-	public Cell getColumnDefaults (int column) {
+	public Cell columnDefaults (int column) {
 		Cell cell = columnDefaults.size() > column ? columnDefaults.get(column) : null;
 		if (cell == null) {
 			cell = new Cell(this);
@@ -162,25 +191,30 @@ abstract public class BaseTableLayout<C, T extends C, K extends Toolkit> {
 		return cell;
 	}
 
-	/** Removes all widgets and cells from the table and resets the cell, column, and row defaults. */
-	public void clear () {
-		for (int i = cells.size() - 1; i >= 0; i--)
-			toolkit.removeChild(table, (C)cells.get(i).widget);
-		cells.clear();
-		columnDefaults.clear();
-		nameToWidget.clear();
-		widgetToCell.clear();
-		cellDefaults.set(Cell.defaults(this));
-		debug = DEBUG_NONE;
-		rows = 0;
-		columns = 0;
-		rowDefaults = null;
+	/** Removes all widgets and cells from the table and resets all table properties and cell, column, and row defaults. */
+	public void reset () {
+		clear();
 		padTop = null;
 		padLeft = null;
 		padBottom = null;
 		padRight = null;
 		align = CENTER;
 		if (debug != DEBUG_NONE) toolkit.clearDebugRectangles(this);
+		debug = DEBUG_NONE;
+		cellDefaults.set(Cell.defaults(this));
+		columnDefaults.clear();
+		rowDefaults = null;
+	}
+
+	/** Removes all widgets and cells from the table. */
+	public void clear () {
+		for (int i = cells.size() - 1; i >= 0; i--)
+			toolkit.removeChild(table, (C)cells.get(i).widget);
+		cells.clear();
+		nameToWidget.clear();
+		widgetToCell.clear();
+		rows = 0;
+		columns = 0;
 	}
 
 	/** Returns the widget with the specified name, anywhere in the table hierarchy. */
@@ -299,7 +333,7 @@ abstract public class BaseTableLayout<C, T extends C, K extends Toolkit> {
 	}
 
 	/** The cell values that will be used as the defaults for all cells. */
-	public Cell getDefaults () {
+	public Cell defaults () {
 		return cellDefaults;
 	}
 
@@ -308,167 +342,200 @@ abstract public class BaseTableLayout<C, T extends C, K extends Toolkit> {
 	}
 
 	/** The fixed size of the table. */
-	public void size (String width, String height) {
+	public L size (String width, String height) {
 		this.width = width;
 		this.height = height;
+		return (L)this;
 	}
 
 	/** The fixed width of the table, or null. */
-	public void width (String width) {
+	public L width (String width) {
 		this.width = width;
+		return (L)this;
 	}
 
 	/** The fixed height of the table, or null. */
-	public void height (String height) {
+	public L height (String height) {
 		this.height = height;
+		return (L)this;
 	}
 
 	/** The fixed size of the table. */
-	public void size (int width, int height) {
+	public L size (int width, int height) {
 		this.width = String.valueOf(width);
 		this.height = String.valueOf(height);
+		return (L)this;
 	}
 
 	/** The fixed width of the table. */
-	public void width (int width) {
+	public L width (int width) {
 		this.width = String.valueOf(width);
+		return (L)this;
 	}
 
 	/** The fixed height of the table. */
-	public void height (int height) {
+	public L height (int height) {
 		this.height = String.valueOf(height);
+		return (L)this;
 	}
 
 	/** Padding around the table. */
-	public void pad (String pad) {
+	public L pad (String pad) {
 		padTop = pad;
 		padLeft = pad;
 		padBottom = pad;
 		padRight = pad;
+		return (L)this;
 	}
 
 	/** Padding around the table. */
-	public void pad (String top, String left, String bottom, String right) {
+	public L pad (String top, String left, String bottom, String right) {
 		padTop = top;
 		padLeft = left;
 		padBottom = bottom;
 		padRight = right;
+		return (L)this;
 	}
 
 	/** Padding at the top of the table. */
-	public void padTop (String padTop) {
+	public L padTop (String padTop) {
 		this.padTop = padTop;
+		return (L)this;
 	}
 
 	/** Padding at the left of the table. */
-	public void padLeft (String padLeft) {
+	public L padLeft (String padLeft) {
 		this.padLeft = padLeft;
+		return (L)this;
 	}
 
 	/** Padding at the bottom of the table. */
-	public void padBottom (String padBottom) {
+	public L padBottom (String padBottom) {
 		this.padBottom = padBottom;
+		return (L)this;
 	}
 
 	/** Padding at the right of the table. */
-	public void padRight (String padRight) {
+	public L padRight (String padRight) {
 		this.padRight = padRight;
+		return (L)this;
 	}
 
 	/** Padding around the table. */
-	public void pad (int pad) {
+	public L pad (int pad) {
 		padTop = String.valueOf(pad);
 		padLeft = String.valueOf(pad);
 		padBottom = String.valueOf(pad);
 		padRight = String.valueOf(pad);
+		return (L)this;
 	}
 
 	/** Padding around the table. */
-	public void pad (int top, int left, int bottom, int right) {
+	public L pad (int top, int left, int bottom, int right) {
 		padTop = String.valueOf(top);
 		padLeft = String.valueOf(left);
 		padBottom = String.valueOf(bottom);
 		padRight = String.valueOf(right);
+		return (L)this;
 	}
 
 	/** Padding at the top of the table. */
-	public void padTop (int padTop) {
+	public L padTop (int padTop) {
 		this.padTop = String.valueOf(padTop);
+		return (L)this;
 	}
 
 	/** Padding at the left of the table. */
-	public void padLeft (int padLeft) {
+	public L padLeft (int padLeft) {
 		this.padLeft = String.valueOf(padLeft);
+		return (L)this;
 	}
 
 	/** Padding at the bottom of the table. */
-	public void padBottom (int padBottom) {
+	public L padBottom (int padBottom) {
 		this.padBottom = String.valueOf(padBottom);
+		return (L)this;
 	}
 
 	/** Padding at the right of the table. */
-	public void padRight (int padRight) {
+	public L padRight (int padRight) {
 		this.padRight = String.valueOf(padRight);
+		return (L)this;
 	}
 
 	/** Alignment of the table within the widget being laid out. Set to {@link #CENTER}, {@link #TOP}, {@link #BOTTOM},
 	 * {@link #LEFT}, {@link #RIGHT}, or any combination of those. */
-	public void align (int align) {
+	public L align (int align) {
 		this.align = align;
+		return (L)this;
 	}
 
 	/** Alignment of the table within the widget being laid out. Set to "center", "top", "bottom", "left", "right", or a string
 	 * containing any combination of those. */
-	public void align (String value) {
+	public L align (String value) {
 		align = 0;
 		if (value.contains("center")) align |= CENTER;
 		if (value.contains("left")) align |= LEFT;
 		if (value.contains("right")) align |= RIGHT;
 		if (value.contains("top")) align |= TOP;
 		if (value.contains("bottom")) align |= BOTTOM;
+		return (L)this;
 	}
 
 	/** Sets the alignment of the table within the widget being laid out to {@link #CENTER}. */
-	public void center () {
-		align = CENTER;
+	public L center () {
+		align |= CENTER;
+		return (L)this;
 	}
 
 	/** Sets the alignment of the table within the widget being laid out to {@link #TOP}. */
-	public void top () {
-		align = TOP;
+	public L top () {
+		align |= TOP;
+		align &= ~BOTTOM;
+		return (L)this;
 	}
 
 	/** Sets the alignment of the table within the widget being laid out to {@link #LEFT}. */
-	public void left () {
-		align = LEFT;
+	public L left () {
+		align |= LEFT;
+		align &= ~RIGHT;
+		return (L)this;
 	}
 
 	/** Sets the alignment of the table within the widget being laid out to {@link #BOTTOM}. */
-	public void bottom () {
+	public L bottom () {
 		align = BOTTOM;
+		align &= ~TOP;
+		return (L)this;
 	}
 
 	/** Sets the alignment of the table within the widget being laid out to {@link #RIGHT}. */
-	public void right () {
+	public L right () {
 		align = RIGHT;
+		align &= ~LEFT;
+		return (L)this;
 	}
 
 	/** Turns on debug lines. Set to {@value #DEBUG_ALL}, {@value #DEBUG_TABLE}, {@value #DEBUG_CELL}, {@value #DEBUG_WIDGET}, or
 	 * any combination of those. Set to {@value #DEBUG_NONE} to disable. */
-	public void debug (int debug) {
+	public L debug (int debug) {
 		this.debug = debug;
+		if (debug == DEBUG_NONE) toolkit.clearDebugRectangles(this);
+		return (L)this;
 	}
 
 	/** Turns on debug lines. Set to "all", "table", "cell", "widget", or a string containing any combination of those. Set to null
 	 * to disable. */
-	public void debug (String value) {
+	public L debug (String value) {
 		debug = 0;
-		if (value == null) return;
+		if (value == null) return (L)this;
 		if (value.equalsIgnoreCase("true")) debug |= DEBUG_ALL;
 		if (value.contains("all")) debug |= DEBUG_ALL;
 		if (value.contains("cell")) debug |= DEBUG_CELL;
 		if (value.contains("table")) debug |= DEBUG_TABLE;
 		if (value.contains("widget")) debug |= DEBUG_WIDGET;
+		if (debug == DEBUG_NONE) toolkit.clearDebugRectangles(this);
+		return (L)this;
 	}
 
 	public int getDebug () {

@@ -1,28 +1,19 @@
 
 package com.esotericsoftware.tablelayout.android;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.R;
-import android.app.Activity;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
-import android.util.DisplayMetrics;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.TextView;
 
 import com.esotericsoftware.tablelayout.BaseTableLayout;
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.android.AndroidToolkit.DebugRect;
 
-public class TableLayout extends BaseTableLayout<View, Table, AndroidToolkit> {
+public class TableLayout extends BaseTableLayout<View, Table, TableLayout, AndroidToolkit> {
 	ArrayList<View> otherChildren = new ArrayList(1);
 	ArrayList<DebugRect> debugRects;
 
@@ -72,6 +63,10 @@ public class TableLayout extends BaseTableLayout<View, Table, AndroidToolkit> {
 	}
 
 	public void invalidate () {
+		getTable().requestLayout();
+	}
+
+	public void invalidateHierarchy () {
 		getTable().requestLayout();
 	}
 

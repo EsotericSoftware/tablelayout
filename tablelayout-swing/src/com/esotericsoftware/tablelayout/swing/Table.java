@@ -8,6 +8,8 @@ import java.awt.LayoutManager;
 
 import javax.swing.JComponent;
 
+import com.esotericsoftware.tablelayout.Cell;
+
 public class Table extends JComponent {
 	private final TableLayout layout;
 
@@ -46,6 +48,26 @@ public class Table extends JComponent {
 			public void removeLayoutComponent (Component comp) {
 			}
 		});
+	}
+
+	public Cell addCell (Component actor) {
+		return layout.add(actor);
+	}
+
+	public Cell row () {
+		return layout.row();
+	}
+
+	public void parse (String tableDescription) {
+		layout.parse(tableDescription);
+	}
+
+	public Cell columnDefaults (int column) {
+		return layout.columnDefaults(column);
+	}
+
+	public Cell defaults () {
+		return layout.defaults();
 	}
 
 	public TableLayout getTableLayout () {

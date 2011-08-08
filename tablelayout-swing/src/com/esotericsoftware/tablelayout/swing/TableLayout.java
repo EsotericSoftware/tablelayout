@@ -12,7 +12,7 @@ import com.esotericsoftware.tablelayout.BaseTableLayout;
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.swing.SwingToolkit.DebugRect;
 
-public class TableLayout extends BaseTableLayout<Component, Table, SwingToolkit> {
+public class TableLayout extends BaseTableLayout<Component, Table, TableLayout, SwingToolkit> {
 	ArrayList<DebugRect> debugRects;
 
 	public TableLayout () {
@@ -45,6 +45,10 @@ public class TableLayout extends BaseTableLayout<Component, Table, SwingToolkit>
 	}
 
 	public void invalidate () {
+		getTable().validate();
+	}
+
+	public void invalidateHierarchy () {
 		getTable().invalidate();
 	}
 

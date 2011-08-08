@@ -18,11 +18,11 @@ public class AddCellTest implements ApplicationListener {
 		stage = new Stage(640, 480, false);
 
 		Table table = new Table();
-		TableLayout layout = table.getTableLayout();
-		stage.addActor(layout.getTable());
-		layout.getTable().width = 640;
-		layout.getTable().height = 480;
+		stage.addActor(table);
+		table.width = 640;
+		table.height = 480;
 
+		TableLayout layout = table.getTableLayout();
 		layout.parse("debug * fill:x expand space:15 align:top");
 		layout.add(new Label(null, LibgdxToolkit.defaultFont, "cow"));
 		layout.add(new Label(null, LibgdxToolkit.defaultFont, "meow"));
@@ -49,6 +49,6 @@ public class AddCellTest implements ApplicationListener {
 	}
 
 	public static void main (String[] args) throws Exception {
-		new LwjglApplication(new AddCellTest(), "AddCellTest", 640, 480, false);
+		new LwjglApplication(new AddCellTest(), "AddCellTest", 640, 480, true);
 	}
 }

@@ -70,7 +70,7 @@ public class NinePatchTest implements ApplicationListener {
 			+ "0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789";
 
 		// @off
-		layout.parse(""
+		layout.parse("debug"
 			+ "* fill"
 			+ "[nw] [n] [ne]"
 			+ "---"
@@ -101,6 +101,7 @@ public class NinePatchTest implements ApplicationListener {
 
 	@Override
 	public void render () {
+		((Table)stage.getActors().get(0)).invalidate();
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30.0f));
 		stage.draw();

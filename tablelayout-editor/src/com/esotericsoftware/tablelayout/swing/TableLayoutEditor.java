@@ -181,7 +181,7 @@ public class TableLayoutEditor extends JFrame {
 					public void run () {
 						System.out.println();
 						errorText.setText("");
-						outputTable.getTableLayout().clear();
+						outputTable.getTableLayout().reset();
 						SwingToolkit.debugLayouts.clear();
 						codeText.getHighlighter().removeAllHighlights();
 						try {

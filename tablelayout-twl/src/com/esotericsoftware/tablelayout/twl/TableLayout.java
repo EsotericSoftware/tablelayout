@@ -6,10 +6,9 @@ import java.util.List;
 import com.esotericsoftware.tablelayout.BaseTableLayout;
 import com.esotericsoftware.tablelayout.Cell;
 
-import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Widget;
 
-public class TableLayout extends BaseTableLayout<Widget, Table, TwlToolkit> {
+public class TableLayout extends BaseTableLayout<Widget, Table, TableLayout, TwlToolkit> {
 	public TableLayout () {
 		super(TwlToolkit.instance);
 	}
@@ -38,4 +37,7 @@ public class TableLayout extends BaseTableLayout<Widget, Table, TwlToolkit> {
 		getTable().invalidateLayout();
 	}
 
+	public void invalidateHierarchy () {
+		getTable().invalidateLayout();
+	}
 }

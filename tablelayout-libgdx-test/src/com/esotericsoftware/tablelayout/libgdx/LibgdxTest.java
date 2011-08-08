@@ -35,10 +35,11 @@ public class LibgdxTest implements ApplicationListener {
 		stage = new Stage(640, 480, false);
 
 		Table table = new Table();
-		TableLayout layout = table.getTableLayout();
 		stage.addActor(table);
 		table.width = 640;
 		table.height = 480;
+
+		TableLayout layout = table.getTableLayout();
 
 		Texture badlogic = new Texture(Gdx.files.internal("badlogic.jpg"));
 		TextureRegion badlogicRegion = new TextureRegion(badlogic, 0, 0, 256, 256);
@@ -68,6 +69,7 @@ public class LibgdxTest implements ApplicationListener {
 	}
 
 	public void render () {
+		System.out.println(stage.getRoot().height);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30.0f));
 		stage.draw();

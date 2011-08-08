@@ -3,11 +3,11 @@ package com.esotericsoftware.tablelayout.android;
 
 import java.util.List;
 
-import com.esotericsoftware.tablelayout.Cell;
-
 import android.graphics.Canvas;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.esotericsoftware.tablelayout.Cell;
 
 public class Table extends ViewGroup {
 	static private final OnHierarchyChangeListener hierarchyChangeListener = new OnHierarchyChangeListener() {
@@ -33,6 +33,26 @@ public class Table extends ViewGroup {
 		layout.setTable(this);
 		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		setOnHierarchyChangeListener(hierarchyChangeListener);
+	}
+
+	public Cell add (View view) {
+		return layout.add(view);
+	}
+
+	public Cell row () {
+		return layout.row();
+	}
+
+	public void parse (String tableDescription) {
+		layout.parse(tableDescription);
+	}
+
+	public Cell columnDefaults (int column) {
+		return layout.columnDefaults(column);
+	}
+
+	public Cell defaults () {
+		return layout.defaults();
 	}
 
 	protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec) {
