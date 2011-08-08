@@ -9,7 +9,7 @@ import java.awt.LayoutManager;
 import javax.swing.JComponent;
 
 public class Table extends JComponent {
-	public final TableLayout layout;
+	private final TableLayout layout;
 
 	public Table () {
 		this(new TableLayout());
@@ -17,22 +17,22 @@ public class Table extends JComponent {
 
 	public Table (final TableLayout layout) {
 		this.layout = layout;
-		layout.table = this;
+		layout.setTable(this);
 
 		setLayout(new LayoutManager() {
 			private Dimension minSize = new Dimension(), prefSize = new Dimension();
 
 			public Dimension preferredLayoutSize (Container parent) {
 				layout.layout(); // BOZO - Cache layout?
-				prefSize.width = layout.tableMinWidth;
-				prefSize.height = layout.tableMinHeight;
+				prefSize.width = layout.getMinWidth();
+				prefSize.height = layout.getMinHeight();
 				return prefSize;
 			}
 
 			public Dimension minimumLayoutSize (Container parent) {
 				layout.layout(); // BOZO - Cache layout?
-				minSize.width = layout.tableMinWidth;
-				minSize.height = layout.tableMinHeight;
+				minSize.width = layout.getMinWidth();
+				minSize.height = layout.getMinHeight();
 				return minSize;
 			}
 
@@ -46,5 +46,9 @@ public class Table extends JComponent {
 			public void removeLayoutComponent (Component comp) {
 			}
 		});
+	}
+
+	public TableLayout getTableLayout () {
+		return layout;
 	}
 }

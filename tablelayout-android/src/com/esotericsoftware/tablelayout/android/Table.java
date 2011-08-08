@@ -1,6 +1,8 @@
 
 package com.esotericsoftware.tablelayout.android;
 
+import java.util.List;
+
 import com.esotericsoftware.tablelayout.Cell;
 
 import android.graphics.Canvas;
@@ -18,17 +20,17 @@ public class Table extends ViewGroup {
 		}
 	};
 
-	public final TableLayout layout;
-	public boolean sizeToBackground;
+	final TableLayout layout;
+	private boolean sizeToBackground;
 
 	public Table () {
 		this(new TableLayout());
 	}
 
 	public Table (TableLayout layout) {
-		super(TableLayout.context);
+		super(AndroidToolkit.context);
 		this.layout = layout;
-		layout.table = this;
+		layout.setTable(this);
 		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		setOnHierarchyChangeListener(hierarchyChangeListener);
 	}
@@ -37,26 +39,28 @@ public class Table extends ViewGroup {
 		boolean widthUnspecified = MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.UNSPECIFIED;
 		boolean heightUnspecified = MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED;
 
-		layout.tableLayoutWidth = widthUnspecified ? 0 : MeasureSpec.getSize(widthMeasureSpec);
-		layout.tableLayoutHeight = heightUnspecified ? 0 : MeasureSpec.getSize(heightMeasureSpec);
+		layout.setLayoutSize(0, 0, //
+			widthUnspecified ? 0 : MeasureSpec.getSize(widthMeasureSpec), //
+			heightUnspecified ? 0 : MeasureSpec.getSize(heightMeasureSpec));
 
 		measureChildren(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
 			MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
 
 		// Measure GONE children to 0x0.
-		for (int i = 0, n = layout.cells.size(); i < n; i++) {
-			Cell c = layout.cells.get(i);
-			if (c.ignore) continue;
-			if (((View)c.widget).getVisibility() == GONE) {
-				((View)c.widget).measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY),
+		List<Cell> cells = layout.getCells();
+		for (int i = 0, n = cells.size(); i < n; i++) {
+			Cell c = cells.get(i);
+			if (c.getIgnore()) continue;
+			if (((View)c.getWidget()).getVisibility() == GONE) {
+				((View)c.getWidget()).measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY),
 					MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY));
 			}
 		}
 
 		layout.layout();
 
-		int measuredWidth = widthUnspecified ? layout.tableMinWidth : layout.tablePrefWidth;
-		int measuredHeight = heightUnspecified ? layout.tableMinHeight : layout.tablePrefHeight;
+		int measuredWidth = widthUnspecified ? layout.getMinWidth() : layout.getPrefWidth();
+		int measuredHeight = heightUnspecified ? layout.getMinHeight() : layout.getPrefHeight();
 
 		measuredWidth = Math.max(measuredWidth, getSuggestedMinimumWidth());
 		measuredHeight = Math.max(measuredHeight, getSuggestedMinimumHeight());
@@ -65,25 +69,24 @@ public class Table extends ViewGroup {
 	}
 
 	protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
-		layout.tableLayoutWidth = right - left;
-		layout.tableLayoutHeight = bottom - top;
+		layout.setLayoutSize(0, 0, right - left, bottom - top);
 
 		layout.layout();
 
-		if (layout.debug != null && layout.debugRects != null) {
+		if (layout.getDebug() != TableLayout.DEBUG_NONE && layout.debugRects != null) {
 			setWillNotDraw(false);
 			invalidate();
 		}
 	}
 
 	protected int getSuggestedMinimumWidth () {
-		int width = layout.tableMinWidth;
+		int width = layout.getMinWidth();
 		if (sizeToBackground && getBackground() != null) width = Math.max(width, getBackground().getMinimumWidth());
 		return width;
 	}
 
 	protected int getSuggestedMinimumHeight () {
-		int height = layout.tableMinHeight;
+		int height = layout.getMinHeight();
 		if (sizeToBackground && getBackground() != null) height = Math.max(height, getBackground().getMinimumHeight());
 		return height;
 	}
@@ -91,5 +94,13 @@ public class Table extends ViewGroup {
 	protected void dispatchDraw (Canvas canvas) {
 		super.dispatchDraw(canvas);
 		layout.drawDebug(canvas);
+	}
+
+	public void setSizeToBackground (boolean sizeToBackground) {
+		this.sizeToBackground = sizeToBackground;
+	}
+
+	public TableLayout getTableLayout () {
+		return layout;
 	}
 }

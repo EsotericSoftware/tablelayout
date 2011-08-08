@@ -9,25 +9,24 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actors.Label;
 
-// BOZO - Add support for <> special widget that lays out children same size.
-
 public class AddCellTest implements ApplicationListener {
 	private Stage stage;
 
 	public void create () {
-		TableLayout.defaultFont = new BitmapFont();
+		LibgdxToolkit.defaultFont = new BitmapFont();
 
 		stage = new Stage(640, 480, false);
 
-		TableLayout layout = new Table().layout;
+		Table table = new Table();
+		TableLayout layout = table.getTableLayout();
 		stage.addActor(layout.getTable());
 		layout.getTable().width = 640;
 		layout.getTable().height = 480;
 
 		layout.parse("debug * fill:x expand space:15 align:top");
-		layout.addCell(new Label(null, TableLayout.defaultFont, "cow"));
-		layout.addCell(new Label(null, TableLayout.defaultFont, "meow"));
-		layout.addCell(new Label(null, TableLayout.defaultFont, "moo"));
+		layout.add(new Label(null, LibgdxToolkit.defaultFont, "cow"));
+		layout.add(new Label(null, LibgdxToolkit.defaultFont, "meow"));
+		layout.add(new Label(null, LibgdxToolkit.defaultFont, "moo"));
 	}
 
 	public void render () {

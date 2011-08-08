@@ -10,27 +10,24 @@ import com.badlogic.gdx.scenes.scene2d.Layout;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
 public class Table extends Group implements Layout {
-	public final TableLayout layout;
+	private final TableLayout layout;
 
 	public Table () {
-		this(new TableLayout());
+		this(null, new TableLayout());
 	}
 
 	public Table (TableLayout layout) {
-		this.layout = layout;
-		layout.table = this;
+		this(null, layout);
 	}
 
 	public Table (String name) {
-		super(name);
-		layout = new TableLayout();
-		layout.table = this;
+		this(name, new TableLayout());
 	}
 
 	public Table (String name, TableLayout layout) {
 		super(name);
 		this.layout = layout;
-		layout.table = this;
+		layout.setTable(this);
 	}
 
 	protected void draw (SpriteBatch batch, float parentAlpha) {
@@ -47,23 +44,19 @@ public class Table extends Group implements Layout {
 	}
 
 	public float getPrefWidth () {
-		layout.tableLayoutWidth = 0;
-		layout.tableLayoutHeight = 0;
+		layout.setLayoutSize(0, 0, 0, 0);
 		layout.layout();
-		return layout.tableMinWidth;
+		return layout.getMinWidth();
 	}
 
 	public float getPrefHeight () {
-		layout.tableLayoutWidth = 0;
-		layout.tableLayoutHeight = 0;
+		layout.setLayoutSize(0, 0, 0, 0);
 		layout.layout();
-		return layout.tableMinHeight;
+		return layout.getMinHeight();
 	}
 
-	/**
-	 * Draws the debug lines for all TableLayouts in the stage. If this method is not called each frame, no debug lines will be
-	 * drawn.
-	 */
+	/** Draws the debug lines for all TableLayouts in the stage. If this method is not called each frame, no debug lines will be
+	 * drawn. */
 	static public void drawDebug (Stage stage) {
 		drawDebug(stage.getActors());
 	}
@@ -74,5 +67,9 @@ public class Table extends Group implements Layout {
 			if (actor instanceof Table) ((Table)actor).layout.drawDebug();
 			if (actor instanceof Group) drawDebug(((Group)actor).getActors());
 		}
+	}
+
+	public TableLayout getTableLayout () {
+		return layout;
 	}
 }

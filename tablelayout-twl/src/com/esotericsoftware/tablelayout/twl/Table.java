@@ -1,7 +1,6 @@
 
 package com.esotericsoftware.tablelayout.twl;
 
-import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Widget;
 
 public class Table extends Widget {
@@ -13,7 +12,7 @@ public class Table extends Widget {
 
 	public Table (TableLayout layout) {
 		this.layout = layout;
-		layout.table = this;
+		layout.setTable(this);
 		setTheme("");
 	}
 
@@ -22,26 +21,22 @@ public class Table extends Widget {
 	}
 
 	public int getMinWidth () {
-		return layout.tableMinWidth;
+		return layout.getMinWidth();
 	}
 
 	public int getMinHeight () {
-		return layout.tableMinHeight;
+		return layout.getMinHeight();
 	}
 
 	public int getPreferredWidth () {
-		return layout.tablePrefWidth;
+		return layout.getPrefWidth();
 	}
 
 	public int getPreferredHeight () {
-		return layout.tablePrefHeight;
+		return layout.getPrefHeight();
 	}
 
 	public void invalidateLayout () {
 		super.invalidateLayout();
-	}
-
-	protected void paintOverlay (GUI gui) {
-		super.paintOverlay(gui);
 	}
 }

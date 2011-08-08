@@ -127,9 +127,10 @@ public class TableLayoutEditor extends JFrame {
 		outputTable = new Table(new OutputLayout());
 
 		Table table = new Table();
-		table.layout.register("codeScroll", codeScroll);
-		table.layout.register("outputTable", outputTable);
-		table.layout.parse("padding:10 " //
+		TableLayout layout = table.getTableLayout();
+		layout.register("codeScroll", codeScroll);
+		layout.register("outputTable", outputTable);
+		layout.parse("padding:10 " //
 			+ "[JSplitPane] expand fill ( setResizeWeight:0.4 background:white"//
 			+ "{" //
 			+ "[codeScroll] size:300,0 expand fill" //
@@ -139,7 +140,7 @@ public class TableLayoutEditor extends JFrame {
 			+ "[outputTable]" //
 			+ ")");
 
-		errorText = (JTextArea)table.layout.getWidget("errorText");
+		errorText = (JTextArea)layout.getWidget("errorText");
 		errorText.setFont(Font.decode("monospaced"));
 		errorText.setWrapStyleWord(true);
 		errorText.setLineWrap(true);
@@ -160,7 +161,7 @@ public class TableLayoutEditor extends JFrame {
 			+ "\t\t[JScrollPane] expand fill ([JTextArea])\n" //
 			+ "\t} top\n" //
 			+ ")");
-		outputTable.layout.parse(codeText.getText());
+		outputTable.getTableLayout().parse(codeText.getText());
 
 		codeText.getDocument().addDocumentListener(new DocumentListener() {
 			public void removeUpdate (DocumentEvent e) {
@@ -180,11 +181,11 @@ public class TableLayoutEditor extends JFrame {
 					public void run () {
 						System.out.println();
 						errorText.setText("");
-						outputTable.layout.clear();
-						TableLayout.debugLayouts.clear();
+						outputTable.getTableLayout().clear();
+						SwingToolkit.debugLayouts.clear();
 						codeText.getHighlighter().removeAllHighlights();
 						try {
-							outputTable.layout.parse(codeText.getText());
+							outputTable.getTableLayout().parse(codeText.getText());
 						} catch (Throwable ex) {
 							ex.printStackTrace();
 
@@ -207,7 +208,7 @@ public class TableLayoutEditor extends JFrame {
 								ex = ex.getCause();
 							}
 							errorText.setText(buffer.toString());
-							outputTable.layout.clear();
+							outputTable.getTableLayout().clear();
 						}
 						outputTable.revalidate();
 						outputTable.repaint();
@@ -224,21 +225,25 @@ public class TableLayoutEditor extends JFrame {
 	}
 
 	static public class OutputLayout extends TableLayout {
+		public OutputLayout () {
+			setToolkit(new SwingToolkit() {
+				protected String validateSize (String size) {
+					if (!size.equals(MIN) && !size.equals(PREF) && !size.equals(MAX)) width(OutputLayout.this, size);
+					return size;
+				}
+			});
+		}
+
 		public Component getWidget (String name) {
 			Component widget = super.getWidget(name);
 			if (widget != null) return widget;
 			try {
-				return newWidget(name);
+				return getToolkit().newWidget(this, name);
 			} catch (Exception ignored) {
 			}
 			if (name.toLowerCase().endsWith("edit")) return new JTextField();
 			if (name.toLowerCase().endsWith("button")) return new JButton("Button");
 			return new Placeholder("[" + name + "]");
-		}
-
-		protected String validateSize (String size) {
-			if (!size.equals(MIN) && !size.equals(PREF) && !size.equals(MAX)) width(size);
-			return size;
 		}
 	}
 

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 class TableLayoutParser {
 	static public void parse (BaseTableLayout table, String input) {
+		Toolkit toolkit = table.toolkit;
+		
 		char[] data = (input + "  ").toCharArray();
 		int cs, p = 0, pe = data.length, eof = pe, top = 0;
 		int[] stack = new int[4];
@@ -48,13 +50,13 @@ action value {
 }
 action tableProperty {
 	if (debug) System.out.println("tableProperty: " + name + " = " + values);
-	((BaseTableLayout)parent).setTableProperty(name, values);
+	toolkit.setTableProperty((BaseTableLayout)parent, name, values);
 	values.clear();
 	name = null;
 }
 action cellDefaultProperty {
 	if (debug) System.out.println("cellDefaultProperty: " + name + " = " + values);
-	table.setCellProperty(((BaseTableLayout)parent).cellDefaults, name, values);
+	toolkit.setCellProperty(((BaseTableLayout)parent).getDefaults(), name, values);
 	values.clear();
 	name = null;
 }
@@ -63,23 +65,23 @@ action startColumn {
 }
 action columnDefaultProperty {
 	if (debug) System.out.println("columnDefaultProperty: " + name + " = " + values);
-	table.setCellProperty(columnDefaults, name, values);
+	toolkit.setCellProperty(columnDefaults, name, values);
 	values.clear();
 	name = null;
 }
 action startRow {
 	if (debug) System.out.println("startRow");
-	rowDefaults = ((BaseTableLayout)parent).startRow();
+	rowDefaults = ((BaseTableLayout)parent).row();
 }
 action rowDefaultValue {
 	if (debug) System.out.println("rowDefaultValue: " + name + " = " + values);
-	table.setCellProperty(rowDefaults, name, values);
+	toolkit.setCellProperty(rowDefaults, name, values);
 	values.clear();
 	name = null;
 }
 action cellProperty {
 	if (debug) System.out.println("cellProperty: " + name + " = " + values);
-	table.setCellProperty(cell, name, values);
+	toolkit.setCellProperty(cell, name, values);
 	values.clear();
 	name = null;
 }
@@ -97,23 +99,23 @@ action newWidget {
 	} else if (className == null) {
 		if (name.length() > 0) {
 			if (hasColon) { // [name:]
-				widget = table.wrap(null);
+				widget = toolkit.wrap(null);
 				table.register(name, widget);
 			} else { // [name]
 				widget = table.getWidget(name);
 				if (widget == null) {
 					// Try the widget name as a class name.
 					try {
-						widget = table.newWidget(name);
+						widget = toolkit.newWidget(table, name);
 					} catch (RuntimeException ex) {
 						throw new IllegalArgumentException("Widget not found with name: " + name);
 					}
 				}
 			}
 		} else // []
-			widget = table.wrap(null);
+			widget = toolkit.wrap(null);
 	} else { // [:class] and [name:class]
-		widget = table.newWidget(className);
+		widget = toolkit.newWidget(table, className);
 		if (name.length() > 0) table.register(name, widget);
 	}
 	name = null;
@@ -121,7 +123,7 @@ action newWidget {
 }
 action newLabel {
 	if (debug) System.out.println("newLabel: " + new String(data, s, p - s));
-	widget = table.wrap(new String(data, s, p - s));
+	widget = toolkit.wrap(new String(data, s, p - s));
 }
 action startTable {
 	if (debug) System.out.println("startTable, name:" + name);
@@ -135,7 +137,8 @@ action startTable {
 		}
 	}
 	if (parentTable == null) parentTable = table;
-	parent = parentTable.newTableLayout();
+	parent = toolkit.getLayout(toolkit.newTable(parentTable.getTable()));
+	((BaseTableLayout)parent).setParent(parentTable);
 	if (name != null) { // [name:{}]
 		table.register(name, ((BaseTableLayout)parent).getTable());
 		name = null;
@@ -155,7 +158,7 @@ action endTable {
 action startStack {
 	if (debug) System.out.println("startStack, name:" + name);
 	parents.add(parent);
-	parent = table.newStack();
+	parent = toolkit.newStack();
 	if (name != null) { // [name:<>]
 		table.register(name, parent);
 		name = null;
@@ -185,16 +188,19 @@ action endWidgetSection {
 }
 action addCell {
 	if (debug) System.out.println("addCell");
-	cell = ((BaseTableLayout)parent).addCell(table.wrap(widget));
+	cell = ((BaseTableLayout)parent).add(toolkit.wrap(widget));
 }
 action addWidget {
 	if (debug) System.out.println("addWidget");
-	table.addChild(parent, table.wrap(widget), widgetLayoutString);
+	toolkit.addChild(parent, toolkit.wrap(widget), widgetLayoutString);
 	widgetLayoutString = null;
 }
 action widgetProperty {
 	if (debug) System.out.println("widgetProperty: " + name + " = " + values);
-	table.setProperty(parent, name, values);
+	Object propertyTarget = parent;
+	if (parent instanceof BaseTableLayout)
+		propertyTarget = ((BaseTableLayout)parent).getTable();
+	toolkit.setProperty(table, propertyTarget, name, values);
 	values.clear();
 	name = null;
 }

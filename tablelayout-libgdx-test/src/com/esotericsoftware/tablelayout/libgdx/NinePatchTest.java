@@ -14,13 +14,15 @@ import com.badlogic.gdx.scenes.scene2d.actors.Image;
 public class NinePatchTest implements ApplicationListener {
 	private Stage stage;
 
-	@Override public void create () {
-		TableLayout.defaultFont = new BitmapFont();
+	@Override
+	public void create () {
+		LibgdxToolkit.defaultFont = new BitmapFont();
 
 		stage = new Stage(800, 600, false);
 
-		TableLayout layout = new Table().layout;
-		stage.addActor(layout.getTable());
+		Table table = new Table();
+		TableLayout layout = table.getTableLayout();
+		stage.addActor(table);
 		layout.getTable().width = 800;
 		layout.getTable().height = 600;
 
@@ -70,12 +72,16 @@ public class NinePatchTest implements ApplicationListener {
 		// @off
 		layout.parse(""
 			+ "* fill"
-			+ "[sw] [s] [se]"
+			+ "[nw] [n] [ne]"
 			+ "---"
 			+ "[w]"
 			+ "<"
 			+ "   [bg]"
 			+ "   { debug:widgets"
+			+ "      'headerBg' fill:x"
+			+ "      ---"
+			+ "      'Content content content content content content.' fill expand (valign:top)"
+			+ "      ---"
 			+ "      <"
 			+ "         [footerBg]"
 			+ "         [footerLayout:{"
@@ -83,37 +89,38 @@ public class NinePatchTest implements ApplicationListener {
 			+ "            <[buttonBg] 'Button Text'>"
 			+ "         }]"
 			+ "      > fill:x"
-			+ "      ---"
-			+ "      'Content\nMultiple lines\nof content.\n" + longText + "' fill expand (type:wrapped,left valign:top)"
-			+ "      ---"
-			+ "      'headerBg' fill:x"
 			+ "   }"
 			+ "> expand"
 			+ "[e]"
 			+ "---"
-			+ "[nw] [n] [ne]"
+			+ "[sw] [s] [se]"
 		);
 		// @on
 
 	}
 
-	@Override public void render () {
+	@Override
+	public void render () {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30.0f));
 		stage.draw();
 		Table.drawDebug(stage);
 	}
 
-	@Override public void resize (int width, int height) {
+	@Override
+	public void resize (int width, int height) {
 	}
 
-	@Override public void resume () {
+	@Override
+	public void resume () {
 	}
 
-	@Override public void pause () {
+	@Override
+	public void pause () {
 	}
 
-	@Override public void dispose () {
+	@Override
+	public void dispose () {
 	}
 
 	public static void main (String[] args) throws Exception {

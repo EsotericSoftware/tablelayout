@@ -25,19 +25,20 @@ public class LibgdxTest implements ApplicationListener {
 	private Stage stage;
 
 	public void create () {
-		TableLayout.defaultFont = new BitmapFont();
+		LibgdxToolkit.defaultFont = new BitmapFont();
 
 		BitmapFont largeFont = new BitmapFont();
 		largeFont.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		largeFont.scale(1);
-		TableLayout.registerFont("large", largeFont);
+		LibgdxToolkit.registerFont("large", largeFont);
 
 		stage = new Stage(640, 480, false);
 
-		TableLayout layout = new Table().layout;
-		stage.addActor(layout.getTable());
-		layout.getTable().width = 640;
-		layout.getTable().height = 480;
+		Table table = new Table();
+		TableLayout layout = table.getTableLayout();
+		stage.addActor(table);
+		table.width = 640;
+		table.height = 480;
 
 		Texture badlogic = new Texture(Gdx.files.internal("badlogic.jpg"));
 		TextureRegion badlogicRegion = new TextureRegion(badlogic, 0, 0, 256, 256);
