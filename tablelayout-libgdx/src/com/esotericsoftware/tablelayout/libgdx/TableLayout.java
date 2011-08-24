@@ -143,6 +143,7 @@ public class TableLayout extends BaseTableLayout<Actor, Table, TableLayout, Libg
 			}
 			parent = parent.parent;
 		}
+		x += table.x;
 		y = table.y + table.height - y;
 
 		int viewHeight = Gdx.graphics.getHeight();

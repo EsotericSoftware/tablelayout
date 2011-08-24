@@ -63,7 +63,7 @@ public class LibgdxTest implements ApplicationListener {
 			+ "'Sweet' (text:'Moo!!!!!!!!!!.')" //
 			+ "'Moo' (font:large)" //
 			+ "---" //
-			+ "{'Hi' 'and stuff'} align:bottom,right" //
+			+ "{debug 'Hi' 'and stuff'} align:bottom,right" //
 			+ "[image1]" //
 		);
 	}
