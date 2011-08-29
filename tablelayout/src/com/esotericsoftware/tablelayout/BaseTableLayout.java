@@ -181,7 +181,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		if (cell == null) {
 			cell = new Cell(this);
 			cell.set(cellDefaults);
-			if (column <= columnDefaults.size()) {
+			if (column >= columnDefaults.size()) {
 				for (int i = columnDefaults.size(); i < column; i++)
 					columnDefaults.add(null);
 				columnDefaults.add(cell);
@@ -191,7 +191,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return cell;
 	}
 
-	/** Removes all widgets and cells from the table and resets all table properties and cell, column, and row defaults. */
+	/** Removes all widgets and cells from the table (same as {@link #clear()}) and additionally resets all table properties and
+	 * cell, column, and row defaults. */
 	public void reset () {
 		clear();
 		padTop = null;
@@ -513,6 +514,12 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	public L right () {
 		align |= RIGHT;
 		align &= ~LEFT;
+		return (L)this;
+	}
+
+	/** Turns on all debug lines. */
+	public L debug () {
+		this.debug = DEBUG_ALL;
 		return (L)this;
 	}
 
