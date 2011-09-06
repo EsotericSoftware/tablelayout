@@ -520,6 +520,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	/** Turns on all debug lines. */
 	public L debug () {
 		this.debug = DEBUG_ALL;
+		invalidate();
 		return (L)this;
 	}
 
@@ -527,7 +528,10 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	 * any combination of those. Set to {@value #DEBUG_NONE} to disable. */
 	public L debug (int debug) {
 		this.debug = debug;
-		if (debug == DEBUG_NONE) toolkit.clearDebugRectangles(this);
+		if (debug == DEBUG_NONE)
+			toolkit.clearDebugRectangles(this);
+		else
+			invalidate();
 		return (L)this;
 	}
 
@@ -541,7 +545,10 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		if (value.contains("cell")) debug |= DEBUG_CELL;
 		if (value.contains("table")) debug |= DEBUG_TABLE;
 		if (value.contains("widget")) debug |= DEBUG_WIDGET;
-		if (debug == DEBUG_NONE) toolkit.clearDebugRectangles(this);
+		if (debug == DEBUG_NONE)
+			toolkit.clearDebugRectangles(this);
+		else
+			invalidate();
 		return (L)this;
 	}
 
