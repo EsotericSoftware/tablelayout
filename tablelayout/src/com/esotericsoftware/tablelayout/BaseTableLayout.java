@@ -34,7 +34,7 @@ import java.util.Map.Entry;
 
 /** Base layout functionality.
  * @author Nathan Sweet */
-abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout, K extends Toolkit> {
+abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout, K extends Toolkit<C, T, L>> {
 	static public final int CENTER = 1 << 0;
 	static public final int TOP = 1 << 1;
 	static public final int BOTTOM = 1 << 2;
@@ -155,6 +155,13 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return cell;
 	}
 
+	public Cell<C> stack (C... widgets) { // BOZO - Add column description parsing.
+		C stack = toolkit.newStack();
+		for (int i = 0, n = widgets.length; i < n; i++)
+			toolkit.addChild(stack, widgets[i], null);
+		return add(stack);
+	}
+
 	/** Indicates that subsequent cells should be added to a new row and returns the cell values that will be used as the defaults
 	 * for all cells in the new row. */
 	public Cell row () {
@@ -200,7 +207,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		padBottom = null;
 		padRight = null;
 		align = CENTER;
-		if (debug != DEBUG_NONE) toolkit.clearDebugRectangles(this);
+		if (debug != DEBUG_NONE) toolkit.clearDebugRectangles((L)this);
 		debug = DEBUG_NONE;
 		cellDefaults.set(Cell.defaults(this));
 		columnDefaults.clear();
@@ -529,7 +536,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	public L debug (int debug) {
 		this.debug = debug;
 		if (debug == DEBUG_NONE)
-			toolkit.clearDebugRectangles(this);
+			toolkit.clearDebugRectangles((L)this);
 		else
 			invalidate();
 		return (L)this;
@@ -546,7 +553,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		if (value.contains("table")) debug |= DEBUG_TABLE;
 		if (value.contains("widget")) debug |= DEBUG_WIDGET;
 		if (debug == DEBUG_NONE)
-			toolkit.clearDebugRectangles(this);
+			toolkit.clearDebugRectangles((L)this);
 		else
 			invalidate();
 		return (L)this;
@@ -727,8 +734,10 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
-			if (c.uniformX != null) uniformMaxWidth = Math.max(uniformMaxWidth, columnWidth[c.column]);
-			if (c.uniformY != null) uniformMaxHeight = Math.max(uniformMaxHeight, rowHeight[c.row]);
+			if (c.uniformX != null)
+				uniformMaxWidth = Math.max(uniformMaxWidth, columnWidth[c.column] - c.padLeftTemp - c.padRightTemp);
+			if (c.uniformY != null)
+				uniformMaxHeight = Math.max(uniformMaxHeight, rowHeight[c.row] - c.padTopTemp - c.padBottomTemp);
 		}
 		if (uniformMaxWidth > 0 || uniformMaxHeight > 0) {
 			outer:
@@ -736,17 +745,19 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				Cell c = cells.get(i);
 				if (c.ignore) continue;
 				if (uniformMaxWidth > 0 && c.uniformX != null) {
-					int diff = uniformMaxWidth - columnWidth[c.column];
+					int tempPadding = c.padLeftTemp + c.padRightTemp;
+					int diff = uniformMaxWidth - (columnWidth[c.column] - tempPadding);
 					if (diff > 0) {
-						columnWidth[c.column] = uniformMaxWidth;
+						columnWidth[c.column] = uniformMaxWidth + tempPadding;
 						tableMinWidth += diff;
 						tablePrefWidth += diff;
 					}
 				}
 				if (uniformMaxHeight > 0 && c.uniformY != null) {
-					int diff = uniformMaxHeight - rowHeight[c.row];
+					int tempPadding = c.padTopTemp + c.padBottomTemp;
+					int diff = uniformMaxHeight - (rowHeight[c.row] - tempPadding);
 					if (diff > 0) {
-						rowHeight[c.row] = uniformMaxHeight;
+						rowHeight[c.row] = uniformMaxHeight + tempPadding;
 						tableMinHeight += diff;
 						tablePrefHeight += diff;
 					}
