@@ -230,7 +230,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return nameToWidget.get(name.toLowerCase());
 	}
 
-	/** Returns all widgets, anywhere in the table hierarchy. */
+	/** Returns all named widgets, anywhere in the table hierarchy. */
 	public List<C> getWidgets () {
 		return new ArrayList(nameToWidget.values());
 	}
