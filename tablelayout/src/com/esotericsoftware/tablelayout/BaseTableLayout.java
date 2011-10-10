@@ -624,8 +624,12 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			int prefHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.prefHeight);
 			int minWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.minWidth);
 			int minHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.minHeight);
+			int maxWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.maxWidth);
+			int maxHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.maxHeight);
 			if (prefWidth < minWidth) prefWidth = minWidth;
 			if (prefHeight < minHeight) prefHeight = minHeight;
+			if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth;
+			if (maxHeight > 0 && prefHeight > maxHeight) prefHeight = maxHeight;
 
 			if (c.colspan == 1) {
 				int hpadding = c.padLeftTemp + c.padRightTemp;
@@ -718,8 +722,12 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			int prefHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.prefHeight);
 			int minWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.minWidth);
 			int minHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.minHeight);
+			int maxWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.maxWidth);
+			int maxHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.maxHeight);
 			if (prefWidth < minWidth) prefWidth = minWidth;
 			if (prefHeight < minHeight) prefHeight = minHeight;
+			if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth;
+			if (maxHeight > 0 && prefHeight > maxHeight) prefHeight = maxHeight;
 
 			c.widgetWidth = Math.min(spannedCellMaxWidth, prefWidth);
 			c.widgetHeight = Math.min(rowMaxHeight[c.row] - c.padTopTemp - c.padBottomTemp, prefHeight);
