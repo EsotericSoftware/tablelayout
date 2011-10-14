@@ -81,10 +81,8 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 	}
 
 	public void setWidget (L layout, Cell cell, C widget) {
-		if (widget != null) {
-			removeChild((T)layout.table, widget);
-			layout.widgetToCell.remove(widget);
-		}
+		removeChild((T)layout.table, (C)cell.widget);
+		layout.widgetToCell.remove(cell.widget);
 		cell.widget = widget;
 		layout.nameToWidget.put(cell.name, widget);
 		layout.widgetToCell.put(widget, cell);
