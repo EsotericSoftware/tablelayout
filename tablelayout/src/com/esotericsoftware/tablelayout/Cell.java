@@ -154,6 +154,30 @@ public class Cell<C> {
 		return this;
 	}
 
+	public Cell width (String width) {
+		minWidth = width;
+		prefWidth = width;
+		maxWidth = width;
+		return this;
+	}
+
+	public Cell width (int width) {
+		width(String.valueOf(width));
+		return this;
+	}
+
+	public Cell height (String height) {
+		minHeight = height;
+		prefHeight = height;
+		maxHeight = height;
+		return this;
+	}
+
+	public Cell height (int height) {
+		height(String.valueOf(height));
+		return this;
+	}
+
 	public Cell minSize (String size) {
 		minWidth = size;
 		minHeight = size;
