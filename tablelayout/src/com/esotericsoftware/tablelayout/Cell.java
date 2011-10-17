@@ -124,9 +124,45 @@ public class Cell<C> {
 		return widget;
 	}
 
+	public Cell size (String size) {
+		minWidth = size;
+		minHeight = size;
+		prefWidth = size;
+		prefHeight = size;
+		maxWidth = size;
+		maxHeight = size;
+		return this;
+	}
+
+	public Cell size (String width, String height) {
+		minWidth = width;
+		minHeight = height;
+		prefWidth = width;
+		prefHeight = height;
+		maxWidth = width;
+		maxHeight = height;
+		return this;
+	}
+
+	public Cell size (int size) {
+		size(String.valueOf(size));
+		return this;
+	}
+
+	public Cell size (int width, int height) {
+		size(String.valueOf(width), String.valueOf(height));
+		return this;
+	}
+
 	public Cell minSize (String size) {
 		minWidth = size;
 		minHeight = size;
+		return this;
+	}
+
+	public Cell minSize (String width, String height) {
+		minWidth = width;
+		minHeight = height;
 		return this;
 	}
 
@@ -146,6 +182,12 @@ public class Cell<C> {
 		return this;
 	}
 
+	public Cell minSize (int width, int height) {
+		minWidth = String.valueOf(width);
+		minHeight = String.valueOf(height);
+		return this;
+	}
+
 	public Cell minWidth (int minWidth) {
 		this.minWidth = String.valueOf(minWidth);
 		return this;
@@ -162,6 +204,12 @@ public class Cell<C> {
 		return this;
 	}
 
+	public Cell prefSize (String width, String height) {
+		prefWidth = width;
+		prefHeight = height;
+		return this;
+	}
+
 	public Cell prefWidth (String prefWidth) {
 		this.prefWidth = prefWidth;
 		return this;
@@ -169,6 +217,12 @@ public class Cell<C> {
 
 	public Cell prefHeight (String prefHeight) {
 		this.prefHeight = prefHeight;
+		return this;
+	}
+
+	public Cell prefSize (int width, int height) {
+		prefWidth = String.valueOf(width);
+		prefHeight = String.valueOf(height);
 		return this;
 	}
 
@@ -194,6 +248,12 @@ public class Cell<C> {
 		return this;
 	}
 
+	public Cell maxSize (String width, String height) {
+		maxWidth = width;
+		maxHeight = height;
+		return this;
+	}
+
 	public Cell maxWidth (String maxWidth) {
 		this.maxWidth = maxWidth;
 		return this;
@@ -207,6 +267,12 @@ public class Cell<C> {
 	public Cell maxSize (int size) {
 		maxWidth = String.valueOf(size);
 		maxHeight = String.valueOf(size);
+		return this;
+	}
+
+	public Cell maxSize (int width, int height) {
+		maxWidth = String.valueOf(width);
+		maxHeight = String.valueOf(height);
 		return this;
 	}
 

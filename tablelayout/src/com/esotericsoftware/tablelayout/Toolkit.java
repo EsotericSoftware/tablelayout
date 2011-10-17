@@ -234,24 +234,34 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 				else
 					throw new IllegalArgumentException("Unknown property.");
 
-			} else if (name.equals("align")) {
-				int align = 0;
+			} else if (name.equals("center"))
+				layout.align |= CENTER;
+			else if (name.equals("left"))
+				layout.align |= LEFT;
+			else if (name.equals("right"))
+				layout.align |= RIGHT;
+			else if (name.equals("top"))
+				layout.align |= TOP;
+			else if (name.equals("bottom"))
+				layout.align |= BOTTOM;
+
+			else if (name.equals("align")) {
+				layout.align = 0;
 				for (int i = 0, n = values.size(); i < n; i++) {
 					value = values.get(i);
 					if (value.equals("center"))
-						align |= CENTER;
+						layout.align |= CENTER;
 					else if (value.equals("left"))
-						align |= LEFT;
+						layout.align |= LEFT;
 					else if (value.equals("right"))
-						align |= RIGHT;
+						layout.align |= RIGHT;
 					else if (value.equals("top"))
-						align |= TOP;
+						layout.align |= TOP;
 					else if (value.equals("bottom"))
-						align |= BOTTOM;
+						layout.align |= BOTTOM;
 					else
 						throw new IllegalArgumentException("Invalid value: " + value);
 				}
-				layout.align = align;
 
 			} else if (name.equals("debug")) {
 				int debug = 0;
@@ -440,7 +450,18 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 				else
 					throw new IllegalArgumentException("Unknown property.");
 
-			} else if (name.equals("align")) {
+			} else if (name.equals("center"))
+				c.align |= CENTER;
+			else if (name.equals("left"))
+				c.align |= LEFT;
+			else if (name.equals("right"))
+				c.align |= RIGHT;
+			else if (name.equals("top"))
+				c.align |= TOP;
+			else if (name.equals("bottom"))
+				c.align |= BOTTOM;
+
+			else if (name.equals("align")) {
 				c.align = 0;
 				for (int i = 0, n = values.size(); i < n; i++) {
 					value = values.get(i);

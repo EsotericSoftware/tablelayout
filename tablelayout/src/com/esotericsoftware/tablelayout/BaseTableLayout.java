@@ -65,6 +65,9 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	private int layoutX, layoutY;
 	private int layoutWidth, layoutHeight;
 
+	private boolean sizeInvalid = true;
+	private int[] columnMinWidth, rowMinHeight;
+	private int[] columnPrefWidth, rowPrefHeight;
 	private int tableMinWidth, tableMinHeight;
 	private int tablePrefWidth, tablePrefHeight;
 
@@ -77,7 +80,9 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		this.toolkit = toolkit;
 	}
 
-	abstract public void invalidate ();
+	public void invalidate () {
+		sizeInvalid = true;
+	}
 
 	abstract public void invalidateHierarchy ();
 
@@ -320,23 +325,27 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return layoutHeight;
 	}
 
-	/** The minimum width of the table. Available after laying out. */
+	/** The minimum width of the table. */
 	public int getMinWidth () {
+		if (sizeInvalid) computeSize();
 		return tableMinWidth;
 	}
 
-	/** The minimum size of the table. Available after laying out. */
+	/** The minimum size of the table. */
 	public int getMinHeight () {
+		if (sizeInvalid) computeSize();
 		return tableMinHeight;
 	}
 
-	/** The preferred width of the table. May be dependent on {@link #layoutWidth}. Available after laying out. */
+	/** The preferred width of the table. */
 	public int getPrefWidth () {
+		if (sizeInvalid) computeSize();
 		return tablePrefWidth;
 	}
 
-	/** The preferred height of the table. May be dependent on {@link #layoutHeight}. Available after laying out. */
+	/** The preferred height of the table. */
 	public int getPrefHeight () {
+		if (sizeInvalid) computeSize();
 		return tablePrefHeight;
 	}
 
@@ -591,18 +600,27 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return align;
 	}
 
-	/** Positions and sizes children of the widget being laid out using the cell associated with each child. */
-	public void layout () {
+	private int[] ensureSize (int[] array, int size) {
+		if (array == null || array.length < size) return new int[size];
+		for (int i = 0, n = array.length; i < n; i++)
+			array[i] = 0;
+		return array;
+	}
+
+	private void computeSize () {
+		sizeInvalid = false;
+
 		Toolkit toolkit = this.toolkit;
 		ArrayList<Cell> cells = this.cells;
 
 		if (cells.size() > 0 && !cells.get(cells.size() - 1).endRow) endRow();
 
+		columnMinWidth = ensureSize(columnMinWidth, columns);
+		rowMinHeight = ensureSize(rowMinHeight, rows);
+		columnPrefWidth = ensureSize(columnPrefWidth, columns);
+		rowPrefHeight = ensureSize(rowPrefHeight, rows);
+
 		// Determine minimum and preferred cell sizes. Also compute the combined padding/spacing for each cell.
-		int[] columnMinWidth = new int[columns];
-		int[] rowMinHeight = new int[rows];
-		int[] columnPrefWidth = new int[columns];
-		int[] rowPrefHeight = new int[rows];
 		int spaceRightLast = 0;
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
@@ -662,7 +680,21 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		tableMinHeight = Math.max(tableMinHeight + vpadding, height);
 		tablePrefWidth = Math.max(tablePrefWidth + hpadding, tableMinWidth);
 		tablePrefHeight = Math.max(tablePrefHeight + vpadding, tableMinHeight);
+	}
 
+	/** Positions and sizes children of the widget being laid out using the cell associated with each child. */
+	public void layout () {
+		Toolkit toolkit = this.toolkit;
+		ArrayList<Cell> cells = this.cells;
+
+		if (sizeInvalid) computeSize();
+
+		int hpadding = toolkit.width(this, padLeft) + toolkit.width(this, padRight);
+		int vpadding = toolkit.height(this, padTop) + toolkit.height(this, padBottom);
+		int width = toolkit.width(this, this.width) - hpadding;
+		int height = toolkit.height(this, this.height) - vpadding;
+
+		// Size columns and rows between min and pref size.
 		int[] columnMaxWidth;
 		int tableLayoutWidth = this.layoutWidth;
 		int totalGrowWidth = tablePrefWidth - tableMinWidth;
