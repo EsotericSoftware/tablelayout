@@ -25,10 +25,10 @@ public class TwlToolkit extends Toolkit<Widget, Table, TableLayout> {
 		parent.removeChild(child);
 	}
 
-	public Widget wrap (Object object) {
+	public Widget wrap (TableLayout layout, Object object) {
 		if (object instanceof String) return new Label((String)object);
 		if (object == null) return new Widget();
-		return super.wrap(object);
+		return super.wrap(layout, object);
 	}
 
 	public Widget newStack () {

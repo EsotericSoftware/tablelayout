@@ -113,7 +113,7 @@ action newWidget {
 				}
 			}
 		} else // []
-			widget = toolkit.wrap(null);
+			widget = toolkit.wrap(table, null);
 	} else { // [:class] and [name:class]
 		widget = toolkit.newWidget(table, className);
 		if (name.length() > 0) table.register(name, widget);
@@ -123,7 +123,7 @@ action newWidget {
 }
 action newLabel {
 	if (debug) System.out.println("newLabel: " + new String(data, s, p - s));
-	widget = toolkit.wrap(new String(data, s, p - s));
+	widget = toolkit.wrap(table, new String(data, s, p - s));
 }
 action startTable {
 	if (debug) System.out.println("startTable, name:" + name);
@@ -188,11 +188,11 @@ action endWidgetSection {
 }
 action addCell {
 	if (debug) System.out.println("addCell");
-	cell = ((BaseTableLayout)parent).add(toolkit.wrap(widget));
+	cell = ((BaseTableLayout)parent).add(toolkit.wrap(table, widget));
 }
 action addWidget {
 	if (debug) System.out.println("addWidget");
-	toolkit.addChild(parent, toolkit.wrap(widget), widgetLayoutString);
+	toolkit.addChild(parent, toolkit.wrap(table, widget), widgetLayoutString);
 	widgetLayoutString = null;
 }
 action widgetProperty {
@@ -270,7 +270,7 @@ table = space*
 	space* '}' @endTable;
 
 main := 
-	space* '{'? <: table space*
+	space* '{'? <: table space* startWidgetSection? space*
 ;
 
 write init;

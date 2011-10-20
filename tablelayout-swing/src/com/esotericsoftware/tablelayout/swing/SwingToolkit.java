@@ -46,11 +46,11 @@ public class SwingToolkit extends Toolkit<Component, Table, TableLayout> {
 		((Container)parent).remove(child);
 	}
 
-	public Component wrap (Object object) {
+	public Component wrap (TableLayout layout, Object object) {
 		if (object instanceof String) return new JLabel((String)object);
 		if (object == null) return new JPanel();
 		if (object instanceof LayoutManager) return new JPanel((LayoutManager)object);
-		return super.wrap(object);
+		return super.wrap(layout, object);
 	}
 
 	public Component newStack () {

@@ -85,9 +85,9 @@ public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 		}
 	}
 
-	protected View newInstance (String className) throws Exception {
+	protected View newInstance (TableLayout layout, String className) throws Exception {
 		try {
-			return super.newInstance(className);
+			return super.newInstance(layout, className);
 		} catch (Exception ex) {
 			Class type = Class.forName(className);
 			Constructor constructor = type.getConstructor(Context.class);
@@ -95,19 +95,19 @@ public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 		}
 	}
 
-	public View wrap (Object object) {
+	public View wrap (TableLayout layout, Object object) {
 		if (object instanceof String) {
 			TextView textView = new TextView(context);
 			textView.setText((String)object);
 			return textView;
 		}
 		if (object == null) return new FrameLayout(context);
-		return super.wrap(object);
+		return super.wrap(layout, object);
 	}
 
-	protected Object convertType (Object parentObject, Class type, String memberName, String value) {
-		Object newType = super.convertType(parentObject, type, memberName, value);
-		if (newType == null && type == int.class) {
+	protected Object convertType (TableLayout layout, Object parentObject, Class memberType, String memberName, String value) {
+		Object newType = super.convertType(layout, parentObject, memberType, memberName, value);
+		if (newType == null && memberType == int.class) {
 			try {
 				return Color.parseColor(value);
 			} catch (IllegalArgumentException ignored) {
