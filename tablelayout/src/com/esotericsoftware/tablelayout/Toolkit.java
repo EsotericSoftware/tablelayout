@@ -126,7 +126,7 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 			for (int i = 0, n = classPrefixes.size(); i < n; i++) {
 				String prefix = classPrefixes.get(i);
 				try {
-					return newInstance(prefix + className);
+					return newInstance(layout, prefix + className);
 				} catch (Exception ignored) {
 				}
 			}
@@ -134,10 +134,10 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 		}
 	}
 
-	/** Returns an instance of the specified class. This can be overidden to control what classloader to use. The default
-	 * implementation uses <tt>Class.forName(className).newInstance()</tt>.
+	/** Returns an instance of the specified class. This can be overidden to control what constructor and what classloader to use.
+	 * The default implementation uses <tt>Class.forName(className).newInstance()</tt>.
 	 * @throws Exception if the class cannot be found or instantiated. */
-	protected C newInstance (String className) throws Exception {
+	protected C newInstance (L layout, String className) throws Exception {
 		return (C)Class.forName(className).newInstance();
 	}
 
@@ -160,15 +160,16 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 	 * @throws RuntimeException if the property could not be set. */
 	public void setProperty (L layout, C object, String name, List<String> values) {
 		try {
-			invokeMethod(object, name, values);
+			invokeMethod(layout, object, name, values);
 		} catch (NoSuchMethodException ex1) {
 			try {
-				invokeMethod(object, "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1), values);
+				invokeMethod(layout, object, "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1), values);
 			} catch (NoSuchMethodException ex2) {
 				try {
 					Field field = object.getClass().getField(name);
-					Object value = convertType(object, field.getType(), name, values.get(0));
+					Object value = convertType(layout, object, field.getType(), name, values.get(0));
 					if (value != null) field.set(object, value);
+					throw ex1;
 				} catch (Exception ex3) {
 					throw new RuntimeException("No method, bean property, or field found: " + name + "\nClass: " + object.getClass()
 						+ "\nValues: " + values);
@@ -548,7 +549,7 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 		return (int)value;
 	}
 
-	private void invokeMethod (Object object, String name, List<String> values) throws NoSuchMethodException {
+	private void invokeMethod (L layout, Object object, String name, List<String> values) throws NoSuchMethodException {
 		Object[] params = values.toArray();
 		// Prefer methods with string parameters.
 		Class[] stringParamTypes = new Class[params.length];
@@ -583,7 +584,7 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 			if (paramTypes.length != values.size()) continue;
 			params = values.toArray();
 			for (int ii = 0, nn = paramTypes.length; ii < nn; ii++) {
-				Object value = convertType(object, paramTypes[ii], name, (String)params[ii]);
+				Object value = convertType(layout, object, paramTypes[ii], name, (String)params[ii]);
 				if (value == null) continue outer;
 				params[ii] = value;
 			}
@@ -601,7 +602,7 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 	 * implementation tries all primitive type wrappers and looks for a static field with the name on both the specified type and
 	 * the parentObject's type.
 	 * @return the converted type, or null if it could not be converted. */
-	protected Object convertType (Object parentObject, Class memberType, String memberName, String value) {
+	protected Object convertType (L layout, Object parentObject, Class memberType, String memberName, String value) {
 		if (memberType == String.class || memberType == CharSequence.class) return value;
 		try {
 			if (memberType == int.class || memberType == Integer.class) return Integer.valueOf(value);
@@ -628,7 +629,7 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 		return null;
 	}
 
-	static private Field getField (Class type, String name) {
+	static public Field getField (Class type, String name) {
 		try {
 			Field field = type.getField(name);
 			if (field != null) return field;
