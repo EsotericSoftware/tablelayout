@@ -116,12 +116,12 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 	}
 
 	/** Creates a new widget from the specified class name. This can be overriden to create widgets using shortcut names (eg,
-	 * "button"). The default implementation creates an instance of the class and calls {@link #wrap(Object)}.
+	 * "button"). The default implementation creates an instance of the class and calls {@link #wrap(BaseTableLayout, Object)}.
 	 * @see #addClassPrefix(String)
 	 * @throws RuntimeException if the class could be found or otherwise failed to be instantiated. */
 	public C newWidget (L layout, String className) {
 		try {
-			return wrap(Class.forName(className).newInstance());
+			return wrap(layout, Class.forName(className).newInstance());
 		} catch (Exception ex) {
 			for (int i = 0, n = classPrefixes.size(); i < n; i++) {
 				String prefix = classPrefixes.get(i);
@@ -146,7 +146,7 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 	 * be returned. Otherwise, the object can be any other class that was added to the table (eg, a Swing LayoutManager would be
 	 * wrapped in a JPanel).
 	 * @throws RuntimeException if the object could not be wrapped. */
-	public C wrap (Object object) {
+	public C wrap (L layout, Object object) {
 		if (object instanceof BaseTableLayout) return (C)((BaseTableLayout)object).getTable();
 		try {
 			return (C)object;

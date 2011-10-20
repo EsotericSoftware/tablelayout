@@ -229,7 +229,7 @@ class TableLayoutParser {
 											}
 										} else
 											// []
-											widget = toolkit.wrap(null);
+											widget = toolkit.wrap(table, null);
 									} else { // [:class] and [name:class]
 										widget = toolkit.newWidget(table, className);
 										if (name.length() > 0) table.register(name, widget);
@@ -242,7 +242,7 @@ class TableLayoutParser {
 								// line 124 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("newLabel: " + new String(data, s, p - s));
-									widget = toolkit.wrap(new String(data, s, p - s));
+									widget = toolkit.wrap(table, new String(data, s, p - s));
 								}
 									break;
 								case 14:
@@ -376,14 +376,14 @@ class TableLayoutParser {
 								// line 189 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("addCell");
-									cell = ((BaseTableLayout)parent).add(toolkit.wrap(widget));
+									cell = ((BaseTableLayout)parent).add(toolkit.wrap(table, widget));
 								}
 									break;
 								case 21:
 								// line 193 "TableLayoutParser.rl"
 								{
 									if (debug) System.out.println("addWidget");
-									toolkit.addChild(parent, toolkit.wrap(widget), widgetLayoutString);
+									toolkit.addChild(parent, toolkit.wrap(table, widget), widgetLayoutString);
 									widgetLayoutString = null;
 								}
 									break;

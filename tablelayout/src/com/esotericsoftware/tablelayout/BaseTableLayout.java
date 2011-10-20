@@ -110,7 +110,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	/** Adds a new cell to the table with the specified widget.
 	 * @param widget May be null to add a cell without a widget. */
 	public Cell<C> add (C widget) { // BOZO - Add column description parsing.
-		widget = toolkit.wrap(widget);
+		widget = toolkit.wrap((L)this, widget);
 
 		Cell cell = new Cell(this);
 		cell.widget = widget;
