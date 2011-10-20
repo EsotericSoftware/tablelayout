@@ -56,12 +56,12 @@ action tableProperty {
 }
 action cellDefaultProperty {
 	if (debug) System.out.println("cellDefaultProperty: " + name + " = " + values);
-	toolkit.setCellProperty(((BaseTableLayout)parent).getDefaults(), name, values);
+	toolkit.setCellProperty(((BaseTableLayout)parent).defaults(), name, values);
 	values.clear();
 	name = null;
 }
 action startColumn {
-	columnDefaults = ((BaseTableLayout)parent).getColumnDefaults(columnDefaultCount++);
+	columnDefaults = ((BaseTableLayout)parent).columnDefaults(columnDefaultCount++);
 }
 action columnDefaultProperty {
 	if (debug) System.out.println("columnDefaultProperty: " + name + " = " + values);
@@ -99,7 +99,7 @@ action newWidget {
 	} else if (className == null) {
 		if (name.length() > 0) {
 			if (hasColon) { // [name:]
-				widget = toolkit.wrap(null);
+				widget = toolkit.wrap(table, null);
 				table.register(name, widget);
 			} else { // [name]
 				widget = table.getWidget(name);
