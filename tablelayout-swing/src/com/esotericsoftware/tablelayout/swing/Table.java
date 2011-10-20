@@ -73,4 +73,9 @@ public class Table extends JComponent {
 	public TableLayout getTableLayout () {
 		return layout;
 	}
+	
+	public void invalidate () {
+		layout.invalidate();
+		super.invalidate();
+	}
 }

@@ -252,7 +252,7 @@ public class TableLayoutEditor extends JFrame {
 
 		public Placeholder (String text) {
 			super(text);
-			setOpaque(true);
+			setOpaque(false);
 		}
 
 		public Dimension getMaximumSize () {

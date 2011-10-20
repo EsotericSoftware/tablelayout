@@ -689,6 +689,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 		if (sizeInvalid) computeSize();
 
+		if (columns == 0 || rows == 0) return;
+
 		int hpadding = toolkit.width(this, padLeft) + toolkit.width(this, padRight);
 		int vpadding = toolkit.height(this, padTop) + toolkit.height(this, padBottom);
 		int width = toolkit.width(this, this.width) - hpadding;

@@ -53,7 +53,7 @@ class TableLayoutParser {
 		RuntimeException parseRuntimeEx = null;
 		boolean hasColon = false;
 
-		boolean debug = false;
+		boolean debug = true;
 		if (debug) System.out.println();
 
 		try {

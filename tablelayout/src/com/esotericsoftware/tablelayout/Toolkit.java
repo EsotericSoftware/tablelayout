@@ -608,12 +608,12 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 			if (memberType == float.class || memberType == Float.class) return Float.valueOf(value);
 			if (memberType == long.class || memberType == Long.class) return Long.valueOf(value);
 			if (memberType == double.class || memberType == Double.class) return Double.valueOf(value);
-			if (memberType == short.class || memberType == Short.class) return Short.valueOf(value);
-			if (memberType == byte.class || memberType == Byte.class) return Byte.valueOf(value);
 		} catch (NumberFormatException ignored) {
 		}
 		if (memberType == boolean.class || memberType == Boolean.class) return Boolean.valueOf(value);
 		if (memberType == char.class || memberType == Character.class) return value.charAt(0);
+		if (memberType == short.class || memberType == Short.class) return Short.valueOf(value);
+		if (memberType == byte.class || memberType == Byte.class) return Byte.valueOf(value);
 		// Look for a static field.
 		try {
 			Field field = getField(memberType, value);
