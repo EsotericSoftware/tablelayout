@@ -753,15 +753,14 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
 
-			int spannedCellMaxWidth = 0;
-			for (int column = c.column, nn = column + c.colspan; column < nn; column++) {
-				spannedCellMaxWidth += columnMaxWidth[column];
-
-				if (c.colspan == 1 && c.expandX != 0 && expandWidth[column] == 0) {
-					expandWidth[column] = c.expandX / (float)c.colspan;
-					totalExpandWidth += c.expandX / (float)c.colspan;
-				}
+			if (c.colspan == 1 && c.expandX != 0 && expandWidth[c.column] == 0) {
+				expandWidth[c.column] = c.expandX;
+				totalExpandWidth += c.expandX;
 			}
+
+			int spannedCellMaxWidth = 0;
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
+				spannedCellMaxWidth += columnMaxWidth[column];
 			spannedCellMaxWidth -= c.padLeftTemp + c.padRightTemp;
 			if (c.expandY != 0 && expandHeight[c.row] == 0) {
 				expandHeight[c.row] = c.expandY;
@@ -850,7 +849,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			rowHeight[lastIndex] += extra - used;
 		}
 
-		// Distribute any additional width added by colspanned cells evenly to the columns spanned.
+		// Distribute any additional width added by colspanned cells to the columns spanned.
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
