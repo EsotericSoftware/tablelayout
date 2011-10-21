@@ -96,6 +96,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 	/** Sets the name of a widget so it may be referenced in {@link #parse(String)}. */
 	public C register (String name, C widget) {
+		if (name == null) throw new IllegalArgumentException("name cannot be null.");
 		name = name.toLowerCase();
 		if (nameToWidget.containsKey(name)) throw new IllegalArgumentException("Name is already used: " + name);
 		nameToWidget.put(name, widget);
