@@ -659,7 +659,24 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			rowMinHeight[c.row] = Math.max(rowMinHeight[c.row], minHeight + vpadding);
 		}
 
-		// Determine maximum cell sizes using (preferred - min) size to weight distribution of extra space.
+		// Distribute any additional width added by colspanned cells evenly to the columns spanned.
+		for (int i = 0, n = cells.size(); i < n; i++) {
+			Cell c = cells.get(i);
+			if (c.ignore) continue;
+			if (c.colspan == 1) continue;
+
+			int minWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.minWidth);
+
+			int spannedCellWidth = 0;
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
+				spannedCellWidth += columnMinWidth[column];
+
+			int extraWidth = Math.max(0, minWidth - spannedCellWidth) / c.colspan;
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
+				columnMinWidth[column] += extraWidth;
+		}
+
+		// Determine table min and pref size.
 		tableMinWidth = 0;
 		tableMinHeight = 0;
 		tablePrefWidth = 0;
@@ -694,7 +711,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		int width = toolkit.width(this, this.width) - hpadding;
 		int height = toolkit.height(this, this.height) - vpadding;
 
-		// Size columns and rows between min and pref size.
+		// Size columns and rows between min and pref size using (preferred - min) size to weight distribution of extra space.
 		int[] columnMaxWidth;
 		int tableLayoutWidth = this.layoutWidth;
 		int totalGrowWidth = tablePrefWidth - tableMinWidth;
