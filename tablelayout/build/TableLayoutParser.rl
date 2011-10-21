@@ -206,26 +206,30 @@ action widgetProperty {
 }
 
 propertyValue =
-	((alnum | '-' | '.' | '_' | '%')+) >buffer %value |
-	('\'' ^'\''* >buffer %value '\'');
+	('\'' ^'\''* >buffer %value '\'') |
+	^(space | ['\[{<(),|])+ >buffer %value;
 property = alnum+ >buffer %name (space* ':' space* propertyValue (',' propertyValue)* )?;
 
 startTable = '{' @startTable;
 startStack = '<' @startStack;
+startWidgetSection = '(' @startWidgetSection;
 label = '\'' ^'\''* >buffer %newLabel '\'';
 widget =
 	# Widget name.
 	'[' @{ widget = null; hasColon = false; } space* ^[\]:]* >buffer %name <:
 	space* ':'? @{ hasColon = true; } space*
 	(
-		# Widget.
-		label | startTable | startStack |
+		(
+			# Widget.
+			(label | startTable | startStack) space*
+			# Widget section.
+			startWidgetSection?
+		) |
 		# Class name.
 		(^[\]':{]+ >buffer %newWidgetClassName)
 	)?
 	space* ']' @newWidget;
 
-startWidgetSection = '(' @startWidgetSection;
 widgetSection := space*
 	# Widget properties.
 	(property %widgetProperty (space+ property %widgetProperty)* space*)?
