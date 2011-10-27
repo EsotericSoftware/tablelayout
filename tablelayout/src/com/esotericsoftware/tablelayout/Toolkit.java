@@ -28,6 +28,7 @@
 package com.esotericsoftware.tablelayout;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,12 +122,14 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 	 * @throws RuntimeException if the class could be found or otherwise failed to be instantiated. */
 	public C newWidget (L layout, String className) {
 		try {
-			return wrap(layout, Class.forName(className).newInstance());
+			return wrap(layout, newInstance(layout, className));
 		} catch (Exception ex) {
 			for (int i = 0, n = classPrefixes.size(); i < n; i++) {
 				String prefix = classPrefixes.get(i);
 				try {
 					return newInstance(layout, prefix + className);
+				} catch (InvocationTargetException ex2) {
+					throw new RuntimeException(ex2);
 				} catch (Exception ignored) {
 				}
 			}
@@ -574,7 +577,7 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 			}
 			return;
 		}
-		// Try to convert the strings to match a method.
+		// Try to convert the strings to match a method's parameters.
 		Method[] methods = object.getClass().getMethods();
 		outer:
 		for (int i = 0, n = methods.length; i < n; i++) {
@@ -595,6 +598,7 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 				throw new RuntimeException("Error invoking method: " + name, ex);
 			}
 		}
+		// BOZO - Try to pass values as an array of strings or objects.
 		throw new NoSuchMethodException();
 	}
 
