@@ -52,7 +52,7 @@ public class Cell<C> {
 	boolean endRow;
 	int column, row;
 	int cellAboveIndex = -1;
-	int padTopTemp, padLeftTemp, padBottomTemp, padRightTemp;
+	int computedPadTop, computedPadLeft, computedPadBottom, computedPadRight;
 
 	Cell (BaseTableLayout layout) {
 		this.layout = layout;
@@ -734,6 +734,22 @@ public class Cell<C> {
 
 	public boolean isEndRow () {
 		return endRow;
+	}
+
+	public int getComputedPadTop () {
+		return computedPadTop;
+	}
+
+	public int getComputedPadLeft () {
+		return computedPadLeft;
+	}
+
+	public int getComputedPadBottom () {
+		return computedPadBottom;
+	}
+
+	public int getComputedPadRight () {
+		return computedPadRight;
 	}
 
 	static Cell defaults (BaseTableLayout layout) {

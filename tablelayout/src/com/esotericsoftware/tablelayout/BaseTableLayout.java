@@ -97,7 +97,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	/** Sets the name of a widget so it may be referenced in {@link #parse(String)}. */
 	public C register (String name, C widget) {
 		if (name == null) throw new IllegalArgumentException("name cannot be null.");
-		name = name.toLowerCase();
+		name = name.toLowerCase().trim();
 		if (nameToWidget.containsKey(name)) throw new IllegalArgumentException("Name is already used: " + name);
 		nameToWidget.put(name, widget);
 		return widget;
@@ -601,6 +601,23 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return align;
 	}
 
+	/** Returns the row index for the y coordinate. */
+	public int getRow (float y) {
+		int row = 0;
+		y += toolkit.height((L)this, padTop);
+		int i = 0, n = cells.size();
+		// Skip first row.
+		while (i < n && !cells.get(i).isEndRow())
+			i++;
+		while (i < n) {
+			Cell c = cells.get(i++);
+			if (c.getIgnore()) continue;
+			if (c.getWidgetY() + c.getComputedPadTop() > y) break;
+			if (c.isEndRow()) row++;
+		}
+		return rows - row;
+	}
+
 	private int[] ensureSize (int[] array, int size) {
 		if (array == null || array.length < size) return new int[size];
 		for (int i = 0, n = array.length; i < n; i++)
@@ -628,14 +645,14 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			if (c.ignore) continue;
 
 			// Spacing between widgets isn't additive, the larger is used. Also, no spacing around edges.
-			c.padLeftTemp = c.column == 0 ? toolkit.width(this, c.padLeft) : toolkit.width(this, c.padLeft)
+			c.computedPadLeft = c.column == 0 ? toolkit.width(this, c.padLeft) : toolkit.width(this, c.padLeft)
 				+ Math.max(0, toolkit.width(this, c.spaceLeft) - spaceRightLast);
-			c.padTopTemp = c.cellAboveIndex == -1 ? toolkit.height(this, c.padTop) : toolkit.height(this, c.padTop)
+			c.computedPadTop = c.cellAboveIndex == -1 ? toolkit.height(this, c.padTop) : toolkit.height(this, c.padTop)
 				+ Math.max(0, toolkit.height(this, c.spaceTop) - toolkit.height(this, cells.get(c.cellAboveIndex).spaceBottom));
 			int spaceRight = toolkit.width(this, c.spaceRight);
-			c.padRightTemp = c.column + c.colspan == columns ? toolkit.width(this, c.padRight) : toolkit.width(this, c.padRight)
+			c.computedPadRight = c.column + c.colspan == columns ? toolkit.width(this, c.padRight) : toolkit.width(this, c.padRight)
 				+ spaceRight;
-			c.padBottomTemp = c.row == rows - 1 ? toolkit.height(this, c.padBottom) : toolkit.height(this, c.padBottom)
+			c.computedPadBottom = c.row == rows - 1 ? toolkit.height(this, c.padBottom) : toolkit.height(this, c.padBottom)
 				+ toolkit.height(this, c.spaceBottom);
 			spaceRightLast = spaceRight;
 
@@ -651,11 +668,11 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			if (maxHeight > 0 && prefHeight > maxHeight) prefHeight = maxHeight;
 
 			if (c.colspan == 1) { // Spanned column min and pref width is added later.
-				int hpadding = c.padLeftTemp + c.padRightTemp;
+				int hpadding = c.computedPadLeft + c.computedPadRight;
 				columnPrefWidth[c.column] = Math.max(columnPrefWidth[c.column], prefWidth + hpadding);
 				columnMinWidth[c.column] = Math.max(columnMinWidth[c.column], minWidth + hpadding);
 			}
-			int vpadding = c.padTopTemp + c.padBottomTemp;
+			int vpadding = c.computedPadTop + c.computedPadBottom;
 			rowPrefHeight[c.row] = Math.max(rowPrefHeight[c.row], prefHeight + vpadding);
 			rowMinHeight[c.row] = Math.max(rowMinHeight[c.row], minHeight + vpadding);
 		}
@@ -776,8 +793,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				}
 				spannedWeightedWidth += columnWeightedWidth[column];
 			}
-			spannedWeightedWidth -= c.padLeftTemp + c.padRightTemp;
-			int weightedHeight = rowWeightedHeight[c.row] - c.padTopTemp - c.padBottomTemp;
+			spannedWeightedWidth -= c.computedPadLeft + c.computedPadRight;
+			int weightedHeight = rowWeightedHeight[c.row] - c.computedPadTop - c.computedPadBottom;
 
 			int prefWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.prefWidth);
 			int prefHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.prefHeight);
@@ -794,24 +811,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			c.widgetHeight = Math.min(weightedHeight, prefHeight);
 
 			if (c.colspan == 1)
-				columnWidth[c.column] = Math.max(columnWidth[c.column], c.widgetWidth + c.padLeftTemp + c.padRightTemp);
-			rowHeight[c.row] = Math.max(rowHeight[c.row], c.widgetHeight + c.padTopTemp + c.padBottomTemp);
-		}
-
-		// Distribute any additional width added by colspanned cells to the columns spanned.
-		for (int i = 0, n = cells.size(); i < n; i++) {
-			Cell c = cells.get(i);
-			if (c.ignore) continue;
-			if (c.colspan == 1) continue;
-
-			int extraWidth = 0;
-			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
-				extraWidth += columnWeightedWidth[column] - columnWidth[column];
-			extraWidth -= c.padLeftTemp + c.padRightTemp;
-
-			extraWidth /= c.colspan;
-			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
-				columnWidth[column] += extraWidth;
+				columnWidth[c.column] = Math.max(columnWidth[c.column], c.widgetWidth + c.computedPadLeft + c.computedPadRight);
+			rowHeight[c.row] = Math.max(rowHeight[c.row], c.widgetHeight + c.computedPadTop + c.computedPadBottom);
 		}
 
 		// Uniform cells are all the same width/height.
@@ -820,9 +821,9 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
 			if (c.uniformX != null)
-				uniformMaxWidth = Math.max(uniformMaxWidth, columnWidth[c.column] - c.padLeftTemp - c.padRightTemp);
+				uniformMaxWidth = Math.max(uniformMaxWidth, columnWidth[c.column] - c.computedPadLeft - c.computedPadRight);
 			if (c.uniformY != null)
-				uniformMaxHeight = Math.max(uniformMaxHeight, rowHeight[c.row] - c.padTopTemp - c.padBottomTemp);
+				uniformMaxHeight = Math.max(uniformMaxHeight, rowHeight[c.row] - c.computedPadTop - c.computedPadBottom);
 		}
 		if (uniformMaxWidth > 0 || uniformMaxHeight > 0) {
 			outer:
@@ -830,7 +831,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				Cell c = cells.get(i);
 				if (c.ignore) continue;
 				if (uniformMaxWidth > 0 && c.uniformX != null) {
-					int tempPadding = c.padLeftTemp + c.padRightTemp;
+					int tempPadding = c.computedPadLeft + c.computedPadRight;
 					int diff = uniformMaxWidth - (columnWidth[c.column] - tempPadding);
 					if (diff > 0) {
 						columnWidth[c.column] = uniformMaxWidth + tempPadding;
@@ -839,7 +840,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 					}
 				}
 				if (uniformMaxHeight > 0 && c.uniformY != null) {
-					int tempPadding = c.padTopTemp + c.padBottomTemp;
+					int tempPadding = c.computedPadTop + c.computedPadBottom;
 					int diff = uniformMaxHeight - (rowHeight[c.row] - tempPadding);
 					if (diff > 0) {
 						rowHeight[c.row] = uniformMaxHeight + tempPadding;
@@ -877,6 +878,24 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			rowHeight[lastIndex] += extra - used;
 		}
 
+		// Distribute any additional width added by colspanned cells to the columns spanned.
+		for (int i = 0, n = cells.size(); i < n; i++) {
+			Cell c = cells.get(i);
+			if (c.ignore) continue;
+			if (c.colspan == 1) continue;
+
+			int extraWidth = 0;
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
+				extraWidth += columnWeightedWidth[column] - columnWidth[column];
+			extraWidth -= c.computedPadLeft + c.computedPadRight;
+
+			extraWidth /= c.colspan;
+			if (extraWidth > 0) {
+				for (int column = c.column, nn = column + c.colspan; column < nn; column++)
+					columnWidth[column] += extraWidth;
+			}
+		}
+
 		// Determine table size.
 		int tableWidth = 0, tableHeight = 0;
 		for (int i = 0; i < columns; i++)
@@ -909,9 +928,9 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			int spannedCellWidth = 0;
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
 				spannedCellWidth += columnWidth[column];
-			spannedCellWidth -= c.padLeftTemp + c.padRightTemp;
+			spannedCellWidth -= c.computedPadLeft + c.computedPadRight;
 
-			currentX += c.padLeftTemp;
+			currentX += c.computedPadLeft;
 
 			if (c.fillX > 0) {
 				c.widgetWidth = (int)(spannedCellWidth * c.fillX);
@@ -919,7 +938,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				if (maxWidth > 0) c.widgetWidth = Math.min(c.widgetWidth, maxWidth);
 			}
 			if (c.fillY > 0) {
-				c.widgetHeight = (int)(rowHeight[c.row] * c.fillY) - c.padTopTemp - c.padBottomTemp;
+				c.widgetHeight = (int)(rowHeight[c.row] * c.fillY) - c.computedPadTop - c.computedPadBottom;
 				int maxHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.maxHeight);
 				if (maxHeight > 0) c.widgetHeight = Math.min(c.widgetHeight, maxHeight);
 			}
@@ -932,17 +951,17 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				c.widgetX = currentX + (spannedCellWidth - c.widgetWidth) / 2;
 
 			if ((c.align & TOP) != 0)
-				c.widgetY = currentY + c.padTopTemp;
+				c.widgetY = currentY + c.computedPadTop;
 			else if ((c.align & BOTTOM) != 0)
-				c.widgetY = currentY + rowHeight[c.row] - c.widgetHeight - c.padBottomTemp;
+				c.widgetY = currentY + rowHeight[c.row] - c.widgetHeight - c.computedPadBottom;
 			else
-				c.widgetY = currentY + (rowHeight[c.row] - c.widgetHeight + c.padTopTemp - c.padBottomTemp) / 2;
+				c.widgetY = currentY + (rowHeight[c.row] - c.widgetHeight + c.computedPadTop - c.computedPadBottom) / 2;
 
 			if (c.endRow) {
 				currentX = x;
 				currentY += rowHeight[c.row];
 			} else
-				currentX += spannedCellWidth + c.padRightTemp;
+				currentX += spannedCellWidth + c.computedPadRight;
 		}
 
 		// Draw widgets and bounds.
@@ -966,18 +985,18 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			int spannedCellWidth = 0;
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
 				spannedCellWidth += columnWidth[column];
-			spannedCellWidth -= c.padLeftTemp + c.padRightTemp;
-			currentX += c.padLeftTemp;
+			spannedCellWidth -= c.computedPadLeft + c.computedPadRight;
+			currentX += c.computedPadLeft;
 			if ((debug & DEBUG_CELL) != 0 || (debug & DEBUG_ALL) != 0) {
-				toolkit.addDebugRectangle(this, DEBUG_CELL, currentX, currentY + c.padTopTemp, spannedCellWidth, rowHeight[c.row]
-					- c.padTopTemp - c.padBottomTemp);
+				toolkit.addDebugRectangle(this, DEBUG_CELL, currentX, currentY + c.computedPadTop, spannedCellWidth, rowHeight[c.row]
+					- c.computedPadTop - c.computedPadBottom);
 			}
 
 			if (c.endRow) {
 				currentX = x;
 				currentY += rowHeight[c.row];
 			} else
-				currentX += spannedCellWidth + c.padRightTemp;
+				currentX += spannedCellWidth + c.computedPadRight;
 		}
 	}
 }
