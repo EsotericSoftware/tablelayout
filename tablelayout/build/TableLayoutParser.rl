@@ -207,7 +207,7 @@ action widgetProperty {
 
 propertyValue =
 	('\'' ^'\''* >buffer %value '\'') |
-	^(space | ['\[{<(),|])+ >buffer %value;
+	(^['\[{<(),|] ^(space | [\-'\[{<(),|])*) >buffer %value;
 property = alnum+ >buffer %name (space* ':' space* propertyValue (',' propertyValue)* )?;
 
 startTable = '{' @startTable;
