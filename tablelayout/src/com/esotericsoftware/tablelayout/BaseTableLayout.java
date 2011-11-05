@@ -783,16 +783,14 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				expandHeight[c.row] = c.expandY;
 				totalExpandHeight += c.expandY;
 			}
+			if (c.colspan == 1 && c.expandX != 0 && expandWidth[c.column] == 0) {
+				expandWidth[c.column] = c.expandX;
+				totalExpandWidth += c.expandX;
+			}
 
 			int spannedWeightedWidth = 0;
-			for (int column = c.column, nn = column + c.colspan; column < nn; column++) {
-				if (c.expandX != 0 && expandWidth[column] == 0) {
-					// Colspan and expand will expand all spanned cells.
-					expandWidth[column] = c.expandX;
-					totalExpandWidth += c.expandX;
-				}
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
 				spannedWeightedWidth += columnWeightedWidth[column];
-			}
 			spannedWeightedWidth -= c.computedPadLeft + c.computedPadRight;
 			int weightedHeight = rowWeightedHeight[c.row] - c.computedPadTop - c.computedPadBottom;
 
@@ -813,6 +811,18 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			if (c.colspan == 1)
 				columnWidth[c.column] = Math.max(columnWidth[c.column], c.widgetWidth + c.computedPadLeft + c.computedPadRight);
 			rowHeight[c.row] = Math.max(rowHeight[c.row], c.widgetHeight + c.computedPadTop + c.computedPadBottom);
+		}
+
+		// Colspan with expand will expand all spanned cells if none of the spanned cells have expand.
+		outer:
+		for (int i = 0, n = cells.size(); i < n; i++) {
+			Cell c = cells.get(i);
+			if (c.ignore) continue;
+			if (c.expandX == 0) continue;
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
+				if (expandWidth[column] != 0) continue outer;
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
+				expandWidth[c.column] = c.expandX;
 		}
 
 		// Uniform cells are all the same width/height.
