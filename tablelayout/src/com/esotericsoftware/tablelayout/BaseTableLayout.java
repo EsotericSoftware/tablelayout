@@ -186,6 +186,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		columns = Math.max(columns, rowColumns);
 		rows++;
 		cells.get(cells.size() - 1).endRow = true;
+		invalidate();
 	}
 
 	/** Gets the cell values that will be used as the defaults for all cells in the specified column. */
@@ -229,6 +230,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		widgetToCell.clear();
 		rows = 0;
 		columns = 0;
+		invalidate();
 	}
 
 	/** Returns the widget with the specified name, anywhere in the table hierarchy. */
@@ -745,7 +747,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		if (totalGrowWidth == 0)
 			columnWeightedWidth = columnMinWidth;
 		else {
-			int extraWidth = Math.max(0, tableLayoutWidth - tableMinWidth);
+			int extraWidth = Math.min(totalGrowWidth, Math.max(0, tableLayoutWidth - tableMinWidth));
 			columnWeightedWidth = new int[columns];
 			for (int i = 0; i < columns; i++) {
 				int growWidth = columnPrefWidth[i] - columnMinWidth[i];
@@ -760,7 +762,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		if (totalGrowHeight == 0)
 			rowWeightedHeight = rowMinHeight;
 		else {
-			int extraHeight = Math.max(0, tableLayoutHeight - tableMinHeight);
+			int extraHeight = Math.min(totalGrowHeight, Math.max(0, tableLayoutHeight - tableMinHeight));
 			rowWeightedHeight = new int[rows];
 			for (int i = 0; i < rows; i++) {
 				int growHeight = rowPrefHeight[i] - rowMinHeight[i];
@@ -791,8 +793,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			int spannedWeightedWidth = 0;
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
 				spannedWeightedWidth += columnWeightedWidth[column];
-			spannedWeightedWidth -= c.computedPadLeft + c.computedPadRight;
-			int weightedHeight = rowWeightedHeight[c.row] - c.computedPadTop - c.computedPadBottom;
+			int weightedHeight = rowWeightedHeight[c.row];
 
 			int prefWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.prefWidth);
 			int prefHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.prefHeight);
@@ -805,12 +806,11 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth;
 			if (maxHeight > 0 && prefHeight > maxHeight) prefHeight = maxHeight;
 
-			c.widgetWidth = Math.min(spannedWeightedWidth, prefWidth);
-			c.widgetHeight = Math.min(weightedHeight, prefHeight);
+			c.widgetWidth = Math.min(spannedWeightedWidth - c.computedPadLeft - c.computedPadRight, prefWidth);
+			c.widgetHeight = Math.min(weightedHeight - c.computedPadTop - c.computedPadBottom, prefHeight);
 
-			if (c.colspan == 1)
-				columnWidth[c.column] = Math.max(columnWidth[c.column], c.widgetWidth + c.computedPadLeft + c.computedPadRight);
-			rowHeight[c.row] = Math.max(rowHeight[c.row], c.widgetHeight + c.computedPadTop + c.computedPadBottom);
+			if (c.colspan == 1) columnWidth[c.column] = Math.max(columnWidth[c.column], spannedWeightedWidth);
+			rowHeight[c.row] = Math.max(rowHeight[c.row], weightedHeight);
 		}
 
 		// Colspan with expand will expand all spanned cells if none of the spanned cells have expand.
