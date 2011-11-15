@@ -41,6 +41,15 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	static public final int LEFT = 1 << 3;
 	static public final int RIGHT = 1 << 4;
 
+	/** Scales the source to fit the target while keeping the same aspect ratio. This may cause the source to be smaller than the
+	 * target in one dimension. */
+	static public final int SCALE_FIT = 1 << 1;
+	/** Scales the source to completely fill the target while keeping the same aspect ratio. This may cause the source to be larger
+	 * than the target in one dimension. */
+	static public final int SCALE_FILL = 1 << 2;
+	/** Scales the source to completely fill the target. This may cause the source to not keep the same aspect ratio. */
+	static public final int SCALE_STRETCH = 1 << 3;
+
 	static public final String MIN = "min";
 	static public final String PREF = "pref";
 	static public final String MAX = "max";
@@ -53,13 +62,13 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 	K toolkit;
 	T table;
-	HashMap<String, C> nameToWidget = new HashMap();
-	HashMap<C, Cell> widgetToCell = new HashMap();
+	HashMap<String, C> nameToWidget = new HashMap(8);
+	HashMap<C, Cell> widgetToCell = new HashMap(8);
 	private int columns, rows;
 
-	private final ArrayList<Cell> cells = new ArrayList();
+	private final ArrayList<Cell> cells = new ArrayList(4);
 	private final Cell cellDefaults = Cell.defaults(this);
-	private final ArrayList<Cell> columnDefaults = new ArrayList(4);
+	private final ArrayList<Cell> columnDefaults = new ArrayList(2);
 	private Cell rowDefaults;
 
 	private int layoutX, layoutY;
@@ -614,8 +623,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		while (i < n) {
 			Cell c = cells.get(i++);
 			if (c.getIgnore()) continue;
-			if (c.getWidgetY() + c.getComputedPadTop() > y) break;
-			if (c.isEndRow()) row++;
+			if (c.widgetY + c.computedPadTop > y) break;
+			if (c.endRow) row++;
 		}
 		return rows - row;
 	}
@@ -951,6 +960,27 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				c.widgetHeight = (int)(rowHeight[c.row] * c.fillY) - c.computedPadTop - c.computedPadBottom;
 				int maxHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.maxHeight);
 				if (maxHeight > 0) c.widgetHeight = Math.min(c.widgetHeight, maxHeight);
+			}
+
+			if (c.scaling != SCALE_STRETCH) {
+				float sourceWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.prefWidth);
+				float sourceHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.prefHeight);
+				switch (c.scaling) {
+				case SCALE_FIT: {
+					float scale = c.widgetHeight / (float)c.widgetWidth > sourceHeight / sourceWidth ? c.widgetWidth / sourceWidth
+						: c.widgetHeight / sourceHeight;
+					c.widgetWidth = (int)(sourceWidth * scale);
+					c.widgetHeight = (int)(sourceHeight * scale);
+					break;
+				}
+				case SCALE_FILL: {
+					float scale = c.widgetHeight / (float)c.widgetWidth < sourceHeight / sourceWidth ? c.widgetWidth / sourceWidth
+						: c.widgetHeight / sourceHeight;
+					c.widgetWidth = (int)(sourceWidth * scale);
+					c.widgetHeight = (int)(sourceHeight * scale);
+					break;
+				}
+				}
 			}
 
 			if ((c.align & LEFT) != 0)

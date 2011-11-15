@@ -286,6 +286,10 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 		}
 	}
 
+	// BOZO - Make DSL properties consistent with cell methods.
+	// BOZO - Remove widget properties and children?
+	// BOZO - Exceptions when giving wrong number of valules for a property?
+
 	/** Sets a property on the cell. This is called for cell properties specified in the table description.
 	 * @throws RuntimeException if the property could not be set. */
 	public void setCellProperty (Cell c, String name, List<String> values) {
@@ -316,6 +320,18 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 					break;
 				}
 
+			} else if (name.equals("expandx")) {
+				c.expandX = 1;
+
+			} else if (name.equals("expandy")) {
+				c.expandY = 1;
+
+			} else if (name.equals("fillx")) {
+				c.fillX = 1f;
+
+			} else if (name.equals("filly")) {
+				c.fillY = 1f;
+
 			} else if (name.equals("fill")) {
 				switch (values.size()) {
 				case 0:
@@ -337,6 +353,17 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 					if (value.length() > 0) c.fillY = Integer.parseInt(value) / 100f;
 					break;
 				}
+
+			} else if (name.equals("scale") || name.equals("scaling")) {
+				value = values.get(0);
+				if (value.equals("fit"))
+					c.scaling = SCALE_FIT;
+				else if (value.equals("fill"))
+					c.scaling = SCALE_FILL;
+				else if (value.equals("stretch"))
+					c.scaling = SCALE_STRETCH;
+				else
+					throw new IllegalArgumentException("Invalid value: " + value);
 
 			} else if (name.equals("size")) {
 				switch (values.size()) {

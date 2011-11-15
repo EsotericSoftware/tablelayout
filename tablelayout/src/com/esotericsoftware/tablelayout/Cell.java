@@ -43,6 +43,7 @@ public class Cell<C> {
 	Integer colspan;
 	Boolean uniformX, uniformY;
 	String name;
+	Integer scaling;
 
 	C widget;
 	int widgetX, widgetY;
@@ -82,6 +83,7 @@ public class Cell<C> {
 		colspan = defaults.colspan;
 		uniformX = defaults.uniformX;
 		uniformY = defaults.uniformY;
+		scaling = defaults.scaling;
 	}
 
 	void merge (Cell cell) {
@@ -109,6 +111,7 @@ public class Cell<C> {
 		if (cell.colspan != null) colspan = cell.colspan;
 		if (cell.uniformX != null) uniformX = cell.uniformX;
 		if (cell.uniformY != null) uniformY = cell.uniformY;
+		if (cell.scaling != null) scaling = cell.scaling;
 	}
 
 	public Cell setWidget (C widget) {
@@ -620,6 +623,19 @@ public class Cell<C> {
 		return this;
 	}
 
+	public void scaling (String scaling) {
+		if (scaling.equals("fit"))
+			this.scaling = SCALE_FIT;
+		else if (scaling.equals("fill"))
+			this.scaling = SCALE_FILL;
+		else
+			this.scaling = SCALE_STRETCH;
+	}
+
+	public void scaling (Integer scaling) {
+		this.scaling = scaling;
+	}
+
 	public int getWidgetX () {
 		return widgetX;
 	}
@@ -732,6 +748,10 @@ public class Cell<C> {
 		return uniformY;
 	}
 
+	public Integer getScaling () {
+		return scaling;
+	}
+
 	public boolean isEndRow () {
 		return endRow;
 	}
@@ -775,6 +795,7 @@ public class Cell<C> {
 		defaults.expandY = 0;
 		defaults.ignore = false;
 		defaults.colspan = 1;
+		defaults.scaling = SCALE_STRETCH;
 		return defaults;
 	}
 }
