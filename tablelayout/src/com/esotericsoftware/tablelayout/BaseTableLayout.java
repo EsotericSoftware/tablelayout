@@ -1006,7 +1006,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				currentX += spannedCellWidth + c.computedPadRight;
 		}
 
-		// Draw widgets and bounds.
+		// Draw debug widgets and bounds.
 		if (debug == DEBUG_NONE) return;
 		toolkit.clearDebugRectangles(this);
 		currentX = x;
