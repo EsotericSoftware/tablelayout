@@ -751,12 +751,11 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 		// Size columns and rows between min and pref size using (preferred - min) size to weight distribution of extra space.
 		int[] columnWeightedWidth;
-		int tableLayoutWidth = this.layoutWidth;
 		int totalGrowWidth = tablePrefWidth - tableMinWidth;
 		if (totalGrowWidth == 0)
 			columnWeightedWidth = columnMinWidth;
 		else {
-			int extraWidth = Math.min(totalGrowWidth, Math.max(0, tableLayoutWidth - tableMinWidth));
+			int extraWidth = Math.min(totalGrowWidth, Math.max(0, layoutWidth - tableMinWidth));
 			columnWeightedWidth = new int[columns];
 			for (int i = 0; i < columns; i++) {
 				int growWidth = columnPrefWidth[i] - columnMinWidth[i];
@@ -766,12 +765,11 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		}
 
 		int[] rowWeightedHeight;
-		int tableLayoutHeight = this.layoutHeight;
 		int totalGrowHeight = tablePrefHeight - tableMinHeight;
 		if (totalGrowHeight == 0)
 			rowWeightedHeight = rowMinHeight;
 		else {
-			int extraHeight = Math.min(totalGrowHeight, Math.max(0, tableLayoutHeight - tableMinHeight));
+			int extraHeight = Math.min(totalGrowHeight, Math.max(0, layoutHeight - tableMinHeight));
 			rowWeightedHeight = new int[rows];
 			for (int i = 0; i < rows; i++) {
 				int growHeight = rowPrefHeight[i] - rowMinHeight[i];
@@ -873,7 +871,9 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 		// Distribute remaining space to any expanding columns/rows.
 		if (totalExpandWidth > 0) {
-			int extra = Math.max(0, tableLayoutWidth - tablePrefWidth);
+			int extra = layoutWidth - hpadding;
+			for (int i = 0; i < columns; i++)
+				extra -= columnWidth[i];
 			int used = 0, lastIndex = 0;
 			for (int i = 0; i < columns; i++) {
 				if (expandWidth[i] == 0) continue;
@@ -885,7 +885,9 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			columnWidth[lastIndex] += extra - used;
 		}
 		if (totalExpandHeight > 0) {
-			int extra = Math.max(0, tableLayoutHeight - tablePrefHeight);
+			int extra = layoutHeight - vpadding;
+			for (int i = 0; i < columns; i++)
+				extra -= rowHeight[i];
 			int used = 0, lastIndex = 0;
 			for (int i = 0; i < rows; i++) {
 				if (expandHeight[i] == 0) continue;
@@ -927,15 +929,15 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		// Position table within the container.
 		int x = layoutX + toolkit.width(this, padLeft);
 		if ((align & RIGHT) != 0)
-			x += tableLayoutWidth - tableWidth;
+			x += layoutWidth - tableWidth;
 		else if ((align & LEFT) == 0) // Center
-			x += (tableLayoutWidth - tableWidth) / 2;
+			x += (layoutWidth - tableWidth) / 2;
 
 		int y = layoutY + toolkit.height(this, padTop);
 		if ((align & BOTTOM) != 0)
-			y += tableLayoutHeight - tableHeight;
+			y += layoutHeight - tableHeight;
 		else if ((align & TOP) == 0) // Center
-			y += (tableLayoutHeight - tableHeight) / 2;
+			y += (layoutHeight - tableHeight) / 2;
 
 		// Position widgets within cells.
 		int currentX = x;
@@ -1010,7 +1012,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		currentX = x;
 		currentY = y;
 		if ((debug & DEBUG_TABLE) != 0 || (debug & DEBUG_ALL) != 0) {
-			toolkit.addDebugRectangle(this, DEBUG_TABLE, layoutX, layoutY, tableLayoutWidth, tableLayoutHeight);
+			toolkit.addDebugRectangle(this, DEBUG_TABLE, layoutX, layoutY, layoutWidth, layoutHeight);
 			toolkit.addDebugRectangle(this, DEBUG_TABLE, x, y, tableWidth - hpadding, tableHeight - vpadding);
 		}
 		for (int i = 0, n = cells.size(); i < n; i++) {
