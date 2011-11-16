@@ -886,7 +886,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		}
 		if (totalExpandHeight > 0) {
 			int extra = layoutHeight - vpadding;
-			for (int i = 0; i < columns; i++)
+			for (int i = 0; i < rows; i++)
 				extra -= rowHeight[i];
 			int used = 0, lastIndex = 0;
 			for (int i = 0; i < rows; i++) {
