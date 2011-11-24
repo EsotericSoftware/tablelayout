@@ -612,11 +612,12 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return align;
 	}
 
-	/** Returns the row index for the y coordinate. */
+	/** Returns the row index for the y coordinate, or -1 if there are no cells. */
 	public int getRow (float y) {
 		int row = 0;
 		y += toolkit.height((L)this, padTop);
 		int i = 0, n = cells.size();
+		if (n == 0) return -1;
 		// Skip first row.
 		while (i < n && !cells.get(i).isEndRow())
 			i++;
