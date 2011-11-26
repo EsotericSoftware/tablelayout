@@ -830,7 +830,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
 				if (expandWidth[column] != 0) continue outer;
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
-				expandWidth[c.column] = c.expandX;
+				expandWidth[column] = c.expandX;
+			totalExpandWidth += c.expandX * c.colspan;
 		}
 
 		// Uniform cells are all the same width/height.
