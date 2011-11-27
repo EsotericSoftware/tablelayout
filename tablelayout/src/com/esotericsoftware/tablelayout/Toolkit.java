@@ -192,100 +192,149 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 			if (name.equals("size")) {
 				switch (values.size()) {
 				case 2:
-					layout.height = validateSize(values.get(1));
+					value = values.get(0);
+					if (value.length() > 0) layout.width = validateSize(value);
+					value = values.get(1);
+					if (value.length() > 0) layout.height = validateSize(value);
+					return;
 				case 1:
-					layout.width = validateSize(values.get(0));
-					break;
+					value = values.get(0);
+					if (value.length() > 0) {
+						value = validateSize(value);
+						layout.width = value;
+						layout.height = value;
+					}
+					return;
 				}
 
 			} else if (name.equals("width") || name.equals("w")) {
-				layout.width = validateSize(values.get(0));
+				if (values.size() == 1) {
+					value = values.get(0);
+					if (value.length() > 0) layout.width = validateSize(value);
+					return;
+				}
 
 			} else if (name.equals("height") || name.equals("h")) {
-				layout.height = validateSize(values.get(0));
+				if (values.size() == 1) {
+					value = values.get(0);
+					if (value.length() > 0) layout.height = validateSize(value);
+					return;
+				}
 
 			} else if (name.equals("padding") || name.equals("pad")) {
 				switch (values.size()) {
 				case 4:
-					value = values.get(3);
-					if (value.length() > 0) layout.padRight = validateSize(value);
-				case 3:
-					value = values.get(2);
-					if (value.length() > 0) layout.padBottom = validateSize(value);
-				case 2:
 					value = values.get(0);
 					if (value.length() > 0) layout.padTop = validateSize(value);
 					value = values.get(1);
 					if (value.length() > 0) layout.padLeft = validateSize(value);
-					break;
+					value = values.get(2);
+					if (value.length() > 0) layout.padBottom = validateSize(value);
+					value = values.get(3);
+					if (value.length() > 0) layout.padRight = validateSize(value);
+					return;
 				case 1:
-					layout.padTop = layout.padLeft = layout.padBottom = layout.padRight = validateSize(values.get(0));
-					break;
-				default:
-					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
+					value = values.get(0);
+					if (value.length() > 0) layout.padTop = layout.padLeft = layout.padBottom = layout.padRight = validateSize(value);
+					return;
 				}
 
 			} else if (name.startsWith("padding") || name.startsWith("pad")) {
 				name = name.replace("padding", "").replace("pad", "");
-				if (name.equals("top") || name.equals("t"))
-					layout.padTop = validateSize(values.get(0));
-				else if (name.equals("left") || name.equals("l"))
-					layout.padLeft = validateSize(values.get(0));
-				else if (name.equals("bottom") || name.equals("b"))
-					layout.padBottom = validateSize(values.get(0));
-				else if (name.equals("right") || name.equals("r"))
-					layout.padRight = validateSize(values.get(0));
-				else
-					throw new IllegalArgumentException("Unknown property.");
+				if (values.size() == 1 && values.get(0).length() > 0) {
+					value = validateSize(values.get(0));
+					if (name.equals("top") || name.equals("t"))
+						layout.padTop = value;
+					else if (name.equals("left") || name.equals("l"))
+						layout.padLeft = value;
+					else if (name.equals("bottom") || name.equals("b"))
+						layout.padBottom = value;
+					else if (name.equals("right") || name.equals("r"))
+						layout.padRight = value;
+					else
+						throw new IllegalArgumentException("Unknown table padding property: " + name);
+					return;
+				}
 
-			} else if (name.equals("center"))
-				layout.align |= CENTER;
-			else if (name.equals("left"))
-				layout.align |= LEFT;
-			else if (name.equals("right"))
-				layout.align |= RIGHT;
-			else if (name.equals("top"))
-				layout.align |= TOP;
-			else if (name.equals("bottom"))
-				layout.align |= BOTTOM;
+			} else if (name.equals("center")) {
+				if (values.size() == 0) {
+					layout.align |= CENTER;
+					return;
+				}
+
+			} else if (name.equals("left")) {
+				if (values.size() == 0) {
+					layout.align |= LEFT;
+					return;
+				}
+
+			} else if (name.equals("right")) {
+				if (values.size() == 0) {
+					layout.align |= RIGHT;
+					return;
+				}
+
+			} else if (name.equals("top")) {
+				if (values.size() == 0) {
+					layout.align |= TOP;
+					return;
+				}
+
+			} else if (name.equals("bottom")) {
+				if (values.size() == 0) {
+					layout.align |= BOTTOM;
+					return;
+				}
+			}
 
 			else if (name.equals("align")) {
 				layout.align = 0;
 				for (int i = 0, n = values.size(); i < n; i++) {
 					value = values.get(i);
-					if (value.equals("center"))
+					if (value.equals("center") || value.equals("c"))
 						layout.align |= CENTER;
-					else if (value.equals("left"))
+					else if (value.equals("left") || value.equals("l"))
 						layout.align |= LEFT;
-					else if (value.equals("right"))
+					else if (value.equals("right") || value.equals("r"))
 						layout.align |= RIGHT;
-					else if (value.equals("top"))
+					else if (value.equals("top") || value.equals("t"))
 						layout.align |= TOP;
-					else if (value.equals("bottom"))
+					else if (value.equals("bottom") || value.equals("b"))
 						layout.align |= BOTTOM;
 					else
-						throw new IllegalArgumentException("Invalid value: " + value);
+						throw new IllegalArgumentException("Invalid table align value: " + value);
 				}
+				if (values.size() > 0) return;
 
 			} else if (name.equals("debug")) {
-				int debug = 0;
-				if (values.size() == 0) debug = DEBUG_ALL;
+				layout.debug = 0;
+				if (values.size() == 0) layout.debug = DEBUG_ALL;
 				for (int i = 0, n = values.size(); i < n; i++) {
 					value = values.get(i);
-					if (value.equalsIgnoreCase("all") || value.equalsIgnoreCase("true")) debug |= DEBUG_ALL;
-					if (value.equalsIgnoreCase("cell")) debug |= DEBUG_CELL;
-					if (value.equalsIgnoreCase("table")) debug |= DEBUG_TABLE;
-					if (value.equalsIgnoreCase("widget")) debug |= DEBUG_WIDGET;
+					if (value.equalsIgnoreCase("all"))
+						layout.debug |= DEBUG_ALL;
+					else if (value.equalsIgnoreCase("cell"))
+						layout.debug |= DEBUG_CELL;
+					else if (value.equalsIgnoreCase("table"))
+						layout.debug |= DEBUG_TABLE;
+					else if (value.equalsIgnoreCase("widget"))
+						layout.debug |= DEBUG_WIDGET;
+					else if (value.equalsIgnoreCase("none"))
+						layout.debug = DEBUG_NONE;
+					else
+						throw new IllegalArgumentException("Invalid table debug value: " + value);
 				}
-				layout.debug = debug;
+				return;
 
 			} else
 				throw new IllegalArgumentException("Unknown table property: " + name);
+			throw new IllegalArgumentException("Invalid number of table property values (" + values.size() + "): " + values);
 		} catch (Exception ex) {
 			throw new RuntimeException("Error setting table property: " + name, ex);
 		}
 	}
 
+	// BOZO - Use name: table property instead of [name:{}]?
 	// BOZO - Make DSL properties consistent with cell methods.
 	// BOZO - Remove widget properties and children?
 	// BOZO - Exceptions when giving wrong number of valules for a property?
@@ -302,7 +351,7 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 				switch (values.size()) {
 				case 0:
 					c.expandX = c.expandY = 1;
-					break;
+					return;
 				case 1:
 					value = values.get(0);
 					if (value.equals("x"))
@@ -311,32 +360,44 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 						c.expandY = 1;
 					else
 						c.expandX = c.expandY = Integer.parseInt(value);
-					break;
+					return;
 				case 2:
 					value = values.get(0);
 					if (value.length() > 0) c.expandX = Integer.parseInt(value);
 					value = values.get(1);
 					if (value.length() > 0) c.expandY = Integer.parseInt(value);
-					break;
+					return;
 				}
 
 			} else if (name.equals("expandx")) {
-				c.expandX = 1;
+				if (values.size() == 0) {
+					c.expandX = 1;
+					return;
+				}
 
 			} else if (name.equals("expandy")) {
-				c.expandY = 1;
+				if (values.size() == 0) {
+					c.expandY = 1;
+					return;
+				}
 
 			} else if (name.equals("fillx")) {
-				c.fillX = 1f;
+				if (values.size() == 0) {
+					c.fillX = 1f;
+					return;
+				}
 
 			} else if (name.equals("filly")) {
-				c.fillY = 1f;
+				if (values.size() == 0) {
+					c.fillY = 1f;
+					return;
+				}
 
 			} else if (name.equals("fill")) {
 				switch (values.size()) {
 				case 0:
 					c.fillX = c.fillY = 1f;
-					break;
+					return;
 				case 1:
 					value = values.get(0);
 					if (value.equals("x"))
@@ -345,176 +406,194 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 						c.fillY = 1f;
 					else
 						c.fillX = c.fillY = Integer.parseInt(value) / 100f;
-					break;
+					return;
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) c.fillX = Integer.parseInt(value) / 100f;
+					if (value.length() > 0) c.fillX = Integer.parseInt(value) / 100f; // BOZO - Use float?
 					value = values.get(1);
 					if (value.length() > 0) c.fillY = Integer.parseInt(value) / 100f;
-					break;
+					return;
 				}
 
 			} else if (name.equals("scale") || name.equals("scaling")) {
-				value = values.get(0);
-				if (value.equals("fit"))
-					c.scaling = SCALE_FIT;
-				else if (value.equals("fill"))
-					c.scaling = SCALE_FILL;
-				else if (value.equals("stretch"))
-					c.scaling = SCALE_STRETCH;
-				else
-					throw new IllegalArgumentException("Invalid value: " + value);
+				if (values.size() == 1) {
+					value = values.get(0);
+					if (value.equals("fit"))
+						c.scaling = SCALE_FIT;
+					else if (value.equals("fill"))
+						c.scaling = SCALE_FILL;
+					else if (value.equals("stretch"))
+						c.scaling = SCALE_STRETCH;
+					else
+						throw new IllegalArgumentException("Invalid value: " + value);
+					return;
+				}
 
 			} else if (name.equals("size")) {
 				switch (values.size()) {
 				case 2:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = c.prefWidth = validateSize(value);
+					if (value.length() > 0) c.minWidth = c.prefWidth = c.maxWidth = validateSize(value);
 					value = values.get(1);
-					if (value.length() > 0) c.minHeight = c.prefHeight = validateSize(value);
-					break;
+					if (value.length() > 0) c.minHeight = c.prefHeight = c.maxHeight = validateSize(value);
+					return;
 				case 1:
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = c.minHeight = c.prefWidth = c.prefHeight = validateSize(value);
-					break;
-				default:
-					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
+					if (value.length() > 0)
+						c.minWidth = c.minHeight = c.prefWidth = c.prefHeight = c.maxWidth = c.maxHeight = validateSize(value);
+					return;
 				}
 
 			} else if (name.equals("width") || name.equals("w")) {
-				switch (values.size()) {
-				case 3:
-					value = values.get(2);
-					if (value.length() > 0) c.maxWidth = validateSize(value);
-				case 2:
-					value = values.get(1);
-					if (value.length() > 0) c.prefWidth = validateSize(value);
-				case 1:
+				if (values.size() == 1) {
 					value = values.get(0);
-					if (value.length() > 0) c.minWidth = validateSize(value);
-					break;
-				default:
-					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
+					if (value.length() > 0) c.minWidth = c.prefWidth = c.maxWidth = validateSize(value);
+					return;
 				}
 
 			} else if (name.equals("height") || name.equals("h")) {
-				switch (values.size()) {
-				case 3:
-					value = values.get(2);
-					if (value.length() > 0) c.maxHeight = validateSize(value);
-				case 2:
-					value = values.get(1);
-					if (value.length() > 0) c.prefHeight = validateSize(value);
-				case 1:
+				if (values.size() == 1) {
 					value = values.get(0);
-					if (value.length() > 0) c.minHeight = validateSize(value);
-					break;
-				default:
-					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
-				}
-
-			} else if (name.equals("spacing") || name.equals("space")) {
-				switch (values.size()) {
-				case 4:
-					value = values.get(3);
-					if (value.length() > 0) c.spaceRight = validateSize(value);
-				case 3:
-					value = values.get(2);
-					if (value.length() > 0) c.spaceBottom = validateSize(value);
-				case 2:
-					value = values.get(0);
-					if (value.length() > 0) c.spaceTop = validateSize(value);
-					value = values.get(1);
-					if (value.length() > 0) c.spaceLeft = validateSize(value);
-					break;
-				case 1:
-					c.spaceTop = c.spaceLeft = c.spaceBottom = c.spaceRight = validateSize(values.get(0));
-					break;
-				default:
-					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
+					if (value.length() > 0) c.minHeight = c.prefHeight = c.maxHeight = validateSize(value);
+					return;
 				}
 
 			} else if (name.equals("padding") || name.equals("pad")) {
 				switch (values.size()) {
 				case 4:
-					value = values.get(3);
-					if (value.length() > 0) c.padRight = validateSize(value);
-				case 3:
-					value = values.get(2);
-					if (value.length() > 0) c.padBottom = validateSize(value);
-				case 2:
 					value = values.get(0);
 					if (value.length() > 0) c.padTop = validateSize(value);
 					value = values.get(1);
 					if (value.length() > 0) c.padLeft = validateSize(value);
-					break;
+					value = values.get(2);
+					if (value.length() > 0) c.padBottom = validateSize(value);
+					value = values.get(3);
+					if (value.length() > 0) c.padRight = validateSize(value);
+					return;
 				case 1:
-					c.padTop = c.padLeft = c.padBottom = c.padRight = validateSize(values.get(0));
-					break;
-				default:
-					throw new IllegalArgumentException("Invalid number of values (" + values.size() + "): " + values);
+					value = values.get(0);
+					if (value.length() > 0) c.padTop = c.padLeft = c.padBottom = c.padRight = validateSize(value);
+					return;
 				}
 
 			} else if (name.startsWith("padding") || name.startsWith("pad")) {
 				name = name.replace("padding", "").replace("pad", "");
-				if (name.equals("top") || name.equals("t"))
-					c.padTop = validateSize(values.get(0));
-				else if (name.equals("left") || name.equals("l"))
-					c.padLeft = validateSize(values.get(0));
-				else if (name.equals("bottom") || name.equals("b"))
-					c.padBottom = validateSize(values.get(0));
-				else if (name.equals("right") || name.equals("r")) //
-					c.padRight = validateSize(values.get(0));
-				else
-					throw new IllegalArgumentException("Unknown property.");
+				if (values.size() == 1 && values.get(0).length() > 0) {
+					value = validateSize(values.get(0));
+					if (name.equals("top") || name.equals("t"))
+						c.padTop = value;
+					else if (name.equals("left") || name.equals("l"))
+						c.padLeft = value;
+					else if (name.equals("bottom") || name.equals("b"))
+						c.padBottom = value;
+					else if (name.equals("right") || name.equals("r"))
+						c.padRight = value;
+					else
+						throw new IllegalArgumentException("Unknown cell padding property: " + name);
+					return;
+				}
+
+			} else if (name.equals("spacing") || name.equals("space")) {
+				switch (values.size()) {
+				case 4:
+					value = values.get(0);
+					if (value.length() > 0) c.spaceTop = validateSize(value);
+					value = values.get(1);
+					if (value.length() > 0) c.spaceLeft = validateSize(value);
+					value = values.get(2);
+					if (value.length() > 0) c.spaceBottom = validateSize(value);
+					value = values.get(3);
+					if (value.length() > 0) c.spaceRight = validateSize(value);
+					return;
+				case 1:
+					value = values.get(0);
+					if (value.length() > 0) c.spaceTop = c.spaceLeft = c.spaceBottom = c.spaceRight = validateSize(value);
+					return;
+				}
 
 			} else if (name.startsWith("spacing") || name.startsWith("space")) {
 				name = name.replace("spacing", "").replace("space", "");
-				if (name.equals("top") || name.equals("t"))
-					c.spaceTop = validateSize(values.get(0));
-				else if (name.equals("left") || name.equals("l"))
-					c.spaceLeft = validateSize(values.get(0));
-				else if (name.equals("bottom") || name.equals("b"))
-					c.spaceBottom = validateSize(values.get(0));
-				else if (name.equals("right") || name.equals("r")) //
-					c.spaceRight = validateSize(values.get(0));
-				else
-					throw new IllegalArgumentException("Unknown property.");
+				if (values.size() == 1 && values.get(0).length() > 0) {
+					value = validateSize(values.get(0));
+					if (name.equals("top") || name.equals("t"))
+						c.spaceTop = value;
+					else if (name.equals("left") || name.equals("l"))
+						c.spaceLeft = value;
+					else if (name.equals("bottom") || name.equals("b"))
+						c.spaceBottom = value;
+					else if (name.equals("right") || name.equals("r"))
+						c.spaceRight = value;
+					else
+						throw new IllegalArgumentException("Unknown cell spacing property: " + name);
+					return;
+				}
 
-			} else if (name.equals("center"))
-				c.align |= CENTER;
-			else if (name.equals("left"))
-				c.align |= LEFT;
-			else if (name.equals("right"))
-				c.align |= RIGHT;
-			else if (name.equals("top"))
-				c.align |= TOP;
-			else if (name.equals("bottom"))
-				c.align |= BOTTOM;
+			} else if (name.equals("center")) {
+				if (values.size() == 0) {
+					c.align |= CENTER;
+					return;
+				}
+
+			} else if (name.equals("left")) {
+				if (values.size() == 0) {
+					c.align |= LEFT;
+					return;
+				}
+
+			} else if (name.equals("right")) {
+				if (values.size() == 0) {
+					c.align |= RIGHT;
+					return;
+				}
+
+			} else if (name.equals("top")) {
+				if (values.size() == 0) {
+					c.align |= TOP;
+					return;
+				}
+
+			} else if (name.equals("bottom")) {
+				if (values.size() == 0) {
+					c.align |= BOTTOM;
+					return;
+				}
+			}
 
 			else if (name.equals("align")) {
 				c.align = 0;
 				for (int i = 0, n = values.size(); i < n; i++) {
 					value = values.get(i);
-					if (value.equals("center"))
+					if (value.equals("center") || value.equals("c"))
 						c.align |= CENTER;
-					else if (value.equals("left"))
+					else if (value.equals("left") || value.equals("l"))
 						c.align |= LEFT;
-					else if (value.equals("right"))
+					else if (value.equals("right") || value.equals("r"))
 						c.align |= RIGHT;
-					else if (value.equals("top"))
+					else if (value.equals("top") || value.equals("t"))
 						c.align |= TOP;
-					else if (value.equals("bottom"))
+					else if (value.equals("bottom") || value.equals("b"))
 						c.align |= BOTTOM;
 					else
-						throw new IllegalArgumentException("Invalid value: " + value);
+						throw new IllegalArgumentException("Invalid table align value: " + value);
 				}
+				if (values.size() > 0) return;
 
 			} else if (name.equals("ignore")) {
-				c.ignore = values.size() == 0 ? true : Boolean.valueOf(values.get(0));
+				switch (values.size()) {
+				case 1:
+					c.ignore = Boolean.valueOf(values.get(0));
+					return;
+				case 0:
+					c.ignore = true;
+					return;
+				}
 
 			} else if (name.equals("colspan")) {
-				c.colspan = Integer.parseInt(values.get(0));
+				switch (values.size()) {
+				case 1:
+					c.colspan = Integer.parseInt(values.get(0));
+					return;
+				}
 
 			} else if (name.equals("uniform")) {
 				if (values.size() == 0) c.uniformX = c.uniformY = true;
@@ -524,14 +603,18 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 						c.uniformX = true;
 					else if (value.equals("y"))
 						c.uniformY = true;
+					else if (value.equals("true"))
+						c.uniformY = c.uniformY = true;
 					else if (value.equals("false"))
 						c.uniformY = c.uniformY = null;
 					else
 						throw new IllegalArgumentException("Invalid value: " + value);
 				}
+				return;
 
 			} else
 				throw new IllegalArgumentException("Unknown cell property.");
+			throw new IllegalArgumentException("Invalid number of cell property values (" + values.size() + "): " + values);
 		} catch (Exception ex) {
 			throw new RuntimeException("Error setting cell property: " + name, ex);
 		}
