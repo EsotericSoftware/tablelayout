@@ -458,6 +458,90 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 					return;
 				}
 
+			} else if (name.equals("minsize") || name.equals("min")) {
+				switch (values.size()) {
+				case 1:
+					value = values.get(0);
+					if (value.length() > 0) c.minWidth = c.minHeight = validateSize(value);
+					return;
+				case 2:
+					value = values.get(0);
+					if (value.length() > 0) c.minWidth = validateSize(value);
+					value = values.get(1);
+					if (value.length() > 0) c.minHeight = validateSize(value);
+					return;
+				}
+
+			} else if (name.equals("minwidth") || name.equals("minw")) {
+				if (values.size() == 1) {
+					value = values.get(0);
+					if (value.length() > 0) c.minWidth = validateSize(value);
+					return;
+				}
+
+			} else if (name.equals("minheight") || name.equals("minh")) {
+				if (values.size() == 1) {
+					value = values.get(0);
+					if (value.length() > 0) c.minHeight = validateSize(value);
+					return;
+				}
+
+			} else if (name.equals("prefsize") || name.equals("pref")) {
+				switch (values.size()) {
+				case 1:
+					value = values.get(0);
+					if (value.length() > 0) c.prefWidth = c.prefHeight = validateSize(value);
+					return;
+				case 2:
+					value = values.get(0);
+					if (value.length() > 0) c.prefWidth = validateSize(value);
+					value = values.get(1);
+					if (value.length() > 0) c.prefHeight = validateSize(value);
+					return;
+				}
+
+			} else if (name.equals("prefwidth") || name.equals("prefw")) {
+				if (values.size() == 1) {
+					value = values.get(0);
+					if (value.length() > 0) c.prefWidth = validateSize(value);
+					return;
+				}
+
+			} else if (name.equals("prefheight") || name.equals("prefh")) {
+				if (values.size() == 1) {
+					value = values.get(0);
+					if (value.length() > 0) c.prefHeight = validateSize(value);
+					return;
+				}
+
+			} else if (name.equals("maxsize") || name.equals("max")) {
+				switch (values.size()) {
+				case 1:
+					value = values.get(0);
+					if (value.length() > 0) c.maxWidth = c.maxHeight = validateSize(value);
+					return;
+				case 2:
+					value = values.get(0);
+					if (value.length() > 0) c.maxWidth = validateSize(value);
+					value = values.get(1);
+					if (value.length() > 0) c.maxHeight = validateSize(value);
+					return;
+				}
+
+			} else if (name.equals("maxwidth") || name.equals("maxw")) {
+				if (values.size() == 1) {
+					value = values.get(0);
+					if (value.length() > 0) c.maxWidth = validateSize(value);
+					return;
+				}
+
+			} else if (name.equals("maxheight") || name.equals("maxh")) {
+				if (values.size() == 1) {
+					value = values.get(0);
+					if (value.length() > 0) c.maxHeight = validateSize(value);
+					return;
+				}
+
 			} else if (name.equals("padding") || name.equals("pad")) {
 				switch (values.size()) {
 				case 4:

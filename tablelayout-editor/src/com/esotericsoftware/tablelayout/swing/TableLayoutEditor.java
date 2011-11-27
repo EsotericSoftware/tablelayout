@@ -133,9 +133,9 @@ public class TableLayoutEditor extends JFrame {
 		layout.parse("padding:10 " //
 			+ "[JSplitPane] expand fill ( setResizeWeight:0.4 background:white"//
 			+ "{" //
-			+ "[codeScroll] size:300,0 expand fill" //
+			+ "[codeScroll] min:300,0 expand fill" //
 			+ "---" //
-			+ "[JScrollPane] size:300,100 fill ([errorText:JTextArea])" //
+			+ "[JScrollPane] min:300,100 fill ([errorText:JTextArea])" //
 			+ "}" //
 			+ "[outputTable]" //
 			+ ")");
