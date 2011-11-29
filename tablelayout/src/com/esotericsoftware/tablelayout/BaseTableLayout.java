@@ -967,8 +967,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			}
 
 			if (c.scaling != SCALE_STRETCH) {
-				float sourceWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.prefWidth);
-				float sourceHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.prefHeight);
+				float sourceWidth = toolkit.getWidgetWidth(this, (C)c.widget, PREF);
+				float sourceHeight = toolkit.getWidgetHeight(this, (C)c.widget, PREF);
 				switch (c.scaling) {
 				case SCALE_FIT: {
 					float scale = c.widgetHeight / (float)c.widgetWidth > sourceHeight / sourceWidth ? c.widgetWidth / sourceWidth
