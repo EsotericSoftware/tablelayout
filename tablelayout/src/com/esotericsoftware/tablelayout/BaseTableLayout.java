@@ -730,8 +730,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		}
 		int hpadding = toolkit.width(this, padLeft) + toolkit.width(this, padRight);
 		int vpadding = toolkit.height(this, padTop) + toolkit.height(this, padBottom);
-		int width = toolkit.width(this, this.width) - hpadding;
-		int height = toolkit.height(this, this.height) - vpadding;
+		int width = toolkit.width(this, this.width);
+		int height = toolkit.height(this, this.height);
 		tableMinWidth = Math.max(tableMinWidth + hpadding, width);
 		tableMinHeight = Math.max(tableMinHeight + vpadding, height);
 		tablePrefWidth = Math.max(tablePrefWidth + hpadding, tableMinWidth);
@@ -747,8 +747,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 		int hpadding = toolkit.width(this, padLeft) + toolkit.width(this, padRight);
 		int vpadding = toolkit.height(this, padTop) + toolkit.height(this, padBottom);
-		int width = toolkit.width(this, this.width) - hpadding;
-		int height = toolkit.height(this, this.height) - vpadding;
 
 		// Size columns and rows between min and pref size using (preferred - min) size to weight distribution of extra space.
 		int[] columnWeightedWidth;
@@ -923,9 +921,12 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		int tableWidth = 0, tableHeight = 0;
 		for (int i = 0; i < columns; i++)
 			tableWidth += columnWidth[i];
+		int width = toolkit.width(this, this.width);
 		tableWidth = Math.max(tableWidth + hpadding, width);
+
 		for (int i = 0; i < rows; i++)
 			tableHeight += rowHeight[i];
+		int height = toolkit.height(this, this.height);
 		tableHeight = Math.max(tableHeight + vpadding, height);
 
 		// Position table within the container.
