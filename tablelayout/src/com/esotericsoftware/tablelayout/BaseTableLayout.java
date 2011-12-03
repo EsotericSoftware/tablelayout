@@ -748,13 +748,20 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		int hpadding = toolkit.width(this, padLeft) + toolkit.width(this, padRight);
 		int vpadding = toolkit.height(this, padTop) + toolkit.height(this, padBottom);
 
+		// These are needed because tableMinWidth and tableMinHeight could be based on this.width or this.height.
+		int totalMinWidth = 0, totalMinHeight = 0;
+		for (int i = 0; i < columns; i++)
+			totalMinWidth += columnMinWidth[i];
+		for (int i = 0; i < columns; i++)
+			totalMinHeight += rowMinHeight[i];
+
 		// Size columns and rows between min and pref size using (preferred - min) size to weight distribution of extra space.
 		int[] columnWeightedWidth;
-		int totalGrowWidth = tablePrefWidth - tableMinWidth;
+		int totalGrowWidth = tablePrefWidth - totalMinWidth;
 		if (totalGrowWidth == 0)
 			columnWeightedWidth = columnMinWidth;
 		else {
-			int extraWidth = Math.min(totalGrowWidth, Math.max(0, layoutWidth - tableMinWidth));
+			int extraWidth = Math.min(totalGrowWidth, Math.max(0, layoutWidth - totalMinWidth));
 			columnWeightedWidth = new int[columns];
 			for (int i = 0; i < columns; i++) {
 				int growWidth = columnPrefWidth[i] - columnMinWidth[i];
@@ -764,11 +771,11 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		}
 
 		int[] rowWeightedHeight;
-		int totalGrowHeight = tablePrefHeight - tableMinHeight;
+		int totalGrowHeight = tablePrefHeight - totalMinHeight;
 		if (totalGrowHeight == 0)
 			rowWeightedHeight = rowMinHeight;
 		else {
-			int extraHeight = Math.min(totalGrowHeight, Math.max(0, layoutHeight - tableMinHeight));
+			int extraHeight = Math.min(totalGrowHeight, Math.max(0, layoutHeight - totalMinHeight));
 			rowWeightedHeight = new int[rows];
 			for (int i = 0; i < rows; i++) {
 				int growHeight = rowPrefHeight[i] - rowMinHeight[i];
