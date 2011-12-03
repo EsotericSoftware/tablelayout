@@ -752,7 +752,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		int totalMinWidth = 0, totalMinHeight = 0;
 		for (int i = 0; i < columns; i++)
 			totalMinWidth += columnMinWidth[i];
-		for (int i = 0; i < columns; i++)
+		for (int i = 0; i < rows; i++)
 			totalMinHeight += rowMinHeight[i];
 
 		// Size columns and rows between min and pref size using (preferred - min) size to weight distribution of extra space.
