@@ -115,6 +115,7 @@ public class Cell<C> {
 	}
 
 	public Cell setWidget (C widget) {
+		if (widget == null) throw new IllegalArgumentException("widget cannot be null.");
 		layout.toolkit.setWidget(layout, this, widget);
 		return this;
 	}
