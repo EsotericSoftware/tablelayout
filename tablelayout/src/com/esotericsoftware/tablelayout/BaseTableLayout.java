@@ -374,18 +374,21 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	public L size (String width, String height) {
 		this.width = width;
 		this.height = height;
+		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** The fixed width of the table, or null. */
 	public L width (String width) {
 		this.width = width;
+		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** The fixed height of the table, or null. */
 	public L height (String height) {
 		this.height = height;
+		sizeInvalid = true;
 		return (L)this;
 	}
 
@@ -393,18 +396,21 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	public L size (int width, int height) {
 		this.width = String.valueOf(width);
 		this.height = String.valueOf(height);
+		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** The fixed width of the table. */
 	public L width (int width) {
 		this.width = String.valueOf(width);
+		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** The fixed height of the table. */
 	public L height (int height) {
 		this.height = String.valueOf(height);
+		sizeInvalid = true;
 		return (L)this;
 	}
 
@@ -414,6 +420,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		padLeft = pad;
 		padBottom = pad;
 		padRight = pad;
+		sizeInvalid = true;
 		return (L)this;
 	}
 
@@ -423,30 +430,35 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		padLeft = left;
 		padBottom = bottom;
 		padRight = right;
+		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the top of the table. */
 	public L padTop (String padTop) {
 		this.padTop = padTop;
+		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the left of the table. */
 	public L padLeft (String padLeft) {
 		this.padLeft = padLeft;
+		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the bottom of the table. */
 	public L padBottom (String padBottom) {
 		this.padBottom = padBottom;
+		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the right of the table. */
 	public L padRight (String padRight) {
 		this.padRight = padRight;
+		sizeInvalid = true;
 		return (L)this;
 	}
 
@@ -456,6 +468,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		padLeft = String.valueOf(pad);
 		padBottom = String.valueOf(pad);
 		padRight = String.valueOf(pad);
+		sizeInvalid = true;
 		return (L)this;
 	}
 
@@ -465,30 +478,35 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		padLeft = String.valueOf(left);
 		padBottom = String.valueOf(bottom);
 		padRight = String.valueOf(right);
+		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the top of the table. */
 	public L padTop (int padTop) {
 		this.padTop = String.valueOf(padTop);
+		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the left of the table. */
 	public L padLeft (int padLeft) {
 		this.padLeft = String.valueOf(padLeft);
+		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the bottom of the table. */
 	public L padBottom (int padBottom) {
 		this.padBottom = String.valueOf(padBottom);
+		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the right of the table. */
 	public L padRight (int padRight) {
 		this.padRight = String.valueOf(padRight);
+		sizeInvalid = true;
 		return (L)this;
 	}
 
