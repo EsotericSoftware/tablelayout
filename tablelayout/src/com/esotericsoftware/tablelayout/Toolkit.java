@@ -171,8 +171,10 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 				try {
 					Field field = object.getClass().getField(name);
 					Object value = convertType(layout, object, field.getType(), name, values.get(0));
-					if (value != null) field.set(object, value);
-					throw ex1;
+					if (value != null)
+						field.set(object, value);
+					else
+						throw ex1;
 				} catch (Exception ex3) {
 					throw new RuntimeException("No method, bean property, or field found: " + name + "\nClass: " + object.getClass()
 						+ "\nValues: " + values);
