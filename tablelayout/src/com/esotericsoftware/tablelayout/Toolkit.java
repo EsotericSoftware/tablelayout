@@ -339,7 +339,6 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 	// BOZO - Use name: table property instead of [name:{}]?
 	// BOZO - Make DSL properties consistent with cell methods.
 	// BOZO - Remove widget properties and children?
-	// BOZO - Exceptions when giving wrong number of valules for a property?
 
 	/** Sets a property on the cell. This is called for cell properties specified in the table description.
 	 * @throws RuntimeException if the property could not be set. */
