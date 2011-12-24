@@ -82,6 +82,7 @@ public class Table extends ViewGroup {
 		int measuredWidth = widthUnspecified ? layout.getMinWidth() : layout.getPrefWidth();
 		int measuredHeight = heightUnspecified ? layout.getMinHeight() : layout.getPrefHeight();
 
+		invalidate();
 		measuredWidth = Math.max(measuredWidth, getSuggestedMinimumWidth());
 		measuredHeight = Math.max(measuredHeight, getSuggestedMinimumHeight());
 
