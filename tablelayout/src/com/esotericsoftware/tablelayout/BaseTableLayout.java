@@ -708,30 +708,30 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		}
 
 		// Distribute any additional min and pref width added by colspanned cells evenly to the columns spanned.
-		for (int i = 0, n = cells.size(); i < n; i++) {
-			Cell c = cells.get(i);
-			if (c.ignore) continue;
-			if (c.colspan == 1) continue;
-
-			int minWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.minWidth);
-			int prefWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.prefWidth);
-			int maxWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.maxWidth);
-			if (prefWidth < minWidth) prefWidth = minWidth;
-			if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth;
-
-			int spannedMinWidth = 0, spannedPrefWidth = 0;
-			for (int column = c.column, nn = column + c.colspan; column < nn; column++) {
-				spannedMinWidth += columnMinWidth[column];
-				spannedPrefWidth += columnPrefWidth[column];
-			}
-
-			int extraMinWidth = Math.max(0, minWidth - spannedMinWidth) / c.colspan;
-			int extraPrefWidth = Math.max(0, prefWidth - spannedPrefWidth) / c.colspan;
-			for (int column = c.column, nn = column + c.colspan; column < nn; column++) {
-				columnMinWidth[column] += extraMinWidth;
-				columnPrefWidth[column] += extraPrefWidth;
-			}
-		}
+//		for (int i = 0, n = cells.size(); i < n; i++) {
+//			Cell c = cells.get(i);
+//			if (c.ignore) continue;
+//			if (c.colspan == 1) continue;
+//
+//			int minWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.minWidth);
+//			int prefWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.prefWidth);
+//			int maxWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.maxWidth);
+//			if (prefWidth < minWidth) prefWidth = minWidth;
+//			if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth;
+//
+//			int spannedMinWidth = 0, spannedPrefWidth = 0;
+//			for (int column = c.column, nn = column + c.colspan; column < nn; column++) {
+//				spannedMinWidth += columnMinWidth[column];
+//				spannedPrefWidth += columnPrefWidth[column];
+//			}
+//
+//			int extraMinWidth = Math.max(0, minWidth - spannedMinWidth) / c.colspan;
+//			int extraPrefWidth = Math.max(0, prefWidth - spannedPrefWidth) / c.colspan;
+//			for (int column = c.column, nn = column + c.colspan; column < nn; column++) {
+//				columnMinWidth[column] += extraMinWidth;
+//				columnPrefWidth[column] += extraPrefWidth;
+//			}
+//		}
 
 		// Determine table min and pref size.
 		tableMinWidth = 0;
