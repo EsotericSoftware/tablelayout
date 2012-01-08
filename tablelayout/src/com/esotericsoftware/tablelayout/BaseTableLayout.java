@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+// BOZO - Support inserting cells/rows.
+
 /** Base layout functionality.
  * @author Nathan Sweet */
 abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout, K extends Toolkit<C, T, L>> {
@@ -79,6 +81,9 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	private int[] columnPrefWidth, rowPrefHeight;
 	private int tableMinWidth, tableMinHeight;
 	private int tablePrefWidth, tablePrefHeight;
+	private int[] columnWidth, rowHeight;
+	private float[] expandWidth, expandHeight;
+	private int[] columnWeightedWidth, rowWeightedHeight;
 
 	String width, height;
 	String padTop, padLeft, padBottom, padRight;
@@ -655,6 +660,13 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return array;
 	}
 
+	private float[] ensureSize (float[] array, int size) {
+		if (array == null || array.length < size) return new float[size];
+		for (int i = 0, n = array.length; i < n; i++)
+			array[i] = 0;
+		return array;
+	}
+
 	private void computeSize () {
 		sizeInvalid = false;
 
@@ -667,13 +679,21 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		rowMinHeight = ensureSize(rowMinHeight, rows);
 		columnPrefWidth = ensureSize(columnPrefWidth, columns);
 		rowPrefHeight = ensureSize(rowPrefHeight, rows);
+		columnWidth = ensureSize(columnWidth, columns);
+		rowHeight = ensureSize(rowHeight, rows);
+		expandWidth = ensureSize(expandWidth, columns);
+		expandHeight = ensureSize(expandHeight, rows);
 
-		// Determine minimum and preferred cell sizes. Also compute the combined padding/spacing for each cell.
 		int spaceRightLast = 0;
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
 
+			// Collect columns/rows that expand.
+			if (c.expandY != 0 && expandHeight[c.row] == 0) expandHeight[c.row] = c.expandY;
+			if (c.colspan == 1 && c.expandX != 0 && expandWidth[c.column] == 0) expandWidth[c.column] = c.expandX;
+
+			// Compute combined padding/spacing for cells.
 			// Spacing between widgets isn't additive, the larger is used. Also, no spacing around edges.
 			c.computedPadLeft = c.column == 0 ? toolkit.width(this, c.padLeft) : toolkit.width(this, c.padLeft)
 				+ Math.max(0, toolkit.width(this, c.spaceLeft) - spaceRightLast);
@@ -686,6 +706,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				+ toolkit.height(this, c.spaceBottom);
 			spaceRightLast = spaceRight;
 
+			// Determine minimum and preferred cell sizes.
 			int prefWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.prefWidth);
 			int prefHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.prefHeight);
 			int minWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.minWidth);
@@ -707,31 +728,49 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			rowMinHeight[c.row] = Math.max(rowMinHeight[c.row], minHeight + vpadding);
 		}
 
-		// Distribute any additional min and pref width added by colspanned cells evenly to the columns spanned.
-//		for (int i = 0, n = cells.size(); i < n; i++) {
-//			Cell c = cells.get(i);
-//			if (c.ignore) continue;
-//			if (c.colspan == 1) continue;
-//
-//			int minWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.minWidth);
-//			int prefWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.prefWidth);
-//			int maxWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.maxWidth);
-//			if (prefWidth < minWidth) prefWidth = minWidth;
-//			if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth;
-//
-//			int spannedMinWidth = 0, spannedPrefWidth = 0;
-//			for (int column = c.column, nn = column + c.colspan; column < nn; column++) {
-//				spannedMinWidth += columnMinWidth[column];
-//				spannedPrefWidth += columnPrefWidth[column];
-//			}
-//
-//			int extraMinWidth = Math.max(0, minWidth - spannedMinWidth) / c.colspan;
-//			int extraPrefWidth = Math.max(0, prefWidth - spannedPrefWidth) / c.colspan;
-//			for (int column = c.column, nn = column + c.colspan; column < nn; column++) {
-//				columnMinWidth[column] += extraMinWidth;
-//				columnPrefWidth[column] += extraPrefWidth;
-//			}
-//		}
+		// Colspan with expand will expand all spanned columns if none of the spanned columns have expand.
+		outer:
+		for (int i = 0, n = cells.size(); i < n; i++) {
+			Cell c = cells.get(i);
+			if (c.ignore) continue;
+			if (c.expandX == 0) continue;
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
+				if (expandWidth[column] != 0) continue outer;
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
+				expandWidth[column] = c.expandX;
+		}
+
+		// Distribute any additional min and pref width added by colspanned cells to the columns spanned.
+		for (int i = 0, n = cells.size(); i < n; i++) {
+			Cell c = cells.get(i);
+			if (c.ignore) continue;
+			if (c.colspan == 1) continue;
+
+			int minWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.minWidth);
+			int prefWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.prefWidth);
+			int maxWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.maxWidth);
+			if (prefWidth < minWidth) prefWidth = minWidth;
+			if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth;
+
+			int spannedMinWidth = 0, spannedPrefWidth = 0;
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++) {
+				spannedMinWidth += columnMinWidth[column];
+				spannedPrefWidth += columnPrefWidth[column];
+			}
+
+			// Distribute extra space using expand, if any columns have expand.
+			float totalExpandWidth = 0;
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
+				totalExpandWidth += expandWidth[column];
+
+			int extraMinWidth = Math.max(0, minWidth - spannedMinWidth);
+			int extraPrefWidth = Math.max(0, prefWidth - spannedPrefWidth);
+			for (int column = c.column, nn = column + c.colspan; column < nn; column++) {
+				float ratio = totalExpandWidth == 0 ? 1f / c.colspan : expandWidth[column] / totalExpandWidth;
+				columnMinWidth[column] += extraMinWidth * ratio;
+				columnPrefWidth[column] += extraPrefWidth * ratio;
+			}
+		}
 
 		// Determine table min and pref size.
 		tableMinWidth = 0;
@@ -766,12 +805,17 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		int hpadding = toolkit.width(this, padLeft) + toolkit.width(this, padRight);
 		int vpadding = toolkit.height(this, padTop) + toolkit.height(this, padBottom);
 
-		// These are needed because tableMinWidth and tableMinHeight could be based on this.width or this.height.
+		// totalMinWidth/totalMinHeight are needed because tableMinWidth/tableMinHeight could be based on this.width or this.height.
 		int totalMinWidth = 0, totalMinHeight = 0;
-		for (int i = 0; i < columns; i++)
+		float totalExpandWidth = 0, totalExpandHeight = 0;
+		for (int i = 0; i < columns; i++) {
 			totalMinWidth += columnMinWidth[i];
-		for (int i = 0; i < rows; i++)
+			totalExpandWidth += expandWidth[i];
+		}
+		for (int i = 0; i < rows; i++) {
 			totalMinHeight += rowMinHeight[i];
+			totalExpandHeight += expandHeight[i];
+		}
 
 		// Size columns and rows between min and pref size using (preferred - min) size to weight distribution of extra space.
 		int[] columnWeightedWidth;
@@ -780,7 +824,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			columnWeightedWidth = columnMinWidth;
 		else {
 			int extraWidth = Math.min(totalGrowWidth, Math.max(0, layoutWidth - totalMinWidth));
-			columnWeightedWidth = new int[columns];
+			columnWeightedWidth = this.columnWeightedWidth = ensureSize(this.columnWeightedWidth, columns);
 			for (int i = 0; i < columns; i++) {
 				int growWidth = columnPrefWidth[i] - columnMinWidth[i];
 				float growRatio = growWidth / (float)totalGrowWidth;
@@ -793,8 +837,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		if (totalGrowHeight == 0)
 			rowWeightedHeight = rowMinHeight;
 		else {
+			rowWeightedHeight = this.rowWeightedHeight = ensureSize(this.rowWeightedHeight, rows);
 			int extraHeight = Math.min(totalGrowHeight, Math.max(0, layoutHeight - totalMinHeight));
-			rowWeightedHeight = new int[rows];
 			for (int i = 0; i < rows; i++) {
 				int growHeight = rowPrefHeight[i] - rowMinHeight[i];
 				float growRatio = growHeight / (float)totalGrowHeight;
@@ -802,24 +846,10 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			}
 		}
 
-		// Determine widget and cell sizes (before uniform/expand/fill). Also collect columns/rows that expand.
-		int[] columnWidth = new int[columns];
-		int[] rowHeight = new int[rows];
-		float[] expandWidth = new float[columns];
-		float[] expandHeight = new float[rows];
-		float totalExpandWidth = 0, totalExpandHeight = 0;
+		// Determine widget and cell sizes (before uniform/expand/fill).
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
-
-			if (c.expandY != 0 && expandHeight[c.row] == 0) {
-				expandHeight[c.row] = c.expandY;
-				totalExpandHeight += c.expandY;
-			}
-			if (c.colspan == 1 && c.expandX != 0 && expandWidth[c.column] == 0) {
-				expandWidth[c.column] = c.expandX;
-				totalExpandWidth += c.expandX;
-			}
 
 			int spannedWeightedWidth = 0;
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
@@ -842,19 +872,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 			if (c.colspan == 1) columnWidth[c.column] = Math.max(columnWidth[c.column], spannedWeightedWidth);
 			rowHeight[c.row] = Math.max(rowHeight[c.row], weightedHeight);
-		}
-
-		// Colspan with expand will expand all spanned cells if none of the spanned cells have expand.
-		outer:
-		for (int i = 0, n = cells.size(); i < n; i++) {
-			Cell c = cells.get(i);
-			if (c.ignore) continue;
-			if (c.expandX == 0) continue;
-			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
-				if (expandWidth[column] != 0) continue outer;
-			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
-				expandWidth[column] = c.expandX;
-			totalExpandWidth += c.expandX * c.colspan;
 		}
 
 		// Uniform cells are all the same width/height.
