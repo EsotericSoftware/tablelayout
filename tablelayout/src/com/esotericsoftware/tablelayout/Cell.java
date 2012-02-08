@@ -508,10 +508,7 @@ public class Cell<C> {
 	}
 
 	public Cell center () {
-		if (align == null)
-			align = CENTER;
-		else
-			align |= CENTER;
+		align = CENTER;
 		return this;
 	}
 
