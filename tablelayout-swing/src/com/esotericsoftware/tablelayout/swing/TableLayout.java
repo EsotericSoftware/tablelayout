@@ -46,11 +46,11 @@ public class TableLayout extends BaseTableLayout<Component, Table, TableLayout, 
 
 	public void invalidate () {
 		super.invalidate();
-		getTable().validate();
+		if (getTable().isValid()) getTable().invalidate();
 	}
 
 	public void invalidateHierarchy () {
-		getTable().invalidate();
+		if (getTable().isValid()) getTable().invalidate();
 	}
 
 	void drawDebug () {

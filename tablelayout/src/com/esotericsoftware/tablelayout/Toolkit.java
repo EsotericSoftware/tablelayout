@@ -71,15 +71,8 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 	/** Returns the layout for a table. */
 	abstract public L getLayout (T table);
 
-	/** Returns a new table that will be nested under the specified table. The default implementation attempts to use the zero
-	 * argument constructor of the specified table's class. */
-	public T newTable (T parent) {
-		try {
-			return (T)parent.getClass().newInstance();
-		} catch (Exception ex) {
-			throw new RuntimeException("Unable to create an instance of: " + parent.getClass().getName());
-		}
-	}
+	/** Returns a new table that will be nested under the specified table. */
+	abstract public T newTable (T parent);
 
 	public void setWidget (L layout, Cell cell, C widget) {
 		removeChild((T)layout.table, (C)cell.widget);

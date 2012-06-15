@@ -40,6 +40,10 @@ public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 	static final HashMap<String, Integer> drawableToID = new HashMap();
 	static Paint paint;
 
+	public Table newTable (Table parent) {
+		return new Table();
+	}
+	
 	public void setWidget (TableLayout layout, Cell cell, View widget) {
 		super.setWidget(layout, cell, widget);
 		layout.otherChildren.remove(widget);
@@ -167,8 +171,8 @@ public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 
 	static public void setup (Activity activity, Class drawableClass) {
 		context = activity;
-		if (!drawableClass.getName().endsWith(".R$drawable"))
-			throw new RuntimeException("The drawable class must be R.drawable: " + drawableClass);
+		// if (!drawableClass.getName().endsWith(".R$drawable"))
+		// throw new RuntimeException("The drawable class must be R.drawable: " + drawableClass);
 
 		DisplayMetrics metrics = new DisplayMetrics();
 		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);

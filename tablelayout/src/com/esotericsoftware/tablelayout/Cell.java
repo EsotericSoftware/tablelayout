@@ -621,17 +621,19 @@ public class Cell<C> {
 		return this;
 	}
 
-	public void scaling (String scaling) {
+	public Cell scaling (String scaling) {
 		if (scaling.equals("fit"))
 			this.scaling = SCALE_FIT;
 		else if (scaling.equals("fill"))
 			this.scaling = SCALE_FILL;
 		else
 			this.scaling = SCALE_STRETCH;
+		return this;
 	}
 
-	public void scaling (Integer scaling) {
+	public Cell scaling (Integer scaling) {
 		this.scaling = scaling;
+		return this;
 	}
 
 	public int getWidgetX () {

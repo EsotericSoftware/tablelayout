@@ -13,6 +13,10 @@ public class TwlToolkit extends Toolkit<Widget, Table, TableLayout> {
 
 	static public final TwlToolkit instance = new TwlToolkit();
 
+	public Table newTable (Table parent) {
+		return new Table();
+	}
+
 	public TableLayout getLayout (Table table) {
 		return table.layout;
 	}

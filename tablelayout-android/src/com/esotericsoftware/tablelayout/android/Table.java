@@ -100,6 +100,11 @@ public class Table extends ViewGroup {
 		}
 	}
 
+	public void requestLayout () {
+		if (layout != null) layout.invalidateSuper();
+		super.requestLayout();
+	}
+
 	protected int getSuggestedMinimumWidth () {
 		int width = layout.getMinWidth();
 		if (sizeToBackground && getBackground() != null) width = Math.max(width, getBackground().getMinimumWidth());

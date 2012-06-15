@@ -3,6 +3,7 @@ package com.esotericsoftware.tablelayout.swing;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
@@ -28,6 +29,10 @@ public class SwingToolkit extends Toolkit<Component, Table, TableLayout> {
 	static Timer timer;
 	static ArrayList<TableLayout> debugLayouts = new ArrayList(0);
 
+	public Table newTable (Table parent) {
+		return new Table();
+	}
+
 	public void addChild (Component parent, Component child, String layoutString) {
 		if (parent instanceof JSplitPane && layoutString == null) {
 			if (((JSplitPane)parent).getLeftComponent() instanceof JButton)
@@ -48,7 +53,13 @@ public class SwingToolkit extends Toolkit<Component, Table, TableLayout> {
 
 	public Component wrap (TableLayout layout, Object object) {
 		if (object instanceof String) return new JLabel((String)object);
-		if (object == null) return new JPanel();
+		if (object == null) {
+			JPanel empty = new JPanel();
+			Dimension size = new Dimension();
+			empty.setMinimumSize(size);
+			empty.setPreferredSize(size);
+			return empty;
+		}
 		if (object instanceof LayoutManager) return new JPanel((LayoutManager)object);
 		return super.wrap(layout, object);
 	}

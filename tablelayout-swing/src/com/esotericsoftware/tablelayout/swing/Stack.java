@@ -4,6 +4,7 @@ package com.esotericsoftware.tablelayout.swing;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.LayoutManager;
 
 import javax.swing.JPanel;
@@ -46,5 +47,9 @@ public class Stack extends JPanel {
 			public void removeLayoutComponent (Component comp) {
 			}
 		});
+	}
+
+	protected void paintChildren (Graphics g) {
+		super.paintChildren(g);
 	}
 }

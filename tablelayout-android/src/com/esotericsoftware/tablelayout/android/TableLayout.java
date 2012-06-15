@@ -62,11 +62,17 @@ public class TableLayout extends BaseTableLayout<View, Table, TableLayout, Andro
 		}
 	}
 
+	void invalidateSuper () {
+		super.invalidate();
+	}
+
 	public void invalidate () {
+		super.invalidate();
 		getTable().requestLayout();
 	}
 
 	public void invalidateHierarchy () {
+		super.invalidate();
 		getTable().requestLayout();
 	}
 
