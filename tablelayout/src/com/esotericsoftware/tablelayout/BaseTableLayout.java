@@ -30,7 +30,7 @@ package com.esotericsoftware.tablelayout;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.esotericsoftware.tablelayout.Values.FixedValue;
+import com.esotericsoftware.tablelayout.Value.FixedValue;
 
 // BOZO - Support inserting cells/rows.
 
@@ -535,32 +535,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return array;
 	}
 
-	private float w (Value value) {
-		if (value == null) return 0;
-		value.layout = this;
-		return toolkit.width(value.get());
-	}
-
-	private float h (Value value) {
-		if (value == null) return 0;
-		value.layout = this;
-		return toolkit.height(value.get());
-	}
-
-	private float w (Cell cell, Value value) {
-		if (value == null) return 0;
-		value.layout = this;
-		value.cell = cell;
-		return toolkit.width(value.get());
-	}
-
-	private float h (Cell cell, Value value) {
-		if (value == null) return 0;
-		value.layout = this;
-		value.cell = cell;
-		return toolkit.height(value.get());
-	}
-
 	private void computeSize () {
 		sizeInvalid = false;
 
@@ -589,25 +563,25 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 			// Compute combined padding/spacing for cells.
 			// Spacing between widgets isn't additive, the larger is used. Also, no spacing around edges.
-			c.computedPadLeft = c.column == 0 ? w(c, c.padLeft) : w(c, c.padLeft) + Math.max(0, w(c, c.spaceLeft) - spaceRightLast);
+			c.computedPadLeft = w(c.padLeft, c) + c.column == 0 ? 0 : Math.max(0, w(c.spaceLeft, c)) - spaceRightLast;
 			if (c.cellAboveIndex == -1)
-				c.computedPadTop = h(c, c.padTop);
+				c.computedPadTop = h(c.padTop, c);
 			else {
 				Cell above = cells.get(c.cellAboveIndex);
-				c.computedPadTop = h(c, c.padTop) + Math.max(0, h(c, c.spaceTop) - h(above, above.spaceBottom));
+				c.computedPadTop = h(c.padTop, c) + Math.max(0, h(c.spaceTop, c) - h(above.spaceBottom, above));
 			}
-			float spaceRight = w(c, c.spaceRight);
-			c.computedPadRight = c.column + c.colspan == columns ? w(c, c.padRight) : w(c, c.padRight) + spaceRight;
-			c.computedPadBottom = c.row == rows - 1 ? h(c, c.padBottom) : h(c, c.padBottom) + h(c, c.spaceBottom);
+			float spaceRight = w(c.spaceRight, c);
+			c.computedPadRight = c.column + w(c.padRight, c) + c.colspan == columns ? 0 : spaceRight;
+			c.computedPadBottom = h(c.padBottom, c) + c.row == rows - 1 ? 0 : h(c.spaceBottom, c);
 			spaceRightLast = spaceRight;
 
 			// Determine minimum and preferred cell sizes.
-			float prefWidth = w(c, c.prefWidth);
-			float prefHeight = h(c, c.prefHeight);
-			float minWidth = w(c, c.minWidth);
-			float minHeight = h(c, c.minHeight);
-			float maxWidth = w(c, c.maxWidth);
-			float maxHeight = h(c, c.maxHeight);
+			float prefWidth = w(c.prefWidth, c);
+			float prefHeight = h(c.prefHeight, c);
+			float minWidth = w(c.minWidth, c);
+			float minHeight = h(c.minHeight, c);
+			float maxWidth = w(c.maxWidth, c);
+			float maxHeight = h(c.maxHeight, c);
 			if (prefWidth < minWidth) prefWidth = minWidth;
 			if (prefHeight < minHeight) prefHeight = minHeight;
 			if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth;
@@ -641,9 +615,9 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			if (c.ignore) continue;
 			if (c.colspan == 1) continue;
 
-			float minWidth = w(c, c.minWidth);
-			float prefWidth = w(c, c.prefWidth);
-			float maxWidth = w(c, c.maxWidth);
+			float minWidth = w(c.minWidth, c);
+			float prefWidth = w(c.prefWidth, c);
+			float maxWidth = w(c.maxWidth, c);
 			if (prefWidth < minWidth) prefWidth = minWidth;
 			if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth;
 
@@ -688,6 +662,22 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		tablePrefHeight = Math.max(tablePrefHeight + vpadding, tableMinHeight);
 	}
 
+	private float w (Value value) {
+		return value == null ? 0 : value.width(table);
+	}
+
+	private float h (Value value) {
+		return value == null ? 0 : value.height(table);
+	}
+
+	private float w (Value value, Cell cell) {
+		return value == null ? 0 : value.width(cell);
+	}
+
+	private float h (Value value, Cell cell) {
+		return value == null ? 0 : value.height(cell);
+	}
+
 	/** Positions and sizes children of the widget being laid out using the cell associated with each child. The values given are
 	 * the position within the parent and size of the widget that will be laid out. */
 	public void layout (float layoutX, float layoutY, float layoutWidth, float layoutHeight) {
@@ -725,7 +715,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			for (int i = 0; i < columns; i++) {
 				float growWidth = columnPrefWidth[i] - columnMinWidth[i];
 				float growRatio = growWidth / (float)totalGrowWidth;
-				columnWeightedWidth[i] = columnMinWidth[i] + (int)(extraWidth * growRatio);
+				columnWeightedWidth[i] = columnMinWidth[i] + extraWidth * growRatio;
 			}
 		}
 
@@ -739,7 +729,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			for (int i = 0; i < rows; i++) {
 				float growHeight = rowPrefHeight[i] - rowMinHeight[i];
 				float growRatio = growHeight / (float)totalGrowHeight;
-				rowWeightedHeight[i] = rowMinHeight[i] + (int)(extraHeight * growRatio);
+				rowWeightedHeight[i] = rowMinHeight[i] + extraHeight * growRatio;
 			}
 		}
 
@@ -753,12 +743,12 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				spannedWeightedWidth += columnWeightedWidth[column];
 			float weightedHeight = rowWeightedHeight[c.row];
 
-			float prefWidth = w(c, c.prefWidth);
-			float prefHeight = h(c, c.prefHeight);
-			float minWidth = w(c, c.minWidth);
-			float minHeight = h(c, c.minHeight);
-			float maxWidth = w(c, c.maxWidth);
-			float maxHeight = h(c, c.maxHeight);
+			float prefWidth = w(c.prefWidth, c);
+			float prefHeight = h(c.prefHeight, c);
+			float minWidth = w(c.minWidth, c);
+			float minHeight = h(c.minHeight, c);
+			float maxWidth = w(c.maxWidth, c);
+			float maxHeight = h(c.maxHeight, c);
 			if (prefWidth < minWidth) prefWidth = minWidth;
 			if (prefHeight < minHeight) prefHeight = minHeight;
 			if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth;
@@ -877,7 +867,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		else if ((align & LEFT) == 0) // Center
 			x += (layoutWidth - tableWidth) / 2;
 
-		float y = layoutY + h(padTop);
+		float y = layoutY + w(padTop);
 		if ((align & BOTTOM) != 0)
 			y += layoutHeight - tableHeight;
 		else if ((align & TOP) == 0) // Center
@@ -897,13 +887,13 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			currentX += c.computedPadLeft;
 
 			if (c.fillX > 0) {
-				c.widgetWidth = (int)(spannedCellWidth * c.fillX);
-				float maxWidth = w(c, c.maxWidth);
+				c.widgetWidth = spannedCellWidth * c.fillX;
+				float maxWidth = w(c.maxWidth, c);
 				if (maxWidth > 0) c.widgetWidth = Math.min(c.widgetWidth, maxWidth);
 			}
 			if (c.fillY > 0) {
-				c.widgetHeight = (int)(rowHeight[c.row] * c.fillY) - c.computedPadTop - c.computedPadBottom;
-				float maxHeight = h(c, c.maxHeight);
+				c.widgetHeight = rowHeight[c.row] * c.fillY - c.computedPadTop - c.computedPadBottom;
+				float maxHeight = h(c.maxHeight, c);
 				if (maxHeight > 0) c.widgetHeight = Math.min(c.widgetHeight, maxHeight);
 			}
 
@@ -915,14 +905,14 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				case fit:
 					scale = c.widgetHeight / (float)c.widgetWidth > sourceHeight / sourceWidth ? c.widgetWidth / sourceWidth
 						: c.widgetHeight / sourceHeight;
-					c.widgetWidth = (int)(sourceWidth * scale);
-					c.widgetHeight = (int)(sourceHeight * scale);
+					c.widgetWidth = sourceWidth * scale;
+					c.widgetHeight = sourceHeight * scale;
 					break;
 				case fill:
 					scale = c.widgetHeight / (float)c.widgetWidth < sourceHeight / sourceWidth ? c.widgetWidth / sourceWidth
 						: c.widgetHeight / sourceHeight;
-					c.widgetWidth = (int)(sourceWidth * scale);
-					c.widgetHeight = (int)(sourceHeight * scale);
+					c.widgetWidth = sourceWidth * scale;
+					c.widgetHeight = sourceHeight * scale;
 					break;
 				}
 			}

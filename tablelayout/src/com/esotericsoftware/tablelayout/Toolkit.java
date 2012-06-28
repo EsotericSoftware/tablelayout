@@ -31,6 +31,8 @@ import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
 
 /** @author Nathan Sweet */
 public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
+	static public Toolkit instance;
+
 	/** Adds a child to the specified parent.
 	 * @param layoutString May be null. */
 	abstract public void addChild (C parent, C child, String layoutString);

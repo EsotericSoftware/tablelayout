@@ -27,7 +27,8 @@
 
 package com.esotericsoftware.tablelayout;
 
-import com.esotericsoftware.tablelayout.Values.FixedValue;
+import com.esotericsoftware.tablelayout.BaseTableLayout.Scale;
+import com.esotericsoftware.tablelayout.Value.FixedValue;
 
 import static com.esotericsoftware.tablelayout.BaseTableLayout.*;
 
@@ -775,12 +776,12 @@ public class Cell<C> {
 
 	static Cell defaults (BaseTableLayout layout) {
 		Cell defaults = new Cell(layout);
-		defaults.minWidth = Values.minWidth();
-		defaults.minHeight = Values.minHeight();
-		defaults.prefWidth = Values.prefWidth();
-		defaults.prefHeight = Values.prefHeight();
-		defaults.maxWidth = Values.maxWidth();
-		defaults.maxHeight = Values.maxHeight();
+		defaults.minWidth = Value.minWidth();
+		defaults.minHeight = Value.minHeight();
+		defaults.prefWidth = Value.prefWidth();
+		defaults.prefHeight = Value.prefHeight();
+		defaults.maxWidth = Value.maxWidth();
+		defaults.maxHeight = Value.maxHeight();
 		defaults.spaceTop = null;
 		defaults.spaceLeft = null;
 		defaults.spaceBottom = null;
