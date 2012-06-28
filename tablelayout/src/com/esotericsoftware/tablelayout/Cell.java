@@ -486,6 +486,12 @@ public class Cell<C> {
 		return this;
 	}
 
+	public Cell fill (boolean fill) {
+		fillX = fill ? 1f : 0;
+		fillY = fill ? 1f : 0;
+		return this;
+	}
+
 	/** Alignment of the widget within the cell. Set to {@link #CENTER}, {@link #TOP}, {@link #BOTTOM}, {@link #LEFT},
 	 * {@link #RIGHT}, or any combination of those. */
 	public Cell align (Integer align) {
