@@ -535,6 +535,22 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return array;
 	}
 
+	private float w (Value value) {
+		return value == null ? 0 : value.width(table);
+	}
+
+	private float h (Value value) {
+		return value == null ? 0 : value.height(table);
+	}
+
+	private float w (Value value, Cell cell) {
+		return value == null ? 0 : value.width(cell);
+	}
+
+	private float h (Value value, Cell cell) {
+		return value == null ? 0 : value.height(cell);
+	}
+
 	private void computeSize () {
 		sizeInvalid = false;
 
@@ -660,22 +676,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		tableMinHeight = Math.max(tableMinHeight + vpadding, h(height));
 		tablePrefWidth = Math.max(tablePrefWidth + hpadding, tableMinWidth);
 		tablePrefHeight = Math.max(tablePrefHeight + vpadding, tableMinHeight);
-	}
-
-	private float w (Value value) {
-		return value == null ? 0 : value.width(table);
-	}
-
-	private float h (Value value) {
-		return value == null ? 0 : value.height(table);
-	}
-
-	private float w (Value value, Cell cell) {
-		return value == null ? 0 : value.width(cell);
-	}
-
-	private float h (Value value, Cell cell) {
-		return value == null ? 0 : value.height(cell);
 	}
 
 	/** Positions and sizes children of the widget being laid out using the cell associated with each child. The values given are
