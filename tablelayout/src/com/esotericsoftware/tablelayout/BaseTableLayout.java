@@ -43,17 +43,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	static public final int LEFT = 1 << 3;
 	static public final int RIGHT = 1 << 4;
 
-	static public enum Scale {
-		/** Scales the source to fit the target while keeping the same aspect ratio. This may cause the source to be smaller than the
-		 * target in one dimension. */
-		fit,
-		/** Scales the source to completely fill the target while keeping the same aspect ratio. This may cause the source to be
-		 * larger than the target in one dimension. */
-		fill,
-		/** Scales the source to completely fill the target. This may cause the source to not keep the same aspect ratio. */
-		stretch
-	}
-
 	static public enum Debug {
 		none, all, table, cell, widget
 	}
@@ -77,7 +66,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	private float[] columnWeightedWidth, rowWeightedHeight;
 
 	private float layoutWidth, layoutHeight;
-	Value width, height;
 	Value padTop, padLeft, padBottom, padRight;
 	int align = CENTER;
 	Debug debug = Debug.none;
@@ -258,50 +246,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return toolkit;
 	}
 
-	/** The fixed size of the table. */
-	public L size (Value width, Value height) {
-		this.width = width;
-		this.height = height;
-		sizeInvalid = true;
-		return (L)this;
-	}
-
-	/** The fixed width of the table, or null. */
-	public L width (Value width) {
-		this.width = width;
-		sizeInvalid = true;
-		return (L)this;
-	}
-
-	/** The fixed height of the table, or null. */
-	public L height (Value height) {
-		this.height = height;
-		sizeInvalid = true;
-		return (L)this;
-	}
-
-	/** The fixed size of the table. */
-	public L size (float width, float height) {
-		this.width = new FixedValue(width);
-		this.height = new FixedValue(height);
-		sizeInvalid = true;
-		return (L)this;
-	}
-
-	/** The fixed width of the table. */
-	public L width (float width) {
-		this.width = new FixedValue(width);
-		sizeInvalid = true;
-		return (L)this;
-	}
-
-	/** The fixed height of the table. */
-	public L height (float height) {
-		this.height = new FixedValue(height);
-		sizeInvalid = true;
-		return (L)this;
-	}
-
 	/** Padding around the table. */
 	public L pad (Value pad) {
 		padTop = pad;
@@ -472,14 +416,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return debug;
 	}
 
-	public Value getWidth () {
-		return width;
-	}
-
-	public Value getHeight () {
-		return height;
-	}
-
 	public Value getPadTop () {
 		return padTop;
 	}
@@ -579,7 +515,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 			// Compute combined padding/spacing for cells.
 			// Spacing between widgets isn't additive, the larger is used. Also, no spacing around edges.
-			c.computedPadLeft = w(c.padLeft, c) + c.column == 0 ? 0 : Math.max(0, w(c.spaceLeft, c)) - spaceRightLast;
+			c.computedPadLeft = w(c.padLeft, c) + (c.column == 0 ? 0 : Math.max(0, w(c.spaceLeft, c)) - spaceRightLast);
 			if (c.cellAboveIndex == -1)
 				c.computedPadTop = h(c.padTop, c);
 			else {
@@ -587,8 +523,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				c.computedPadTop = h(c.padTop, c) + Math.max(0, h(c.spaceTop, c) - h(above.spaceBottom, above));
 			}
 			float spaceRight = w(c.spaceRight, c);
-			c.computedPadRight = c.column + w(c.padRight, c) + c.colspan == columns ? 0 : spaceRight;
-			c.computedPadBottom = h(c.padBottom, c) + c.row == rows - 1 ? 0 : h(c.spaceBottom, c);
+			c.computedPadRight = c.column + w(c.padRight, c) + (c.colspan == columns ? 0 : spaceRight);
+			c.computedPadBottom = h(c.padBottom, c) + (c.row == rows - 1 ? 0 : h(c.spaceBottom, c));
 			spaceRightLast = spaceRight;
 
 			// Determine minimum and preferred cell sizes.
@@ -672,8 +608,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		}
 		float hpadding = w(padLeft) + w(padRight);
 		float vpadding = h(padTop) + h(padBottom);
-		tableMinWidth = Math.max(tableMinWidth + hpadding, w(width));
-		tableMinHeight = Math.max(tableMinHeight + vpadding, h(height));
+		tableMinWidth = tableMinWidth + hpadding;
+		tableMinHeight = tableMinHeight + vpadding;
 		tablePrefWidth = Math.max(tablePrefWidth + hpadding, tableMinWidth);
 		tablePrefHeight = Math.max(tablePrefHeight + vpadding, tableMinHeight);
 	}
@@ -807,7 +743,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			int lastIndex = 0;
 			for (int i = 0; i < columns; i++) {
 				if (expandWidth[i] == 0) continue;
-				float amount = extra * expandWidth[i] / totalExpandWidth; // cast to int option?
+				float amount = extra * expandWidth[i] / totalExpandWidth;
 				columnWidth[i] += amount;
 				used += amount;
 				lastIndex = i;
@@ -822,7 +758,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			int lastIndex = 0;
 			for (int i = 0; i < rows; i++) {
 				if (expandHeight[i] == 0) continue;
-				float amount = extra * expandHeight[i] / totalExpandHeight; // cast to int option?
+				float amount = extra * expandHeight[i] / totalExpandHeight;
 				rowHeight[i] += amount;
 				used += amount;
 				lastIndex = i;
@@ -849,16 +785,11 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		}
 
 		// Determine table size.
-		float tableWidth = 0, tableHeight = 0;
+		float tableWidth = hpadding, tableHeight = vpadding;
 		for (int i = 0; i < columns; i++)
 			tableWidth += columnWidth[i];
-		float width = w(this.width);
-		tableWidth = Math.max(tableWidth + hpadding, width);
-
 		for (int i = 0; i < rows; i++)
 			tableHeight += rowHeight[i];
-		float height = h(this.height);
-		tableHeight = Math.max(tableHeight + vpadding, height);
 
 		// Position table within the container.
 		float x = layoutX + w(padLeft);
@@ -895,26 +826,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				c.widgetHeight = rowHeight[c.row] * c.fillY - c.computedPadTop - c.computedPadBottom;
 				float maxHeight = h(c.maxHeight, c);
 				if (maxHeight > 0) c.widgetHeight = Math.min(c.widgetHeight, maxHeight);
-			}
-
-			if (c.scaling != Scale.stretch) {
-				float sourceWidth = toolkit.width(toolkit.getPrefWidth(c.widget));
-				float sourceHeight = toolkit.height(toolkit.getPrefHeight(c.widget));
-				float scale;
-				switch (c.scaling) {
-				case fit:
-					scale = c.widgetHeight / (float)c.widgetWidth > sourceHeight / sourceWidth ? c.widgetWidth / sourceWidth
-						: c.widgetHeight / sourceHeight;
-					c.widgetWidth = sourceWidth * scale;
-					c.widgetHeight = sourceHeight * scale;
-					break;
-				case fill:
-					scale = c.widgetHeight / (float)c.widgetWidth < sourceHeight / sourceWidth ? c.widgetWidth / sourceWidth
-						: c.widgetHeight / sourceHeight;
-					c.widgetWidth = sourceWidth * scale;
-					c.widgetHeight = sourceHeight * scale;
-					break;
-				}
 			}
 
 			if ((c.align & LEFT) != 0)

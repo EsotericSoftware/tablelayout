@@ -27,7 +27,6 @@
 
 package com.esotericsoftware.tablelayout;
 
-import com.esotericsoftware.tablelayout.BaseTableLayout.Scale;
 import com.esotericsoftware.tablelayout.Value.FixedValue;
 
 import static com.esotericsoftware.tablelayout.BaseTableLayout.*;
@@ -45,7 +44,6 @@ public class Cell<C> {
 	Boolean ignore;
 	Integer colspan;
 	Boolean uniformX, uniformY;
-	Scale scaling;
 
 	C widget;
 	float widgetX, widgetY;
@@ -85,7 +83,6 @@ public class Cell<C> {
 		colspan = defaults.colspan;
 		uniformX = defaults.uniformX;
 		uniformY = defaults.uniformY;
-		scaling = defaults.scaling;
 	}
 
 	void merge (Cell cell) {
@@ -113,7 +110,6 @@ public class Cell<C> {
 		if (cell.colspan != null) colspan = cell.colspan;
 		if (cell.uniformX != null) uniformX = cell.uniformX;
 		if (cell.uniformY != null) uniformY = cell.uniformY;
-		if (cell.scaling != null) scaling = cell.scaling;
 	}
 
 	public Cell setWidget (C widget) {
@@ -625,21 +621,6 @@ public class Cell<C> {
 		return this;
 	}
 
-	public Cell scaling (String scaling) {
-		if (scaling.equals("fit"))
-			this.scaling = Scale.fit;
-		else if (scaling.equals("fill"))
-			this.scaling = Scale.fill;
-		else
-			this.scaling = Scale.stretch;
-		return this;
-	}
-
-	public Cell scaling (Scale scaling) {
-		this.scaling = scaling;
-		return this;
-	}
-
 	public float getWidgetX () {
 		return widgetX;
 	}
@@ -752,10 +733,6 @@ public class Cell<C> {
 		return uniformY;
 	}
 
-	public Scale getScaling () {
-		return scaling;
-	}
-
 	public boolean isEndRow () {
 		return endRow;
 	}
@@ -803,7 +780,6 @@ public class Cell<C> {
 		defaults.expandY = 0;
 		defaults.ignore = false;
 		defaults.colspan = 1;
-		defaults.scaling = Scale.stretch;
 		return defaults;
 	}
 }
