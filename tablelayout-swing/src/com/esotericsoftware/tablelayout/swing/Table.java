@@ -130,48 +130,6 @@ public class Table extends JComponent {
 		return layout.getCells();
 	}
 
-	/** The fixed size of the table.
-	 * @see TableLayout#size(Value, Value) */
-	public Table size (Value width, Value height) {
-		layout.size(width, height);
-		return this;
-	}
-
-	/** The fixed width of the table, or null.
-	 * @see TableLayout#width(Value) */
-	public Table width (Value width) {
-		layout.width(width);
-		return this;
-	}
-
-	/** The fixed height of the table, or null.
-	 * @see TableLayout#height(Value) */
-	public Table height (Value height) {
-		layout.height(height);
-		return this;
-	}
-
-	/** The fixed size of the table.
-	 * @see TableLayout#size(float, float) */
-	public Table size (int width, int height) {
-		layout.size(width, height);
-		return this;
-	}
-
-	/** The fixed width of the table.
-	 * @see TableLayout#width(float) */
-	public Table width (int width) {
-		layout.width(width);
-		return this;
-	}
-
-	/** The fixed height of the table.
-	 * @see TableLayout#height(float) */
-	public Table height (int height) {
-		layout.height(height);
-		return this;
-	}
-
 	/** Padding around the table.
 	 * @see TableLayout#pad(Value) */
 	public Table pad (Value pad) {
