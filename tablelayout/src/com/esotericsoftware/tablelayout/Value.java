@@ -24,9 +24,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
- 
+
 package com.esotericsoftware.tablelayout;
 
+/** @author Nathan Swet */
 abstract public class Value {
 	abstract public float get (Object table);
 
