@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
 import com.esotericsoftware.tablelayout.Cell;
 
 public class Table extends ViewGroup {
@@ -43,10 +44,6 @@ public class Table extends ViewGroup {
 		return layout.row();
 	}
 
-	public void parse (String tableDescription) {
-		layout.parse(tableDescription);
-	}
-
 	public Cell columnDefaults (int column) {
 		return layout.columnDefaults(column);
 	}
@@ -58,10 +55,6 @@ public class Table extends ViewGroup {
 	protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec) {
 		boolean widthUnspecified = MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.UNSPECIFIED;
 		boolean heightUnspecified = MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED;
-
-		layout.setLayoutSize(0, 0, //
-			widthUnspecified ? 0 : MeasureSpec.getSize(widthMeasureSpec), //
-			heightUnspecified ? 0 : MeasureSpec.getSize(heightMeasureSpec));
 
 		measureChildren(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
 			MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
@@ -77,10 +70,12 @@ public class Table extends ViewGroup {
 			}
 		}
 
-		layout.layout();
+		layout.layout(0, 0, //
+			widthUnspecified ? 0 : MeasureSpec.getSize(widthMeasureSpec), //
+			heightUnspecified ? 0 : MeasureSpec.getSize(heightMeasureSpec));
 
-		int measuredWidth = widthUnspecified ? layout.getMinWidth() : layout.getPrefWidth();
-		int measuredHeight = heightUnspecified ? layout.getMinHeight() : layout.getPrefHeight();
+		int measuredWidth = (int)(widthUnspecified ? layout.getMinWidth() : layout.getPrefWidth());
+		int measuredHeight = (int)(heightUnspecified ? layout.getMinHeight() : layout.getPrefHeight());
 
 		invalidate();
 		measuredWidth = Math.max(measuredWidth, getSuggestedMinimumWidth());
@@ -90,11 +85,9 @@ public class Table extends ViewGroup {
 	}
 
 	protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
-		layout.setLayoutSize(0, 0, right - left, bottom - top);
+		layout.layout(0, 0, right - left, bottom - top);
 
-		layout.layout();
-
-		if (layout.getDebug() != TableLayout.DEBUG_NONE && layout.debugRects != null) {
+		if (layout.getDebug() != Debug.none && layout.debugRects != null) {
 			setWillNotDraw(false);
 			invalidate();
 		}
@@ -106,13 +99,13 @@ public class Table extends ViewGroup {
 	}
 
 	protected int getSuggestedMinimumWidth () {
-		int width = layout.getMinWidth();
+		int width = (int)layout.getMinWidth();
 		if (sizeToBackground && getBackground() != null) width = Math.max(width, getBackground().getMinimumWidth());
 		return width;
 	}
 
 	protected int getSuggestedMinimumHeight () {
-		int height = layout.getMinHeight();
+		int height = (int)layout.getMinHeight();
 		if (sizeToBackground && getBackground() != null) height = Math.max(height, getBackground().getMinimumHeight());
 		return height;
 	}

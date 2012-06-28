@@ -28,9 +28,9 @@
 package com.esotericsoftware.tablelayout;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
+
+import com.esotericsoftware.tablelayout.Values.FixedValue;
 
 // BOZO - Support inserting cells/rows.
 
@@ -43,29 +43,23 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	static public final int LEFT = 1 << 3;
 	static public final int RIGHT = 1 << 4;
 
-	/** Scales the source to fit the target while keeping the same aspect ratio. This may cause the source to be smaller than the
-	 * target in one dimension. */
-	static public final int SCALE_FIT = 1 << 1;
-	/** Scales the source to completely fill the target while keeping the same aspect ratio. This may cause the source to be larger
-	 * than the target in one dimension. */
-	static public final int SCALE_FILL = 1 << 2;
-	/** Scales the source to completely fill the target. This may cause the source to not keep the same aspect ratio. */
-	static public final int SCALE_STRETCH = 1 << 3;
+	static public enum Scale {
+		/** Scales the source to fit the target while keeping the same aspect ratio. This may cause the source to be smaller than the
+		 * target in one dimension. */
+		fit,
+		/** Scales the source to completely fill the target while keeping the same aspect ratio. This may cause the source to be
+		 * larger than the target in one dimension. */
+		fill,
+		/** Scales the source to completely fill the target. This may cause the source to not keep the same aspect ratio. */
+		stretch
+	}
 
-	static public final String MIN = "min";
-	static public final String PREF = "pref";
-	static public final String MAX = "max";
-
-	static public final int DEBUG_NONE = 0;
-	static public final int DEBUG_ALL = 1 << 0;
-	static public final int DEBUG_TABLE = 1 << 1;
-	static public final int DEBUG_CELL = 1 << 2;
-	static public final int DEBUG_WIDGET = 1 << 3;
+	static public enum Debug {
+		none, all, table, cell, widget
+	}
 
 	K toolkit;
 	T table;
-	HashMap<String, C> nameToWidget = new HashMap(8);
-	HashMap<C, Cell> widgetToCell = new HashMap(8);
 	private int columns, rows;
 
 	private final ArrayList<Cell> cells = new ArrayList(4);
@@ -73,22 +67,20 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	private final ArrayList<Cell> columnDefaults = new ArrayList(2);
 	private Cell rowDefaults;
 
-	private int layoutX, layoutY;
-	private int layoutWidth, layoutHeight;
-
 	private boolean sizeInvalid = true;
-	private int[] columnMinWidth, rowMinHeight;
-	private int[] columnPrefWidth, rowPrefHeight;
-	private int tableMinWidth, tableMinHeight;
-	private int tablePrefWidth, tablePrefHeight;
-	private int[] columnWidth, rowHeight;
+	private float[] columnMinWidth, rowMinHeight;
+	private float[] columnPrefWidth, rowPrefHeight;
+	private float tableMinWidth, tableMinHeight;
+	private float tablePrefWidth, tablePrefHeight;
+	private float[] columnWidth, rowHeight;
 	private float[] expandWidth, expandHeight;
-	private int[] columnWeightedWidth, rowWeightedHeight;
+	private float[] columnWeightedWidth, rowWeightedHeight;
 
-	String width, height;
-	String padTop, padLeft, padBottom, padRight;
+	private float layoutWidth, layoutHeight;
+	Value width, height;
+	Value padTop, padLeft, padBottom, padRight;
 	int align = CENTER;
-	int debug = DEBUG_NONE;
+	Debug debug = Debug.none;
 
 	public BaseTableLayout (K toolkit) {
 		this.toolkit = toolkit;
@@ -100,44 +92,11 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 	abstract public void invalidateHierarchy ();
 
-	/** The position within it's parent and size of the widget that will be laid out. Must be set before layout. */
-	public void setLayoutSize (int tableLayoutX, int tableLayoutY, int tableLayoutWidth, int tableLayoutHeight) {
-		this.layoutX = tableLayoutX;
-		this.layoutY = tableLayoutY;
-		this.layoutWidth = tableLayoutWidth;
-		this.layoutHeight = tableLayoutHeight;
-	}
-
-	/** Sets the name of a widget so it may be referenced in {@link #parse(String)}. */
-	public C register (String name, C widget) {
-		if (name == null) throw new IllegalArgumentException("name cannot be null.");
-		name = name.toLowerCase().trim();
-		if (nameToWidget.containsKey(name)) throw new IllegalArgumentException("Name is already used: " + name);
-		nameToWidget.put(name, widget);
-		return widget;
-	}
-
-	/** Parses a table description and adds the widgets and cells to the table. */
-	public void parse (String tableDescription) {
-		TableLayoutParser.parse(this, tableDescription);
-	}
-
 	/** Adds a new cell to the table with the specified widget.
 	 * @param widget May be null to add a cell without a widget. */
-	public Cell<C> add (C widget) { // BOZO - Add column description parsing.
-		widget = toolkit.wrap((L)this, widget);
-
+	public Cell<C> add (C widget) {
 		Cell cell = new Cell(this);
 		cell.widget = widget;
-
-		widgetToCell.put(widget, cell);
-
-		for (Entry<String, C> entry : nameToWidget.entrySet()) {
-			if (widget == entry.getValue()) {
-				cell.name = entry.getKey();
-				break;
-			}
-		}
 
 		if (cells.size() > 0) {
 			// Set cell x and y.
@@ -173,13 +132,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		toolkit.addChild(table, widget, null);
 
 		return cell;
-	}
-
-	public Cell<C> stack (C... widgets) { // BOZO - Add column description parsing.
-		C stack = toolkit.newStack();
-		for (int i = 0, n = widgets.length; i < n; i++)
-			toolkit.addChild(stack, widgets[i], null);
-		return add(stack);
 	}
 
 	/** Indicates that subsequent cells should be added to a new row and returns the cell values that will be used as the defaults
@@ -228,8 +180,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		padBottom = null;
 		padRight = null;
 		align = CENTER;
-		if (debug != DEBUG_NONE) toolkit.clearDebugRectangles((L)this);
-		debug = DEBUG_NONE;
+		if (debug != Debug.none) toolkit.clearDebugRectangles((L)this);
+		debug = Debug.none;
 		cellDefaults.set(Cell.defaults(this));
 		columnDefaults.clear();
 		rowDefaults = null;
@@ -240,70 +192,23 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		for (int i = cells.size() - 1; i >= 0; i--)
 			toolkit.removeChild(table, (C)cells.get(i).widget);
 		cells.clear();
-		nameToWidget.clear();
-		widgetToCell.clear();
 		rows = 0;
 		columns = 0;
 		invalidate();
 	}
 
-	/** Returns the widget with the specified name, anywhere in the table hierarchy. */
-	public C getWidget (String name) {
-		return nameToWidget.get(name.toLowerCase());
-	}
-
-	/** Returns all named widgets, anywhere in the table hierarchy. */
-	public List<C> getWidgets () {
-		return new ArrayList(nameToWidget.values());
-	}
-
-	/** Returns all widgets with the specified name prefix, anywhere in the table hierarchy. */
-	public List<C> getWidgets (String namePrefix) {
-		ArrayList<C> widgets = new ArrayList();
-		for (Entry<String, C> entry : nameToWidget.entrySet())
-			if (entry.getKey().startsWith(namePrefix)) widgets.add(entry.getValue());
-		return widgets;
-	}
-
-	/** Returns the cell for the specified widget, anywhere in the table hierarchy. */
+	/** Returns the cell for the specified widget in this table, or null. */
 	public Cell getCell (C widget) {
-		return widgetToCell.get(widget);
-	}
-
-	/** Returns the cell with the specified name, anywhere in the table hierarchy. */
-	public Cell getCell (String name) {
-		return getCell(getWidget(name));
-	}
-
-	/** Returns all cells, anywhere in the table hierarchy. */
-	public List<Cell> getAllCells () {
-		return new ArrayList(widgetToCell.values());
-	}
-
-	/** Returns all cells with the specified name prefix, anywhere in the table hierarchy. */
-	public List<Cell> getAllCells (String namePrefix) {
-		ArrayList<Cell> cells = new ArrayList();
-		for (Cell cell : widgetToCell.values())
-			if (cell.name.startsWith(namePrefix)) cells.add(cell);
-		return cells;
+		for (int i = 0, n = cells.size(); i < n; i++) {
+			Cell c = cells.get(i);
+			if (c.getWidget() == widget) return c;
+		}
+		return null;
 	}
 
 	/** Returns the cells for this table. */
 	public List<Cell> getCells () {
 		return cells;
-	}
-
-	/** Sets the widget in the cell with the specified name. */
-	public void setWidget (String name, C widget) {
-		getCell(name).setWidget(widget);
-	}
-
-	/** Sets that this table is nested under the specified parent. This allows the root table to look up widgets and cells in nested
-	 * tables, for convenience. */
-	public void setParent (BaseTableLayout parent) {
-		// Shared per table hierarchy.
-		nameToWidget = parent.nameToWidget;
-		widgetToCell = parent.widgetToCell;
 	}
 
 	public void setToolkit (K toolkit) {
@@ -320,48 +225,26 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		this.table = table;
 	}
 
-	/** The x position within it's parent of the widget that will be laid out. Set by {@link #setLayoutSize(int, int, int, int)}
-	 * before layout. */
-	public int getLayoutX () {
-		return layoutX;
-	}
-
-	/** The y position within it's parent of the widget that will be laid out. Set by {@link #setLayoutSize(int, int, int, int)}
-	 * before layout. */
-	public int getLayoutY () {
-		return layoutY;
-	}
-
-	/** The width of the widget that will be laid out. Set by {@link #setLayoutSize(int, int, int, int)} before layout. */
-	public int getLayoutWidth () {
-		return layoutWidth;
-	}
-
-	/** The height of the widget that will be laid out. Set by {@link #setLayoutSize(int, int, int, int)} before layout. */
-	public int getLayoutHeight () {
-		return layoutHeight;
-	}
-
 	/** The minimum width of the table. */
-	public int getMinWidth () {
+	public float getMinWidth () {
 		if (sizeInvalid) computeSize();
 		return tableMinWidth;
 	}
 
 	/** The minimum size of the table. */
-	public int getMinHeight () {
+	public float getMinHeight () {
 		if (sizeInvalid) computeSize();
 		return tableMinHeight;
 	}
 
 	/** The preferred width of the table. */
-	public int getPrefWidth () {
+	public float getPrefWidth () {
 		if (sizeInvalid) computeSize();
 		return tablePrefWidth;
 	}
 
 	/** The preferred height of the table. */
-	public int getPrefHeight () {
+	public float getPrefHeight () {
 		if (sizeInvalid) computeSize();
 		return tablePrefHeight;
 	}
@@ -376,7 +259,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	}
 
 	/** The fixed size of the table. */
-	public L size (String width, String height) {
+	public L size (Value width, Value height) {
 		this.width = width;
 		this.height = height;
 		sizeInvalid = true;
@@ -384,43 +267,43 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	}
 
 	/** The fixed width of the table, or null. */
-	public L width (String width) {
+	public L width (Value width) {
 		this.width = width;
 		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** The fixed height of the table, or null. */
-	public L height (String height) {
+	public L height (Value height) {
 		this.height = height;
 		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** The fixed size of the table. */
-	public L size (int width, int height) {
-		this.width = String.valueOf(width);
-		this.height = String.valueOf(height);
+	public L size (float width, float height) {
+		this.width = new FixedValue(width);
+		this.height = new FixedValue(height);
 		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** The fixed width of the table. */
-	public L width (int width) {
-		this.width = String.valueOf(width);
+	public L width (float width) {
+		this.width = new FixedValue(width);
 		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** The fixed height of the table. */
-	public L height (int height) {
-		this.height = String.valueOf(height);
+	public L height (float height) {
+		this.height = new FixedValue(height);
 		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding around the table. */
-	public L pad (String pad) {
+	public L pad (Value pad) {
 		padTop = pad;
 		padLeft = pad;
 		padBottom = pad;
@@ -430,7 +313,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	}
 
 	/** Padding around the table. */
-	public L pad (String top, String left, String bottom, String right) {
+	public L pad (Value top, Value left, Value bottom, Value right) {
 		padTop = top;
 		padLeft = left;
 		padBottom = bottom;
@@ -440,77 +323,77 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	}
 
 	/** Padding at the top of the table. */
-	public L padTop (String padTop) {
+	public L padTop (Value padTop) {
 		this.padTop = padTop;
 		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the left of the table. */
-	public L padLeft (String padLeft) {
+	public L padLeft (Value padLeft) {
 		this.padLeft = padLeft;
 		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the bottom of the table. */
-	public L padBottom (String padBottom) {
+	public L padBottom (Value padBottom) {
 		this.padBottom = padBottom;
 		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the right of the table. */
-	public L padRight (String padRight) {
+	public L padRight (Value padRight) {
 		this.padRight = padRight;
 		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding around the table. */
-	public L pad (int pad) {
-		padTop = String.valueOf(pad);
-		padLeft = String.valueOf(pad);
-		padBottom = String.valueOf(pad);
-		padRight = String.valueOf(pad);
+	public L pad (float pad) {
+		padTop = new FixedValue(pad);
+		padLeft = new FixedValue(pad);
+		padBottom = new FixedValue(pad);
+		padRight = new FixedValue(pad);
 		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding around the table. */
-	public L pad (int top, int left, int bottom, int right) {
-		padTop = String.valueOf(top);
-		padLeft = String.valueOf(left);
-		padBottom = String.valueOf(bottom);
-		padRight = String.valueOf(right);
+	public L pad (float top, float left, float bottom, float right) {
+		padTop = new FixedValue(top);
+		padLeft = new FixedValue(left);
+		padBottom = new FixedValue(bottom);
+		padRight = new FixedValue(right);
 		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the top of the table. */
-	public L padTop (int padTop) {
-		this.padTop = String.valueOf(padTop);
+	public L padTop (float padTop) {
+		this.padTop = new FixedValue(padTop);
 		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the left of the table. */
-	public L padLeft (int padLeft) {
-		this.padLeft = String.valueOf(padLeft);
+	public L padLeft (float padLeft) {
+		this.padLeft = new FixedValue(padLeft);
 		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the bottom of the table. */
-	public L padBottom (int padBottom) {
-		this.padBottom = String.valueOf(padBottom);
+	public L padBottom (float padBottom) {
+		this.padBottom = new FixedValue(padBottom);
 		sizeInvalid = true;
 		return (L)this;
 	}
 
 	/** Padding at the right of the table. */
-	public L padRight (int padRight) {
-		this.padRight = String.valueOf(padRight);
+	public L padRight (float padRight) {
+		this.padRight = new FixedValue(padRight);
 		sizeInvalid = true;
 		return (L)this;
 	}
@@ -570,64 +453,46 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 	/** Turns on all debug lines. */
 	public L debug () {
-		this.debug = DEBUG_ALL;
+		this.debug = Debug.all;
 		invalidate();
 		return (L)this;
 	}
 
-	/** Turns on debug lines. Set to {@value #DEBUG_ALL}, {@value #DEBUG_TABLE}, {@value #DEBUG_CELL}, {@value #DEBUG_WIDGET}, or
-	 * any combination of those. Set to {@value #DEBUG_NONE} to disable. */
-	public L debug (int debug) {
+	/** Turns on debug lines. */
+	public L debug (Debug debug) {
 		this.debug = debug;
-		if (debug == DEBUG_NONE)
+		if (debug == Debug.none)
 			toolkit.clearDebugRectangles((L)this);
 		else
 			invalidate();
 		return (L)this;
 	}
 
-	/** Turns on debug lines. Set to "all", "table", "cell", "widget", or a string containing any combination of those. Set to null
-	 * to disable. */
-	public L debug (String value) {
-		debug = 0;
-		if (value == null) return (L)this;
-		if (value.equalsIgnoreCase("true")) debug |= DEBUG_ALL;
-		if (value.contains("all")) debug |= DEBUG_ALL;
-		if (value.contains("cell")) debug |= DEBUG_CELL;
-		if (value.contains("table")) debug |= DEBUG_TABLE;
-		if (value.contains("widget")) debug |= DEBUG_WIDGET;
-		if (debug == DEBUG_NONE)
-			toolkit.clearDebugRectangles((L)this);
-		else
-			invalidate();
-		return (L)this;
-	}
-
-	public int getDebug () {
+	public Debug getDebug () {
 		return debug;
 	}
 
-	public String getWidth () {
+	public Value getWidth () {
 		return width;
 	}
 
-	public String getHeight () {
+	public Value getHeight () {
 		return height;
 	}
 
-	public String getPadTop () {
+	public Value getPadTop () {
 		return padTop;
 	}
 
-	public String getPadLeft () {
+	public Value getPadLeft () {
 		return padLeft;
 	}
 
-	public String getPadBottom () {
+	public Value getPadBottom () {
 		return padBottom;
 	}
 
-	public String getPadRight () {
+	public Value getPadRight () {
 		return padRight;
 	}
 
@@ -635,10 +500,20 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return align;
 	}
 
+	/** The width of the table that last time it was {@link #layout(float, float, float, float) laid out}. */
+	public float getLayoutWidth () {
+		return layoutWidth;
+	}
+
+	/** The height of the table that last time it was {@link #layout(float, float, float, float) laid out}. */
+	public float getLayoutHeight () {
+		return layoutHeight;
+	}
+
 	/** Returns the row index for the y coordinate, or -1 if there are no cells. */
 	public int getRow (float y) {
 		int row = 0;
-		y += toolkit.height((L)this, padTop);
+		y += h(padTop);
 		int i = 0, n = cells.size();
 		if (n == 0) return -1;
 		// Skip first row.
@@ -653,18 +528,37 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return rows - row;
 	}
 
-	private int[] ensureSize (int[] array, int size) {
-		if (array == null || array.length < size) return new int[size];
-		for (int i = 0, n = array.length; i < n; i++)
-			array[i] = 0;
-		return array;
-	}
-
 	private float[] ensureSize (float[] array, int size) {
 		if (array == null || array.length < size) return new float[size];
 		for (int i = 0, n = array.length; i < n; i++)
 			array[i] = 0;
 		return array;
+	}
+
+	private float w (Value value) {
+		if (value == null) return 0;
+		value.layout = this;
+		return toolkit.width(value.get());
+	}
+
+	private float h (Value value) {
+		if (value == null) return 0;
+		value.layout = this;
+		return toolkit.height(value.get());
+	}
+
+	private float w (Cell cell, Value value) {
+		if (value == null) return 0;
+		value.layout = this;
+		value.cell = cell;
+		return toolkit.width(value.get());
+	}
+
+	private float h (Cell cell, Value value) {
+		if (value == null) return 0;
+		value.layout = this;
+		value.cell = cell;
+		return toolkit.height(value.get());
 	}
 
 	private void computeSize () {
@@ -684,7 +578,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		expandWidth = ensureSize(expandWidth, columns);
 		expandHeight = ensureSize(expandHeight, rows);
 
-		int spaceRightLast = 0;
+		float spaceRightLast = 0;
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
@@ -695,35 +589,36 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 			// Compute combined padding/spacing for cells.
 			// Spacing between widgets isn't additive, the larger is used. Also, no spacing around edges.
-			c.computedPadLeft = c.column == 0 ? toolkit.width(this, c.padLeft) : toolkit.width(this, c.padLeft)
-				+ Math.max(0, toolkit.width(this, c.spaceLeft) - spaceRightLast);
-			c.computedPadTop = c.cellAboveIndex == -1 ? toolkit.height(this, c.padTop) : toolkit.height(this, c.padTop)
-				+ Math.max(0, toolkit.height(this, c.spaceTop) - toolkit.height(this, cells.get(c.cellAboveIndex).spaceBottom));
-			int spaceRight = toolkit.width(this, c.spaceRight);
-			c.computedPadRight = c.column + c.colspan == columns ? toolkit.width(this, c.padRight) : toolkit.width(this, c.padRight)
-				+ spaceRight;
-			c.computedPadBottom = c.row == rows - 1 ? toolkit.height(this, c.padBottom) : toolkit.height(this, c.padBottom)
-				+ toolkit.height(this, c.spaceBottom);
+			c.computedPadLeft = c.column == 0 ? w(c, c.padLeft) : w(c, c.padLeft) + Math.max(0, w(c, c.spaceLeft) - spaceRightLast);
+			if (c.cellAboveIndex == -1)
+				c.computedPadTop = h(c, c.padTop);
+			else {
+				Cell above = cells.get(c.cellAboveIndex);
+				c.computedPadTop = h(c, c.padTop) + Math.max(0, h(c, c.spaceTop) - h(above, above.spaceBottom));
+			}
+			float spaceRight = w(c, c.spaceRight);
+			c.computedPadRight = c.column + c.colspan == columns ? w(c, c.padRight) : w(c, c.padRight) + spaceRight;
+			c.computedPadBottom = c.row == rows - 1 ? h(c, c.padBottom) : h(c, c.padBottom) + h(c, c.spaceBottom);
 			spaceRightLast = spaceRight;
 
 			// Determine minimum and preferred cell sizes.
-			int prefWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.prefWidth);
-			int prefHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.prefHeight);
-			int minWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.minWidth);
-			int minHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.minHeight);
-			int maxWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.maxWidth);
-			int maxHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.maxHeight);
+			float prefWidth = w(c, c.prefWidth);
+			float prefHeight = h(c, c.prefHeight);
+			float minWidth = w(c, c.minWidth);
+			float minHeight = h(c, c.minHeight);
+			float maxWidth = w(c, c.maxWidth);
+			float maxHeight = h(c, c.maxHeight);
 			if (prefWidth < minWidth) prefWidth = minWidth;
 			if (prefHeight < minHeight) prefHeight = minHeight;
 			if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth;
 			if (maxHeight > 0 && prefHeight > maxHeight) prefHeight = maxHeight;
 
 			if (c.colspan == 1) { // Spanned column min and pref width is added later.
-				int hpadding = c.computedPadLeft + c.computedPadRight;
+				float hpadding = c.computedPadLeft + c.computedPadRight;
 				columnPrefWidth[c.column] = Math.max(columnPrefWidth[c.column], prefWidth + hpadding);
 				columnMinWidth[c.column] = Math.max(columnMinWidth[c.column], minWidth + hpadding);
 			}
-			int vpadding = c.computedPadTop + c.computedPadBottom;
+			float vpadding = c.computedPadTop + c.computedPadBottom;
 			rowPrefHeight[c.row] = Math.max(rowPrefHeight[c.row], prefHeight + vpadding);
 			rowMinHeight[c.row] = Math.max(rowMinHeight[c.row], minHeight + vpadding);
 		}
@@ -746,13 +641,13 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			if (c.ignore) continue;
 			if (c.colspan == 1) continue;
 
-			int minWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.minWidth);
-			int prefWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.prefWidth);
-			int maxWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.maxWidth);
+			float minWidth = w(c, c.minWidth);
+			float prefWidth = w(c, c.prefWidth);
+			float maxWidth = w(c, c.maxWidth);
 			if (prefWidth < minWidth) prefWidth = minWidth;
 			if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth;
 
-			int spannedMinWidth = 0, spannedPrefWidth = 0;
+			float spannedMinWidth = 0, spannedPrefWidth = 0;
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++) {
 				spannedMinWidth += columnMinWidth[column];
 				spannedPrefWidth += columnPrefWidth[column];
@@ -763,8 +658,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
 				totalExpandWidth += expandWidth[column];
 
-			int extraMinWidth = Math.max(0, minWidth - spannedMinWidth);
-			int extraPrefWidth = Math.max(0, prefWidth - spannedPrefWidth);
+			float extraMinWidth = Math.max(0, minWidth - spannedMinWidth);
+			float extraPrefWidth = Math.max(0, prefWidth - spannedPrefWidth);
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++) {
 				float ratio = totalExpandWidth == 0 ? 1f / c.colspan : expandWidth[column] / totalExpandWidth;
 				columnMinWidth[column] += extraMinWidth * ratio;
@@ -785,28 +680,30 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			tableMinHeight += rowMinHeight[i];
 			tablePrefHeight += Math.max(rowMinHeight[i], rowPrefHeight[i]);
 		}
-		int hpadding = toolkit.width(this, padLeft) + toolkit.width(this, padRight);
-		int vpadding = toolkit.height(this, padTop) + toolkit.height(this, padBottom);
-		int width = toolkit.width(this, this.width);
-		int height = toolkit.height(this, this.height);
-		tableMinWidth = Math.max(tableMinWidth + hpadding, width);
-		tableMinHeight = Math.max(tableMinHeight + vpadding, height);
+		float hpadding = w(padLeft) + w(padRight);
+		float vpadding = h(padTop) + h(padBottom);
+		tableMinWidth = Math.max(tableMinWidth + hpadding, w(width));
+		tableMinHeight = Math.max(tableMinHeight + vpadding, h(height));
 		tablePrefWidth = Math.max(tablePrefWidth + hpadding, tableMinWidth);
 		tablePrefHeight = Math.max(tablePrefHeight + vpadding, tableMinHeight);
 	}
 
-	/** Positions and sizes children of the widget being laid out using the cell associated with each child. */
-	public void layout () {
+	/** Positions and sizes children of the widget being laid out using the cell associated with each child. The values given are
+	 * the position within the parent and size of the widget that will be laid out. */
+	public void layout (float layoutX, float layoutY, float layoutWidth, float layoutHeight) {
+		this.layoutWidth = layoutWidth;
+		this.layoutHeight = layoutHeight;
+
 		Toolkit toolkit = this.toolkit;
 		ArrayList<Cell> cells = this.cells;
 
 		if (sizeInvalid) computeSize();
 
-		int hpadding = toolkit.width(this, padLeft) + toolkit.width(this, padRight);
-		int vpadding = toolkit.height(this, padTop) + toolkit.height(this, padBottom);
+		float hpadding = w(padLeft) + w(padRight);
+		float vpadding = h(padTop) + h(padBottom);
 
 		// totalMinWidth/totalMinHeight are needed because tableMinWidth/tableMinHeight could be based on this.width or this.height.
-		int totalMinWidth = 0, totalMinHeight = 0;
+		float totalMinWidth = 0, totalMinHeight = 0;
 		float totalExpandWidth = 0, totalExpandHeight = 0;
 		for (int i = 0; i < columns; i++) {
 			totalMinWidth += columnMinWidth[i];
@@ -818,29 +715,29 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		}
 
 		// Size columns and rows between min and pref size using (preferred - min) size to weight distribution of extra space.
-		int[] columnWeightedWidth;
-		int totalGrowWidth = tablePrefWidth - totalMinWidth;
+		float[] columnWeightedWidth;
+		float totalGrowWidth = tablePrefWidth - totalMinWidth;
 		if (totalGrowWidth == 0)
 			columnWeightedWidth = columnMinWidth;
 		else {
-			int extraWidth = Math.min(totalGrowWidth, Math.max(0, layoutWidth - totalMinWidth));
+			float extraWidth = Math.min(totalGrowWidth, Math.max(0, layoutWidth - totalMinWidth));
 			columnWeightedWidth = this.columnWeightedWidth = ensureSize(this.columnWeightedWidth, columns);
 			for (int i = 0; i < columns; i++) {
-				int growWidth = columnPrefWidth[i] - columnMinWidth[i];
+				float growWidth = columnPrefWidth[i] - columnMinWidth[i];
 				float growRatio = growWidth / (float)totalGrowWidth;
 				columnWeightedWidth[i] = columnMinWidth[i] + (int)(extraWidth * growRatio);
 			}
 		}
 
-		int[] rowWeightedHeight;
-		int totalGrowHeight = tablePrefHeight - totalMinHeight;
+		float[] rowWeightedHeight;
+		float totalGrowHeight = tablePrefHeight - totalMinHeight;
 		if (totalGrowHeight == 0)
 			rowWeightedHeight = rowMinHeight;
 		else {
 			rowWeightedHeight = this.rowWeightedHeight = ensureSize(this.rowWeightedHeight, rows);
-			int extraHeight = Math.min(totalGrowHeight, Math.max(0, layoutHeight - totalMinHeight));
+			float extraHeight = Math.min(totalGrowHeight, Math.max(0, layoutHeight - totalMinHeight));
 			for (int i = 0; i < rows; i++) {
-				int growHeight = rowPrefHeight[i] - rowMinHeight[i];
+				float growHeight = rowPrefHeight[i] - rowMinHeight[i];
 				float growRatio = growHeight / (float)totalGrowHeight;
 				rowWeightedHeight[i] = rowMinHeight[i] + (int)(extraHeight * growRatio);
 			}
@@ -851,17 +748,17 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
 
-			int spannedWeightedWidth = 0;
+			float spannedWeightedWidth = 0;
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
 				spannedWeightedWidth += columnWeightedWidth[column];
-			int weightedHeight = rowWeightedHeight[c.row];
+			float weightedHeight = rowWeightedHeight[c.row];
 
-			int prefWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.prefWidth);
-			int prefHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.prefHeight);
-			int minWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.minWidth);
-			int minHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.minHeight);
-			int maxWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.maxWidth);
-			int maxHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.maxHeight);
+			float prefWidth = w(c, c.prefWidth);
+			float prefHeight = h(c, c.prefHeight);
+			float minWidth = w(c, c.minWidth);
+			float minHeight = h(c, c.minHeight);
+			float maxWidth = w(c, c.maxWidth);
+			float maxHeight = h(c, c.maxHeight);
 			if (prefWidth < minWidth) prefWidth = minWidth;
 			if (prefHeight < minHeight) prefHeight = minHeight;
 			if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth;
@@ -875,7 +772,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		}
 
 		// Uniform cells are all the same width/height.
-		int uniformMaxWidth = 0, uniformMaxHeight = 0;
+		float uniformMaxWidth = 0, uniformMaxHeight = 0;
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
@@ -890,8 +787,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				Cell c = cells.get(i);
 				if (c.ignore) continue;
 				if (uniformMaxWidth > 0 && c.uniformX != null) {
-					int tempPadding = c.computedPadLeft + c.computedPadRight;
-					int diff = uniformMaxWidth - (columnWidth[c.column] - tempPadding);
+					float tempPadding = c.computedPadLeft + c.computedPadRight;
+					float diff = uniformMaxWidth - (columnWidth[c.column] - tempPadding);
 					if (diff > 0) {
 						columnWidth[c.column] = uniformMaxWidth + tempPadding;
 						tableMinWidth += diff;
@@ -899,8 +796,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 					}
 				}
 				if (uniformMaxHeight > 0 && c.uniformY != null) {
-					int tempPadding = c.computedPadTop + c.computedPadBottom;
-					int diff = uniformMaxHeight - (rowHeight[c.row] - tempPadding);
+					float tempPadding = c.computedPadTop + c.computedPadBottom;
+					float diff = uniformMaxHeight - (rowHeight[c.row] - tempPadding);
 					if (diff > 0) {
 						rowHeight[c.row] = uniformMaxHeight + tempPadding;
 						tableMinHeight += diff;
@@ -913,13 +810,14 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 		// Distribute remaining space to any expanding columns/rows.
 		if (totalExpandWidth > 0) {
-			int extra = layoutWidth - hpadding;
+			float extra = layoutWidth - hpadding;
 			for (int i = 0; i < columns; i++)
 				extra -= columnWidth[i];
-			int used = 0, lastIndex = 0;
+			float used = 0;
+			int lastIndex = 0;
 			for (int i = 0; i < columns; i++) {
 				if (expandWidth[i] == 0) continue;
-				int amount = (int)(extra * expandWidth[i] / totalExpandWidth);
+				float amount = extra * expandWidth[i] / totalExpandWidth; // cast to int option?
 				columnWidth[i] += amount;
 				used += amount;
 				lastIndex = i;
@@ -927,13 +825,14 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			columnWidth[lastIndex] += extra - used;
 		}
 		if (totalExpandHeight > 0) {
-			int extra = layoutHeight - vpadding;
+			float extra = layoutHeight - vpadding;
 			for (int i = 0; i < rows; i++)
 				extra -= rowHeight[i];
-			int used = 0, lastIndex = 0;
+			float used = 0;
+			int lastIndex = 0;
 			for (int i = 0; i < rows; i++) {
 				if (expandHeight[i] == 0) continue;
-				int amount = (int)(extra * expandHeight[i] / totalExpandHeight);
+				float amount = extra * expandHeight[i] / totalExpandHeight; // cast to int option?
 				rowHeight[i] += amount;
 				used += amount;
 				lastIndex = i;
@@ -947,7 +846,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			if (c.ignore) continue;
 			if (c.colspan == 1) continue;
 
-			int extraWidth = 0;
+			float extraWidth = 0;
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
 				extraWidth += columnWeightedWidth[column] - columnWidth[column];
 			extraWidth -= c.computedPadLeft + c.computedPadRight;
@@ -960,38 +859,37 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		}
 
 		// Determine table size.
-		int tableWidth = 0, tableHeight = 0;
+		float tableWidth = 0, tableHeight = 0;
 		for (int i = 0; i < columns; i++)
 			tableWidth += columnWidth[i];
-		int width = toolkit.width(this, this.width);
+		float width = w(this.width);
 		tableWidth = Math.max(tableWidth + hpadding, width);
 
 		for (int i = 0; i < rows; i++)
 			tableHeight += rowHeight[i];
-		int height = toolkit.height(this, this.height);
+		float height = h(this.height);
 		tableHeight = Math.max(tableHeight + vpadding, height);
 
 		// Position table within the container.
-		int x = layoutX + toolkit.width(this, padLeft);
+		float x = layoutX + w(padLeft);
 		if ((align & RIGHT) != 0)
 			x += layoutWidth - tableWidth;
 		else if ((align & LEFT) == 0) // Center
 			x += (layoutWidth - tableWidth) / 2;
 
-		int y = layoutY + toolkit.height(this, padTop);
+		float y = layoutY + h(padTop);
 		if ((align & BOTTOM) != 0)
 			y += layoutHeight - tableHeight;
 		else if ((align & TOP) == 0) // Center
 			y += (layoutHeight - tableHeight) / 2;
 
 		// Position widgets within cells.
-		int currentX = x;
-		int currentY = y;
+		float currentX = x, currentY = y;
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
 
-			int spannedCellWidth = 0;
+			float spannedCellWidth = 0;
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
 				spannedCellWidth += columnWidth[column];
 			spannedCellWidth -= c.computedPadLeft + c.computedPadRight;
@@ -1000,33 +898,32 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 			if (c.fillX > 0) {
 				c.widgetWidth = (int)(spannedCellWidth * c.fillX);
-				int maxWidth = toolkit.getWidgetWidth(this, (C)c.widget, c.maxWidth);
+				float maxWidth = w(c, c.maxWidth);
 				if (maxWidth > 0) c.widgetWidth = Math.min(c.widgetWidth, maxWidth);
 			}
 			if (c.fillY > 0) {
 				c.widgetHeight = (int)(rowHeight[c.row] * c.fillY) - c.computedPadTop - c.computedPadBottom;
-				int maxHeight = toolkit.getWidgetHeight(this, (C)c.widget, c.maxHeight);
+				float maxHeight = h(c, c.maxHeight);
 				if (maxHeight > 0) c.widgetHeight = Math.min(c.widgetHeight, maxHeight);
 			}
 
-			if (c.scaling != SCALE_STRETCH) {
-				float sourceWidth = toolkit.getWidgetWidth(this, (C)c.widget, PREF);
-				float sourceHeight = toolkit.getWidgetHeight(this, (C)c.widget, PREF);
+			if (c.scaling != Scale.stretch) {
+				float sourceWidth = toolkit.width(toolkit.getPrefWidth(c.widget));
+				float sourceHeight = toolkit.height(toolkit.getPrefHeight(c.widget));
+				float scale;
 				switch (c.scaling) {
-				case SCALE_FIT: {
-					float scale = c.widgetHeight / (float)c.widgetWidth > sourceHeight / sourceWidth ? c.widgetWidth / sourceWidth
+				case fit:
+					scale = c.widgetHeight / (float)c.widgetWidth > sourceHeight / sourceWidth ? c.widgetWidth / sourceWidth
 						: c.widgetHeight / sourceHeight;
 					c.widgetWidth = (int)(sourceWidth * scale);
 					c.widgetHeight = (int)(sourceHeight * scale);
 					break;
-				}
-				case SCALE_FILL: {
-					float scale = c.widgetHeight / (float)c.widgetWidth < sourceHeight / sourceWidth ? c.widgetWidth / sourceWidth
+				case fill:
+					scale = c.widgetHeight / (float)c.widgetWidth < sourceHeight / sourceWidth ? c.widgetWidth / sourceWidth
 						: c.widgetHeight / sourceHeight;
 					c.widgetWidth = (int)(sourceWidth * scale);
 					c.widgetHeight = (int)(sourceHeight * scale);
 					break;
-				}
 				}
 			}
 
@@ -1052,30 +949,30 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		}
 
 		// Draw debug widgets and bounds.
-		if (debug == DEBUG_NONE) return;
+		if (debug == Debug.none) return;
 		toolkit.clearDebugRectangles(this);
 		currentX = x;
 		currentY = y;
-		if ((debug & DEBUG_TABLE) != 0 || (debug & DEBUG_ALL) != 0) {
-			toolkit.addDebugRectangle(this, DEBUG_TABLE, layoutX, layoutY, layoutWidth, layoutHeight);
-			toolkit.addDebugRectangle(this, DEBUG_TABLE, x, y, tableWidth - hpadding, tableHeight - vpadding);
+		if (debug == Debug.table || debug == Debug.all) {
+			toolkit.addDebugRectangle(this, Debug.table, layoutX, layoutY, layoutWidth, layoutHeight);
+			toolkit.addDebugRectangle(this, Debug.table, x, y, tableWidth - hpadding, tableHeight - vpadding);
 		}
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
 
 			// Widget bounds.
-			if ((debug & DEBUG_WIDGET) != 0 || (debug & DEBUG_ALL) != 0)
-				toolkit.addDebugRectangle(this, DEBUG_WIDGET, c.widgetX, c.widgetY, c.widgetWidth, c.widgetHeight);
+			if (debug == Debug.widget || debug == Debug.all)
+				toolkit.addDebugRectangle(this, Debug.widget, c.widgetX, c.widgetY, c.widgetWidth, c.widgetHeight);
 
 			// Cell bounds.
-			int spannedCellWidth = 0;
+			float spannedCellWidth = 0;
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
 				spannedCellWidth += columnWidth[column];
 			spannedCellWidth -= c.computedPadLeft + c.computedPadRight;
 			currentX += c.computedPadLeft;
-			if ((debug & DEBUG_CELL) != 0 || (debug & DEBUG_ALL) != 0) {
-				toolkit.addDebugRectangle(this, DEBUG_CELL, currentX, currentY + c.computedPadTop, spannedCellWidth, rowHeight[c.row]
+			if (debug == Debug.cell || debug == Debug.all) {
+				toolkit.addDebugRectangle(this, Debug.cell, currentX, currentY + c.computedPadTop, spannedCellWidth, rowHeight[c.row]
 					- c.computedPadTop - c.computedPadBottom);
 			}
 

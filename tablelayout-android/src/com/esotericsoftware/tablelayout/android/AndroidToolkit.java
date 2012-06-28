@@ -24,15 +24,11 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
+import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.Toolkit;
 
 public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
-	static {
-		addClassPrefix("android.view.");
-		addClassPrefix("android.widget.");
-	}
-
 	static public final AndroidToolkit instance = new AndroidToolkit();
 	static public Context context;
 	static public float density = 1;
@@ -40,33 +36,25 @@ public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 	static final HashMap<String, Integer> drawableToID = new HashMap();
 	static Paint paint;
 
-	public Table newTable (Table parent) {
-		return new Table();
-	}
-	
 	public void setWidget (TableLayout layout, Cell cell, View widget) {
 		super.setWidget(layout, cell, widget);
 		layout.otherChildren.remove(widget);
-	}
-
-	public TableLayout getLayout (Table table) {
-		return table.layout;
 	}
 
 	public void clearDebugRectangles (TableLayout layout) {
 		if (layout.debugRects != null) layout.debugRects.clear();
 	}
 
-	public void addDebugRectangle (TableLayout layout, int type, int x, int y, int w, int h) {
+	public void addDebugRectangle (TableLayout layout, Debug type, float x, float y, float w, float h) {
 		if (layout.debugRects == null) layout.debugRects = new ArrayList();
-		layout.debugRects.add(new DebugRect(type, x, y, w, h));
+		layout.debugRects.add(new DebugRect(type, (int)x, (int)y, (int)w, (int)h));
 	}
 
-	public int width (float value) {
+	public float width (float value) {
 		return (int)(value * density);
 	}
 
-	public int height (float value) {
+	public float height (float value) {
 		return (int)(value * density);
 	}
 
@@ -78,86 +66,36 @@ public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 		((ViewGroup)parent).removeView(child);
 	}
 
-	public View newWidget (TableLayout layout, String className) {
-		if (className.equals("button")) return new Button(context);
-		try {
-			return super.newWidget(layout, className);
-		} catch (RuntimeException ex) {
-			ImageView image = getImageView(className);
-			if (image != null) return image;
-			throw ex;
-		}
-	}
-
-	protected View newInstance (TableLayout layout, String className) throws Exception {
-		try {
-			return super.newInstance(layout, className);
-		} catch (Exception ex) {
-			Class type = Class.forName(className);
-			Constructor constructor = type.getConstructor(Context.class);
-			return (View)constructor.newInstance(context);
-		}
-	}
-
-	public View wrap (TableLayout layout, Object object) {
-		if (object instanceof String) {
-			TextView textView = new TextView(context);
-			textView.setText((String)object);
-			return textView;
-		}
-		if (object == null) return new FrameLayout(context);
-		return super.wrap(layout, object);
-	}
-
-	protected Object convertType (TableLayout layout, Object parentObject, Class memberType, String memberName, String value) {
-		Object newType = super.convertType(layout, parentObject, memberType, memberName, value);
-		if (newType == null && memberType == int.class) {
-			try {
-				return Color.parseColor(value);
-			} catch (IllegalArgumentException ignored) {
-			}
-		}
-		return newType;
-	}
-
-	public View newStack () {
-		return new Stack(context);
-	}
-
-	public int getMinWidth (View view) {
+	public float getMinWidth (View view) {
 		return view.getMeasuredWidth();
 	}
 
-	public int getMinHeight (View view) {
+	public float getMinHeight (View view) {
 		return view.getMeasuredHeight();
 	}
 
-	public int getPrefWidth (View view) {
+	public float getPrefWidth (View view) {
 		return view.getMeasuredWidth();
 	}
 
-	public int getPrefHeight (View view) {
+	public float getPrefHeight (View view) {
 		return view.getMeasuredHeight();
 	}
 
-	public int getMaxWidth (View view) {
+	public float getMaxWidth (View view) {
 		return 0;
 	}
 
-	public int getMaxHeight (View view) {
+	public float getMaxHeight (View view) {
 		return 0;
 	}
 
-	public void setProperty (TableLayout layout, View view, String name, List<String> values) {
-		if (values.size() == 1) {
-			if (setBackground(view, name, values.get(0))) return;
+	public float getWidth (View view) {
+		return view.getWidth();
+	}
 
-			if (view instanceof TextView) {
-				if (setCompoundDrawable((TextView)view, name, values.get(0))) return;
-			}
-		}
-
-		super.setProperty(layout, view, name, values);
+	public float getHeight (View view) {
+		return view.getHeight();
 	}
 
 	static Paint getDebugPaint () {
@@ -284,10 +222,10 @@ public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 	}
 
 	static public class DebugRect {
-		final int type;
+		final Debug type;
 		final Rect rect;
 
-		public DebugRect (int type, int x, int y, int width, int height) {
+		public DebugRect (Debug type, int x, int y, int width, int height) {
 			rect = new Rect(x, y, x + width - 1, y + height - 1);
 			this.type = type;
 		}

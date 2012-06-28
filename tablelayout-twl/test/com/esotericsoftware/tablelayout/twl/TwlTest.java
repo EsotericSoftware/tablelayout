@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 
 import de.matthiasmann.twl.FPSCounter;
 import de.matthiasmann.twl.GUI;
+import de.matthiasmann.twl.ProgressBar;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.TextArea;
 import de.matthiasmann.twl.Widget;
@@ -40,17 +41,15 @@ public class TwlTest {
 		ScrollPane scrollPane = new ScrollPane(textArea);
 		scrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
 		FPSCounter fpsCounter = new FPSCounter(4, 2);
+		ProgressBar progressBar = new ProgressBar();
+		progressBar.setValue(0.4f);
 
 		Table table = new Table();
-		table.layout.register("scrollPane", scrollPane);
-		table.layout.register("fpsCounter", fpsCounter);
-		table.layout.parse("" //
-			+ "[scrollPane] expand fill" //
-			+ "---" //
-			+ "<[fpsCounter] 'test'> align:right" //
-			+ "---" //
-			+ "[ProgressBar] fill (value:0.4)" //
-		);
+		table.addCell(scrollPane).expand().fill();
+		table.row();
+		table.addCell(fpsCounter).right();
+		table.row();
+		table.addCell(progressBar).fill();
 		root.add(table);
 
 		while (!Display.isCloseRequested()) {

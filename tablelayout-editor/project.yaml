@@ -1,8 +1,0 @@
-source:
-- src|**/*.java 
-- ../tablelayout/src|**/*.java 
-- ../tablelayout-swing/src|**/*.java 
----
-build(project);
-keystore("keystore", "tablelayout", "tuoyalelbat", "Esoteric Software", "TableLayout Editor");
-jws(project, false, "keystore", "tablelayout", "tuoyalelbat");

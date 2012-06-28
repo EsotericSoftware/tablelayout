@@ -1,25 +1,13 @@
 
 package com.esotericsoftware.tablelayout.twl;
 
+import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
 import com.esotericsoftware.tablelayout.Toolkit;
 
-import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Widget;
 
 public class TwlToolkit extends Toolkit<Widget, Table, TableLayout> {
-	static {
-		addClassPrefix("de.matthiasmann.twl.");
-	}
-
 	static public final TwlToolkit instance = new TwlToolkit();
-
-	public Table newTable (Table parent) {
-		return new Table();
-	}
-
-	public TableLayout getLayout (Table table) {
-		return table.layout;
-	}
 
 	public void addChild (Widget parent, Widget child, String layoutString) {
 		parent.add(child);
@@ -29,43 +17,42 @@ public class TwlToolkit extends Toolkit<Widget, Table, TableLayout> {
 		parent.removeChild(child);
 	}
 
-	public Widget wrap (TableLayout layout, Object object) {
-		if (object instanceof String) return new Label((String)object);
-		if (object == null) return new Widget();
-		return super.wrap(layout, object);
-	}
-
-	public Widget newStack () {
-		return new Stack();
-	}
-
-	public int getMinWidth (Widget widget) {
+	public float getMinWidth (Widget widget) {
 		return widget.getMinWidth();
 	}
 
-	public int getMinHeight (Widget widget) {
+	public float getMinHeight (Widget widget) {
 		return widget.getMinHeight();
 	}
 
-	public int getPrefWidth (Widget widget) {
+	public float getPrefWidth (Widget widget) {
 		return widget.getPreferredWidth();
 	}
 
-	public int getPrefHeight (Widget widget) {
+	public float getPrefHeight (Widget widget) {
+		System.out.println(widget.getClass() + " " + widget.getPreferredHeight());
 		return widget.getPreferredHeight();
 	}
 
-	public int getMaxWidth (Widget widget) {
+	public float getMaxWidth (Widget widget) {
 		return widget.getMaxWidth();
 	}
 
-	public int getMaxHeight (Widget widget) {
+	public float getMaxHeight (Widget widget) {
 		return widget.getMaxHeight();
+	}
+
+	public float getWidth (Widget widget) {
+		return widget.getWidth();
+	}
+
+	public float getHeight (Widget widget) {
+		return widget.getHeight();
 	}
 
 	public void clearDebugRectangles (TableLayout layout) {
 	}
 
-	public void addDebugRectangle (TableLayout layout, int type, int x, int y, int w, int h) {
+	public void addDebugRectangle (TableLayout layout, Debug type, float x, float y, float w, float h) {
 	}
 }

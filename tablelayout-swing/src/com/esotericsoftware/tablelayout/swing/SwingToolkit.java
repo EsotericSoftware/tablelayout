@@ -3,35 +3,22 @@ package com.esotericsoftware.tablelayout.swing;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.LayoutManager;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
+import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
 import com.esotericsoftware.tablelayout.Toolkit;
 
 public class SwingToolkit extends Toolkit<Component, Table, TableLayout> {
-	static {
-		addClassPrefix("javax.swing.");
-		addClassPrefix("java.awt.");
-	}
-
 	static SwingToolkit instance = new SwingToolkit();
 	static Timer timer;
 	static ArrayList<TableLayout> debugLayouts = new ArrayList(0);
-
-	public Table newTable (Table parent) {
-		return new Table();
-	}
 
 	public void addChild (Component parent, Component child, String layoutString) {
 		if (parent instanceof JSplitPane && layoutString == null) {
@@ -51,49 +38,36 @@ public class SwingToolkit extends Toolkit<Component, Table, TableLayout> {
 		((Container)parent).remove(child);
 	}
 
-	public Component wrap (TableLayout layout, Object object) {
-		if (object instanceof String) return new JLabel((String)object);
-		if (object == null) {
-			JPanel empty = new JPanel();
-			Dimension size = new Dimension();
-			empty.setMinimumSize(size);
-			empty.setPreferredSize(size);
-			return empty;
-		}
-		if (object instanceof LayoutManager) return new JPanel((LayoutManager)object);
-		return super.wrap(layout, object);
-	}
-
-	public Component newStack () {
-		return new Stack();
-	}
-
-	public int getMinWidth (Component widget) {
+	public float getMinWidth (Component widget) {
 		return widget.getMinimumSize().width;
 	}
 
-	public int getMinHeight (Component widget) {
+	public float getMinHeight (Component widget) {
 		return widget.getMinimumSize().height;
 	}
 
-	public int getPrefWidth (Component widget) {
+	public float getPrefWidth (Component widget) {
 		return widget.getPreferredSize().width;
 	}
 
-	public int getPrefHeight (Component widget) {
+	public float getPrefHeight (Component widget) {
 		return widget.getPreferredSize().height;
 	}
 
-	public int getMaxWidth (Component widget) {
+	public float getMaxWidth (Component widget) {
 		return widget.getMaximumSize().width;
 	}
 
-	public int getMaxHeight (Component widget) {
+	public float getMaxHeight (Component widget) {
 		return widget.getMaximumSize().height;
 	}
 
-	public TableLayout getLayout (Table table) {
-		return table.getTableLayout();
+	public float getWidth (Component widget) {
+		return widget.getWidth();
+	}
+
+	public float getHeight (Component widget) {
+		return widget.getHeight();
 	}
 
 	public void clearDebugRectangles (TableLayout layout) {
@@ -101,7 +75,7 @@ public class SwingToolkit extends Toolkit<Component, Table, TableLayout> {
 		layout.debugRects = null;
 	}
 
-	public void addDebugRectangle (TableLayout layout, int type, int x, int y, int w, int h) {
+	public void addDebugRectangle (TableLayout layout, Debug type, float x, float y, float w, float h) {
 		if (layout.debugRects == null) {
 			layout.debugRects = new ArrayList();
 			debugLayouts.add(layout);
@@ -129,11 +103,15 @@ public class SwingToolkit extends Toolkit<Component, Table, TableLayout> {
 		};
 	}
 
-	static class DebugRect extends Rectangle {
-		final int type;
+	static class DebugRect {
+		final Debug type;
+		final int x, y, width, height;
 
-		public DebugRect (int type, int x, int y, int width, int height) {
-			super(x, y, width - 1, height - 1);
+		public DebugRect (Debug type, float x, float y, float width, float height) {
+			this.x = (int)x;
+			this.y = (int)y;
+			this.width = (int)(width - 1);
+			this.height = (int)(height - 1);
 			this.type = type;
 		}
 	}
