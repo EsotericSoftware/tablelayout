@@ -145,7 +145,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		invalidate();
 	}
 
-	/** Gets the cell values that will be used as the defaults for all cells in the specified column. */
+	/** Gets the cell values that will be used as the defaults for all cells in the specified column. Columns are indexed starting
+	 * at 0. */
 	public Cell columnDefaults (int column) {
 		Cell cell = columnDefaults.size() > column ? columnDefaults.get(column) : null;
 		if (cell == null) {
