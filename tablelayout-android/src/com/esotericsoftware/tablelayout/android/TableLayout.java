@@ -13,7 +13,7 @@ import com.esotericsoftware.tablelayout.BaseTableLayout;
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.android.AndroidToolkit.DebugRect;
 
-public class TableLayout extends BaseTableLayout<View, Table, TableLayout, AndroidToolkit> {
+class TableLayout extends BaseTableLayout<View, Table, TableLayout, AndroidToolkit> {
 	ArrayList<View> otherChildren = new ArrayList(1);
 	ArrayList<DebugRect> debugRects;
 
@@ -53,7 +53,7 @@ public class TableLayout extends BaseTableLayout<View, Table, TableLayout, Andro
 
 		for (int i = 0, n = otherChildren.size(); i < n; i++) {
 			View child = otherChildren.get(i);
-			child.layout(0, 0, (int)getLayoutWidth(), (int)getLayoutHeight());
+			child.layout(0, 0, (int)layoutWidth, (int)layoutHeight);
 		}
 	}
 

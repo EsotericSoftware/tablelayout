@@ -29,13 +29,12 @@ package com.esotericsoftware.tablelayout;
 
 import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
 
-/** @author Nathan Sweet */
+/** Base class for UI toolkit.
+ * @author Nathan Sweet */
 public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 	static public Toolkit instance;
 
-	/** Adds a child to the specified parent.
-	 * @param layoutString May be null. */
-	abstract public void addChild (C parent, C child, String layoutString);
+	abstract public void addChild (C parent, C child);
 
 	abstract public void removeChild (C parent, C child);
 
@@ -64,17 +63,21 @@ public abstract class Toolkit<C, T extends C, L extends BaseTableLayout> {
 	public void setWidget (L layout, Cell cell, C widget) {
 		removeChild((T)layout.table, (C)cell.widget);
 		cell.widget = widget;
-		addChild((T)layout.table, widget, null);
+		addChild((T)layout.table, widget);
 	}
 
-	/** Interprets the specified value as a size. This can be used to scale all sizes applied to a cell. The default implementation
-	 * just casts to int. */
+	/** Interprets the specified value as a size. This can be used to scale all sizes applied to a table. The default implementation
+	 * returns the value unmodified.
+	 * @see Value#width(Object)
+	 * @see Value#width(Cell) */
 	public float width (float value) {
 		return value;
 	}
 
-	/** Interprets the specified value as a size. This can be used to scale all sizes applied to a cell. The default implementation
-	 * just casts to int. */
+	/** Interprets the specified value as a size. This can be used to scale all sizes applied to a table. The default implementation
+	 * returns the value unmodified.
+	 * @see Value#height(Object)
+	 * @see Value#height(Cell) */
 	public float height (float value) {
 		return value;
 	}

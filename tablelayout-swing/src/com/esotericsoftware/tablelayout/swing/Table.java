@@ -223,14 +223,6 @@ public class Table extends JComponent {
 		return this;
 	}
 
-	/** Alignment of the table within the Component being laid out. Set to "center", "top", "bottom", "left", "right", or a string
-	 * containing any combination of those.
-	 * @see TableLayout#align(String) */
-	public Table align (String value) {
-		layout.align(value);
-		return this;
-	}
-
 	/** Sets the alignment of the table within the Component being laid out to {@link BaseTableLayout#CENTER}.
 	 * @see TableLayout#center() */
 	public Table center () {

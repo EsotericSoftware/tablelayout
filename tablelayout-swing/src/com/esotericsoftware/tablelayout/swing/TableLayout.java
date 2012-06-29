@@ -12,7 +12,7 @@ import com.esotericsoftware.tablelayout.BaseTableLayout;
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.swing.SwingToolkit.DebugRect;
 
-public class TableLayout extends BaseTableLayout<Component, Table, TableLayout, SwingToolkit> {
+class TableLayout extends BaseTableLayout<Component, Table, TableLayout, SwingToolkit> {
 	ArrayList<DebugRect> debugRects;
 
 	public TableLayout () {

@@ -65,7 +65,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	private float[] expandWidth, expandHeight;
 	private float[] columnWeightedWidth, rowWeightedHeight;
 
-	private float layoutWidth, layoutHeight;
 	Value padTop, padLeft, padBottom, padRight;
 	int align = CENTER;
 	Debug debug = Debug.none;
@@ -74,10 +73,13 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		this.toolkit = toolkit;
 	}
 
+	/** Invalidates the layout. The cached min and pref sizes are recalculated the next time layout is done or the min or pref sizes
+	 * are accessed. */
 	public void invalidate () {
 		sizeInvalid = true;
 	}
 
+	/** Invalidates the layout of this table and every parent widget. */
 	abstract public void invalidateHierarchy ();
 
 	/** Adds a new cell to the table with the specified widget.
@@ -117,7 +119,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			cell.set(cellDefaults);
 		cell.merge(rowDefaults);
 
-		toolkit.addChild(table, widget, null);
+		toolkit.addChild(table, widget);
 
 		return cell;
 	}
@@ -203,12 +205,12 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		this.toolkit = toolkit;
 	}
 
-	/** Returns the widget that will be laid out. */
+	/** Returns the table widget that will be laid out. */
 	public T getTable () {
 		return table;
 	}
 
-	/** Sets the widget that will be laid out. */
+	/** Sets the table widget that will be laid out. */
 	public void setTable (T table) {
 		this.table = table;
 	}
@@ -242,11 +244,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return cellDefaults;
 	}
 
-	public K getToolkit () {
-		return toolkit;
-	}
-
-	/** Padding around the table. */
+	/** Sets the padTop, padLeft, padBottom, and padRight around the table to the specified value. */
 	public L pad (Value pad) {
 		padTop = pad;
 		padLeft = pad;
@@ -256,7 +254,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return (L)this;
 	}
 
-	/** Padding around the table. */
 	public L pad (Value top, Value left, Value bottom, Value right) {
 		padTop = top;
 		padLeft = left;
@@ -266,35 +263,35 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return (L)this;
 	}
 
-	/** Padding at the top of the table. */
+	/** Padding at the top edge of the table. */
 	public L padTop (Value padTop) {
 		this.padTop = padTop;
 		sizeInvalid = true;
 		return (L)this;
 	}
 
-	/** Padding at the left of the table. */
+	/** Padding at the left edge of the table. */
 	public L padLeft (Value padLeft) {
 		this.padLeft = padLeft;
 		sizeInvalid = true;
 		return (L)this;
 	}
 
-	/** Padding at the bottom of the table. */
+	/** Padding at the bottom edge of the table. */
 	public L padBottom (Value padBottom) {
 		this.padBottom = padBottom;
 		sizeInvalid = true;
 		return (L)this;
 	}
 
-	/** Padding at the right of the table. */
+	/** Padding at the right edge of the table. */
 	public L padRight (Value padRight) {
 		this.padRight = padRight;
 		sizeInvalid = true;
 		return (L)this;
 	}
 
-	/** Padding around the table. */
+	/** Sets the padTop, padLeft, padBottom, and padRight around the table to the specified value. */
 	public L pad (float pad) {
 		padTop = new FixedValue(pad);
 		padLeft = new FixedValue(pad);
@@ -304,7 +301,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return (L)this;
 	}
 
-	/** Padding around the table. */
 	public L pad (float top, float left, float bottom, float right) {
 		padTop = new FixedValue(top);
 		padLeft = new FixedValue(left);
@@ -314,81 +310,69 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return (L)this;
 	}
 
-	/** Padding at the top of the table. */
+	/** Padding at the top edge of the table. */
 	public L padTop (float padTop) {
 		this.padTop = new FixedValue(padTop);
 		sizeInvalid = true;
 		return (L)this;
 	}
 
-	/** Padding at the left of the table. */
+	/** Padding at the left edge of the table. */
 	public L padLeft (float padLeft) {
 		this.padLeft = new FixedValue(padLeft);
 		sizeInvalid = true;
 		return (L)this;
 	}
 
-	/** Padding at the bottom of the table. */
+	/** Padding at the bottom edge of the table. */
 	public L padBottom (float padBottom) {
 		this.padBottom = new FixedValue(padBottom);
 		sizeInvalid = true;
 		return (L)this;
 	}
 
-	/** Padding at the right of the table. */
+	/** Padding at the right edge of the table. */
 	public L padRight (float padRight) {
 		this.padRight = new FixedValue(padRight);
 		sizeInvalid = true;
 		return (L)this;
 	}
 
-	/** Alignment of the table within the widget being laid out. Set to {@link #CENTER}, {@link #TOP}, {@link #BOTTOM},
+	/** Alignment of the logical table within the table widget. Set to {@link #CENTER}, {@link #TOP}, {@link #BOTTOM} ,
 	 * {@link #LEFT}, {@link #RIGHT}, or any combination of those. */
 	public L align (int align) {
 		this.align = align;
 		return (L)this;
 	}
 
-	/** Alignment of the table within the widget being laid out. Set to "center", "top", "bottom", "left", "right", or a string
-	 * containing any combination of those. */
-	public L align (String value) {
-		align = 0;
-		if (value.contains("center")) align |= CENTER;
-		if (value.contains("left")) align |= LEFT;
-		if (value.contains("right")) align |= RIGHT;
-		if (value.contains("top")) align |= TOP;
-		if (value.contains("bottom")) align |= BOTTOM;
-		return (L)this;
-	}
-
-	/** Sets the alignment of the table within the widget being laid out to {@link #CENTER}. */
+	/** Sets the alignment of the logical table within the table widget to {@link #CENTER}. This clears any other alignment. */
 	public L center () {
-		align |= CENTER;
+		align = CENTER;
 		return (L)this;
 	}
 
-	/** Sets the alignment of the table within the widget being laid out to {@link #TOP}. */
+	/** Adds {@link #TOP} and clears {@link #BOTTOM} for the alignment of the logical table within the table widget. */
 	public L top () {
 		align |= TOP;
 		align &= ~BOTTOM;
 		return (L)this;
 	}
 
-	/** Sets the alignment of the table within the widget being laid out to {@link #LEFT}. */
+	/** Adds {@link #LEFT} and clears {@link #RIGHT} for the alignment of the logical table within the table widget. */
 	public L left () {
 		align |= LEFT;
 		align &= ~RIGHT;
 		return (L)this;
 	}
 
-	/** Sets the alignment of the table within the widget being laid out to {@link #BOTTOM}. */
+	/** Adds {@link #BOTTOM} and clears {@link #TOP} for the alignment of the logical table within the table widget. */
 	public L bottom () {
 		align |= BOTTOM;
 		align &= ~TOP;
 		return (L)this;
 	}
 
-	/** Sets the alignment of the table within the widget being laid out to {@link #RIGHT}. */
+	/** Adds {@link #RIGHT} and clears {@link #LEFT} for the alignment of the logical table within the table widget. */
 	public L right () {
 		align |= RIGHT;
 		align &= ~LEFT;
@@ -398,6 +382,27 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	/** Turns on all debug lines. */
 	public L debug () {
 		this.debug = Debug.all;
+		invalidate();
+		return (L)this;
+	}
+
+	/** Turns on table debug lines. */
+	public L debugTable () {
+		this.debug = Debug.table;
+		invalidate();
+		return (L)this;
+	}
+
+	/** Turns on cell debug lines. */
+	public L debugCell () {
+		this.debug = Debug.cell;
+		invalidate();
+		return (L)this;
+	}
+
+	/** Turns on widget debug lines. */
+	public L debugWidget () {
+		this.debug = Debug.widget;
 		invalidate();
 		return (L)this;
 	}
@@ -434,16 +439,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 	public int getAlign () {
 		return align;
-	}
-
-	/** The width of the table that last time it was {@link #layout(float, float, float, float) laid out}. */
-	public float getLayoutWidth () {
-		return layoutWidth;
-	}
-
-	/** The height of the table that last time it was {@link #layout(float, float, float, float) laid out}. */
-	public float getLayoutHeight () {
-		return layoutHeight;
 	}
 
 	/** Returns the row index for the y coordinate, or -1 if there are no cells. */
@@ -614,12 +609,9 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		tablePrefHeight = Math.max(tablePrefHeight + vpadding, tableMinHeight);
 	}
 
-	/** Positions and sizes children of the widget being laid out using the cell associated with each child. The values given are
-	 * the position within the parent and size of the widget that will be laid out. */
+	/** Positions and sizes children of the table using the cell associated with each child. The values given are the position
+	 * within the parent and size of the table. */
 	public void layout (float layoutX, float layoutY, float layoutWidth, float layoutHeight) {
-		this.layoutWidth = layoutWidth;
-		this.layoutHeight = layoutHeight;
-
 		Toolkit toolkit = this.toolkit;
 		ArrayList<Cell> cells = this.cells;
 

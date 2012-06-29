@@ -27,40 +27,55 @@
 
 package com.esotericsoftware.tablelayout;
 
-/** @author Nathan Swet */
+/** Base class for a table or cell property value. Values are provided a table or cell for context. Eg, the value may compute its
+ * size taking into consideration the size of the table or the widget in the cell. Some values may be only valid for use with
+ * either a call. If not specified, a value is valid for either a cell or a table.
+ * @author Nathan Sweet */
 abstract public class Value {
+	/** Returns the value in the context of the specified table. */
 	abstract public float get (Object table);
 
+	/** Returns the value in the context of the specified cell. */
 	abstract public float get (Cell cell);
 
+	/** Returns the value in the context of a width for the specified table. */
 	public float width (Object table) {
 		return Toolkit.instance.width(get(table));
 	}
 
+	/** Returns the value in the context of a height for the specified table. */
 	public float height (Object table) {
 		return Toolkit.instance.height(get(table));
 	}
 
+	/** Returns the value in the context of a width for the specified cell. */
 	public float width (Cell cell) {
 		return Toolkit.instance.width(get(cell));
 	}
 
+	/** Returns the value in the context of a height for the specified cell. */
 	public float height (Cell cell) {
 		return Toolkit.instance.height(get(cell));
 	}
 
+	/** A value that is only valid for use with a cell.
+	 * @author Nathan Sweet */
 	static abstract public class CellValue extends Value {
 		public float get (Object table) {
 			throw new UnsupportedOperationException("This value can only be used for a cell property.");
 		}
 	}
 
+	/** A value that is valid for use with a table or a cell.
+	 * @author Nathan Sweet */
 	static abstract public class TableValue extends Value {
 		public float get (Cell cell) {
 			return get(cell.getLayout().getTable());
 		}
 	}
 
+	/** A fixed value that is not computed each time it is used.
+	 * @author Nathan Sweet */
 	static public class FixedValue extends Value {
 		private float value;
 
@@ -81,6 +96,7 @@ abstract public class Value {
 		}
 	}
 
+	/** Returns a value for a cell that is the minWidth of the widget in the cell. */
 	static public Value minWidth () {
 		return new CellValue() {
 			public float get (Cell cell) {
@@ -92,6 +108,7 @@ abstract public class Value {
 		};
 	}
 
+	/** Returns a value for a cell that is the minHeight of the widget in the cell. */
 	static public Value minHeight () {
 		return new CellValue() {
 			public float get (Cell cell) {
@@ -103,6 +120,7 @@ abstract public class Value {
 		};
 	}
 
+	/** Returns a value for a cell that is the prefWidth of the widget in the cell. */
 	static public Value prefWidth () {
 		return new CellValue() {
 			public float get (Cell cell) {
@@ -114,6 +132,7 @@ abstract public class Value {
 		};
 	}
 
+	/** Returns a value for a cell that is the prefHeight of the widget in the cell. */
 	static public Value prefHeight () {
 		return new CellValue() {
 			public float get (Cell cell) {
@@ -125,6 +144,7 @@ abstract public class Value {
 		};
 	}
 
+	/** Returns a value for a cell that is the maxWidth of the widget in the cell. */
 	static public Value maxWidth () {
 		return new CellValue() {
 			public float get (Cell cell) {
@@ -136,6 +156,7 @@ abstract public class Value {
 		};
 	}
 
+	/** Returns a value for a cell that is the maxHeight of the widget in the cell. */
 	static public Value maxHeight () {
 		return new CellValue() {
 			public float get (Cell cell) {
@@ -147,6 +168,7 @@ abstract public class Value {
 		};
 	}
 
+	/** Returns a value that is a percentage of the table's width. */
 	static public Value percentWidth (final float percent) {
 		return new TableValue() {
 			public float get (Object table) {
@@ -155,6 +177,7 @@ abstract public class Value {
 		};
 	}
 
+	/** Returns a value that is a percentage of the table's height. */
 	static public Value percentHeight (final float percent) {
 		return new TableValue() {
 			public float get (Object table) {
@@ -163,6 +186,7 @@ abstract public class Value {
 		};
 	}
 
+	/** Returns a value that is a percentage of the specified widget's width. */
 	static public Value percentWidth (final float percent, final Object widget) {
 		return new Value() {
 			public float get (Cell cell) {
@@ -175,6 +199,7 @@ abstract public class Value {
 		};
 	}
 
+	/** Returns a value that is a percentage of the specified widget's height. */
 	static public Value percentHeight (final float percent, final Object widget) {
 		return new TableValue() {
 			public float get (Object table) {

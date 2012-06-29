@@ -31,7 +31,8 @@ import com.esotericsoftware.tablelayout.Value.FixedValue;
 
 import static com.esotericsoftware.tablelayout.BaseTableLayout.*;
 
-/** @author Nathan Sweet */
+/** A cell in a table.
+ * @author Nathan Sweet */
 public class Cell<C> {
 	Value minWidth, minHeight;
 	Value prefWidth, prefHeight;
@@ -112,16 +113,19 @@ public class Cell<C> {
 		if (cell.uniformY != null) uniformY = cell.uniformY;
 	}
 
+	/** Sets the widget in this cell and adds the widget to the cell's table. */
 	public Cell setWidget (C widget) {
 		if (widget == null) throw new IllegalArgumentException("widget cannot be null.");
 		layout.toolkit.setWidget(layout, this, widget);
 		return this;
 	}
 
+	/** Returns the widget for this cell, or null. */
 	public C getWidget () {
 		return widget;
 	}
 
+	/** Sets the minWidth, prefWidth, maxWidth, minHeight, prefHeight, and maxHeight to the specified value. */
 	public Cell size (Value size) {
 		minWidth = size;
 		minHeight = size;
@@ -132,6 +136,7 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets the minWidth, prefWidth, maxWidth, minHeight, prefHeight, and maxHeight to the specified values. */
 	public Cell size (Value width, Value height) {
 		minWidth = width;
 		minHeight = height;
@@ -142,16 +147,19 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets the minWidth, prefWidth, maxWidth, minHeight, prefHeight, and maxHeight to the specified value. */
 	public Cell size (float size) {
 		size(new FixedValue(size));
 		return this;
 	}
 
+	/** Sets the minWidth, prefWidth, maxWidth, minHeight, prefHeight, and maxHeight to the specified values. */
 	public Cell size (float width, float height) {
 		size(new FixedValue(width), new FixedValue(height));
 		return this;
 	}
 
+	/** Sets the minWidth, prefWidth, and maxWidth to the specified value. */
 	public Cell width (Value width) {
 		minWidth = width;
 		prefWidth = width;
@@ -159,11 +167,13 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets the minWidth, prefWidth, and maxWidth to the specified value. */
 	public Cell width (float width) {
 		width(new FixedValue(width));
 		return this;
 	}
 
+	/** Sets the minHeight, prefHeight, and maxHeight to the specified value. */
 	public Cell height (Value height) {
 		minHeight = height;
 		prefHeight = height;
@@ -171,17 +181,20 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets the minHeight, prefHeight, and maxHeight to the specified value. */
 	public Cell height (float height) {
 		height(new FixedValue(height));
 		return this;
 	}
 
+	/** Sets the minWidth and minHeight to the specified value. */
 	public Cell minSize (Value size) {
 		minWidth = size;
 		minHeight = size;
 		return this;
 	}
 
+	/** Sets the minWidth and minHeight to the specified values. */
 	public Cell minSize (Value width, Value height) {
 		minWidth = width;
 		minHeight = height;
@@ -198,12 +211,14 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets the minWidth and minHeight to the specified value. */
 	public Cell minSize (float size) {
 		minWidth = new FixedValue(size);
 		minHeight = new FixedValue(size);
 		return this;
 	}
 
+	/** Sets the minWidth and minHeight to the specified values. */
 	public Cell minSize (float width, float height) {
 		minWidth = new FixedValue(width);
 		minHeight = new FixedValue(height);
@@ -220,12 +235,14 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets the prefWidth and prefHeight to the specified value. */
 	public Cell prefSize (Value size) {
 		prefWidth = size;
 		prefHeight = size;
 		return this;
 	}
 
+	/** Sets the prefWidth and prefHeight to the specified values. */
 	public Cell prefSize (Value width, Value height) {
 		prefWidth = width;
 		prefHeight = height;
@@ -242,12 +259,14 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets the prefWidth and prefHeight to the specified value. */
 	public Cell prefSize (float width, float height) {
 		prefWidth = new FixedValue(width);
 		prefHeight = new FixedValue(height);
 		return this;
 	}
 
+	/** Sets the prefWidth and prefHeight to the specified values. */
 	public Cell prefSize (float size) {
 		prefWidth = new FixedValue(size);
 		prefHeight = new FixedValue(size);
@@ -264,12 +283,14 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets the maxWidth and maxHeight to the specified value. */
 	public Cell maxSize (Value size) {
 		maxWidth = size;
 		maxHeight = size;
 		return this;
 	}
 
+	/** Sets the maxWidth and maxHeight to the specified values. */
 	public Cell maxSize (Value width, Value height) {
 		maxWidth = width;
 		maxHeight = height;
@@ -286,12 +307,14 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets the maxWidth and maxHeight to the specified value. */
 	public Cell maxSize (float size) {
 		maxWidth = new FixedValue(size);
 		maxHeight = new FixedValue(size);
 		return this;
 	}
 
+	/** Sets the maxWidth and maxHeight to the specified values. */
 	public Cell maxSize (float width, float height) {
 		maxWidth = new FixedValue(width);
 		maxHeight = new FixedValue(height);
@@ -308,6 +331,7 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets the spaceTop, spaceLeft, spaceBottom, and spaceRight to the specified value. */
 	public Cell space (Value space) {
 		spaceTop = space;
 		spaceLeft = space;
@@ -344,6 +368,7 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets the spaceTop, spaceLeft, spaceBottom, and spaceRight to the specified value. */
 	public Cell space (float space) {
 		Value value = new FixedValue(space);
 		spaceTop = value;
@@ -381,6 +406,7 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets the padTop, padLeft, padBottom, and padRight to the specified value. */
 	public Cell pad (Value pad) {
 		padTop = pad;
 		padLeft = pad;
@@ -417,6 +443,7 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets the padTop, padLeft, padBottom, and padRight to the specified value. */
 	public Cell pad (float pad) {
 		Value value = new FixedValue(pad);
 		padTop = value;
@@ -454,17 +481,20 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets fillX and fillY to 1. */
 	public Cell fill () {
 		fillX = 1f;
 		fillY = 1f;
 		return this;
 	}
 
+	/** Sets fillX to 1. */
 	public Cell fillX () {
 		fillX = 1f;
 		return this;
 	}
 
+	/** Sets fillY to 1. */
 	public Cell fillY () {
 		fillY = 1f;
 		return this;
@@ -476,42 +506,34 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets fillX and fillY to 1 if true, 0 if false. */
 	public Cell fill (boolean x, boolean y) {
 		fillX = x ? 1f : 0;
 		fillY = y ? 1f : 0;
 		return this;
 	}
 
+	/** Sets fillX and fillY to 1 if true, 0 if false. */
 	public Cell fill (boolean fill) {
 		fillX = fill ? 1f : 0;
 		fillY = fill ? 1f : 0;
 		return this;
 	}
 
-	/** Alignment of the widget within the cell. Set to {@link #CENTER}, {@link #TOP}, {@link #BOTTOM}, {@link #LEFT},
+	/** Sets the alignment of the widget within the cell. Set to {@link #CENTER}, {@link #TOP}, {@link #BOTTOM}, {@link #LEFT},
 	 * {@link #RIGHT}, or any combination of those. */
 	public Cell align (Integer align) {
 		this.align = align;
 		return this;
 	}
 
-	/** Alignment of the widget within the cell. Set to "center", "top", "bottom", "left", "right", or a string containing any
-	 * combination of those. */
-	public Cell align (String value) {
-		align = 0;
-		if (value.contains("center")) align |= CENTER;
-		if (value.contains("left")) align |= LEFT;
-		if (value.contains("right")) align |= RIGHT;
-		if (value.contains("top")) align |= TOP;
-		if (value.contains("bottom")) align |= BOTTOM;
-		return this;
-	}
-
+	/** Sets the alignment of the widget within the cell to {@link #CENTER}. This clears any other alignment. */
 	public Cell center () {
 		align = CENTER;
 		return this;
 	}
 
+	/** Adds {@link #TOP} and clears {@link #BOTTOM} for the alignment of the widget within the cell. */
 	public Cell top () {
 		if (align == null)
 			align = TOP;
@@ -522,6 +544,7 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Adds {@link #LEFT} and clears {@link #RIGHT} for the alignment of the widget within the cell. */
 	public Cell left () {
 		if (align == null)
 			align = LEFT;
@@ -532,6 +555,7 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Adds {@link #BOTTOM} and clears {@link #TOP} for the alignment of the widget within the cell. */
 	public Cell bottom () {
 		if (align == null)
 			align = BOTTOM;
@@ -542,6 +566,7 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Adds {@link #RIGHT} and clears {@link #LEFT} for the alignment of the widget within the cell. */
 	public Cell right () {
 		if (align == null)
 			align = RIGHT;
@@ -552,17 +577,20 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets expandX and expandY to 1. */
 	public Cell expand () {
 		expandX = 1;
 		expandY = 1;
 		return this;
 	}
 
+	/** Sets expandX to 1. */
 	public Cell expandX () {
 		expandX = 1;
 		return this;
 	}
 
+	/** Sets expandY to 1. */
 	public Cell expandY () {
 		expandY = 1;
 		return this;
@@ -574,6 +602,7 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets expandX and expandY to 1 if true, 0 if false. */
 	public Cell expand (boolean x, boolean y) {
 		expandX = x ? 1 : 0;
 		expandY = y ? 1 : 0;
@@ -585,6 +614,7 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets ignore to true. */
 	public Cell ignore () {
 		this.ignore = true;
 		return this;
@@ -599,17 +629,20 @@ public class Cell<C> {
 		return this;
 	}
 
+	/** Sets uniformX and uniformY to true. */
 	public Cell uniform () {
 		uniformX = true;
 		uniformY = true;
 		return this;
 	}
 
+	/** Sets uniformX to true. */
 	public Cell uniformX () {
 		uniformX = true;
 		return this;
 	}
 
+	/** Sets uniformY to true. */
 	public Cell uniformY () {
 		uniformY = true;
 		return this;
@@ -737,18 +770,22 @@ public class Cell<C> {
 		return endRow;
 	}
 
+	/** The actual amount of space computed from padding and spacing from the last layout. */
 	public float getComputedPadTop () {
 		return computedPadTop;
 	}
 
+	/** The actual amount of space computed from padding and spacing from the last layout. */
 	public float getComputedPadLeft () {
 		return computedPadLeft;
 	}
 
+	/** The actual amount of space computed from padding and spacing from the last layout. */
 	public float getComputedPadBottom () {
 		return computedPadBottom;
 	}
 
+	/** The actual amount of space computed from padding and spacing from the last layout. */
 	public float getComputedPadRight () {
 		return computedPadRight;
 	}

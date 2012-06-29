@@ -15,23 +15,16 @@ import javax.swing.JSplitPane;
 import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
 import com.esotericsoftware.tablelayout.Toolkit;
 
-public class SwingToolkit extends Toolkit<Component, Table, TableLayout> {
+class SwingToolkit extends Toolkit<Component, Table, TableLayout> {
 	static SwingToolkit instance = new SwingToolkit();
 	static Timer timer;
 	static ArrayList<TableLayout> debugLayouts = new ArrayList(0);
 
-	public void addChild (Component parent, Component child, String layoutString) {
-		if (parent instanceof JSplitPane && layoutString == null) {
-			if (((JSplitPane)parent).getLeftComponent() instanceof JButton)
-				layoutString = "left";
-			else if (((JSplitPane)parent).getRightComponent() instanceof JButton) //
-				layoutString = "right";
-		}
-
+	public void addChild (Component parent, Component child) {
 		if (parent instanceof JScrollPane)
 			((JScrollPane)parent).setViewportView(child);
 		else
-			((Container)parent).add(child, layoutString);
+			((Container)parent).add(child);
 	}
 
 	public void removeChild (Component parent, Component child) {

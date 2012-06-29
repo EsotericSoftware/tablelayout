@@ -28,7 +28,7 @@ import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.Toolkit;
 
-public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
+class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 	static public final AndroidToolkit instance = new AndroidToolkit();
 	static public Context context;
 	static public float density = 1;
@@ -58,7 +58,7 @@ public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 		return (int)(value * density);
 	}
 
-	public void addChild (View parent, View child, String layoutString) {
+	public void addChild (View parent, View child) {
 		((ViewGroup)parent).addView(child);
 	}
 

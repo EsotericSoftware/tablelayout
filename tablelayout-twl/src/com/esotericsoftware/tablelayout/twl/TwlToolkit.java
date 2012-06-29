@@ -9,7 +9,7 @@ import de.matthiasmann.twl.Widget;
 public class TwlToolkit extends Toolkit<Widget, Table, TableLayout> {
 	static public final TwlToolkit instance = new TwlToolkit();
 
-	public void addChild (Widget parent, Widget child, String layoutString) {
+	public void addChild (Widget parent, Widget child) {
 		parent.add(child);
 	}
 
