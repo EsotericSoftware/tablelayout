@@ -82,8 +82,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	/** Invalidates the layout of this table and every parent widget. */
 	abstract public void invalidateHierarchy ();
 
-	/** Adds a new cell to the table with the specified widget.
-	 * @param widget May be null to add a cell without a widget. */
+	/** Adds a new cell to the table with the specified widget. */
 	public Cell<C> add (C widget) {
 		Cell cell = new Cell(this);
 		cell.widget = widget;
@@ -519,7 +518,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				c.computedPadTop = h(c.padTop, c) + Math.max(0, h(c.spaceTop, c) - h(above.spaceBottom, above));
 			}
 			float spaceRight = w(c.spaceRight, c);
-			c.computedPadRight = c.column + w(c.padRight, c) + (c.colspan == columns ? 0 : spaceRight);
+			c.computedPadRight = w(c.padRight, c) + ((c.column + c.colspan) == columns ? 0 : spaceRight);
 			c.computedPadBottom = h(c.padBottom, c) + (c.row == rows - 1 ? 0 : h(c.spaceBottom, c));
 			spaceRightLast = spaceRight;
 
