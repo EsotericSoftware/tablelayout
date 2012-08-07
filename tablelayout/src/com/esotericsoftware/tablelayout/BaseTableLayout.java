@@ -101,7 +101,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				for (int i = cells.size() - 1; i >= 0; i--) {
 					Cell other = cells.get(i);
 					for (int column = other.column, nn = column + other.colspan; column < nn; column++) {
-						if (other.column == cell.column) {
+						if (column == cell.column) {
 							cell.cellAboveIndex = i;
 							break outer;
 						}
