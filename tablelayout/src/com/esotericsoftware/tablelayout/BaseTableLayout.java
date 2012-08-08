@@ -556,7 +556,9 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				expandWidth[column] = c.expandX;
 		}
 
-		// Distribute any additional min and pref width added by colspanned cells to the columns spanned.
+		// Distribute any additional min and pref width added by colspanned cells to the columns spanned. Collect uniform size.
+		float uniformMinWidth = 0, uniformMinHeight = 0;
+		float uniformPrefWidth = 0, uniformPrefHeight = 0;
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
@@ -585,6 +587,34 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				float ratio = totalExpandWidth == 0 ? 1f / c.colspan : expandWidth[column] / totalExpandWidth;
 				columnMinWidth[column] += extraMinWidth * ratio;
 				columnPrefWidth[column] += extraPrefWidth * ratio;
+			}
+
+			// Collect uniform sizes.
+			if (c.uniformX != null) {
+				uniformMinWidth = Math.max(uniformMinWidth, columnMinWidth[c.column]);
+				uniformPrefWidth = Math.max(uniformPrefWidth, columnPrefWidth[c.column]);
+			}
+			if (c.uniformY != null) {
+				uniformMinHeight = Math.max(uniformMinHeight, rowMinHeight[c.row]);
+				uniformPrefHeight = Math.max(uniformPrefHeight, rowPrefHeight[c.row]);
+			}
+		}
+
+		// Size uniform cells to the same width/height.
+		if (uniformPrefWidth > 0 || uniformPrefHeight > 0) {
+			outer:
+			for (int i = 0, n = cells.size(); i < n; i++) {
+				Cell c = cells.get(i);
+				if (c.ignore) continue;
+				if (uniformPrefWidth > 0 && c.uniformX != null) {
+					columnMinWidth[c.column] = uniformMinWidth;
+					columnPrefWidth[c.column] = uniformPrefWidth;
+				}
+				if (uniformPrefHeight > 0 && c.uniformY != null) {
+					rowMinHeight[c.column] = uniformMinHeight;
+					rowPrefHeight[c.column] = uniformPrefHeight;
+				}
+				continue outer;
 			}
 		}
 
@@ -661,7 +691,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			}
 		}
 
-		// Determine widget and cell sizes (before uniform/expand/fill).
+		// Determine widget and cell sizes (before expand or fill).
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
@@ -687,43 +717,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 			if (c.colspan == 1) columnWidth[c.column] = Math.max(columnWidth[c.column], spannedWeightedWidth);
 			rowHeight[c.row] = Math.max(rowHeight[c.row], weightedHeight);
-		}
-
-		// Uniform cells are all the same width/height.
-		float uniformMaxWidth = 0, uniformMaxHeight = 0;
-		for (int i = 0, n = cells.size(); i < n; i++) {
-			Cell c = cells.get(i);
-			if (c.ignore) continue;
-			if (c.uniformX != null)
-				uniformMaxWidth = Math.max(uniformMaxWidth, columnWidth[c.column] - c.computedPadLeft - c.computedPadRight);
-			if (c.uniformY != null)
-				uniformMaxHeight = Math.max(uniformMaxHeight, rowHeight[c.row] - c.computedPadTop - c.computedPadBottom);
-		}
-		if (uniformMaxWidth > 0 || uniformMaxHeight > 0) {
-			outer:
-			for (int i = 0, n = cells.size(); i < n; i++) {
-				Cell c = cells.get(i);
-				if (c.ignore) continue;
-				if (uniformMaxWidth > 0 && c.uniformX != null) {
-					float tempPadding = c.computedPadLeft + c.computedPadRight;
-					float diff = uniformMaxWidth - (columnWidth[c.column] - tempPadding);
-					if (diff > 0) {
-						columnWidth[c.column] = uniformMaxWidth + tempPadding;
-						tableMinWidth += diff;
-						tablePrefWidth += diff;
-					}
-				}
-				if (uniformMaxHeight > 0 && c.uniformY != null) {
-					float tempPadding = c.computedPadTop + c.computedPadBottom;
-					float diff = uniformMaxHeight - (rowHeight[c.row] - tempPadding);
-					if (diff > 0) {
-						rowHeight[c.row] = uniformMaxHeight + tempPadding;
-						tableMinHeight += diff;
-						tablePrefHeight += diff;
-					}
-				}
-				continue outer;
-			}
 		}
 
 		// Distribute remaining space to any expanding columns/rows.
