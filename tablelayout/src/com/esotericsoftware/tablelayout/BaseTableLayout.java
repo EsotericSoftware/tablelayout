@@ -118,7 +118,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			cell.set(cellDefaults);
 		cell.merge(rowDefaults);
 
-		toolkit.addChild(table, widget);
+		if (widget != null) toolkit.addChild(table, widget);
 
 		return cell;
 	}
@@ -179,8 +179,10 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 
 	/** Removes all widgets and cells from the table. */
 	public void clear () {
-		for (int i = cells.size() - 1; i >= 0; i--)
-			toolkit.removeChild(table, (C)cells.get(i).widget);
+		for (int i = cells.size() - 1; i >= 0; i--) {
+			Object widget = cells.get(i).widget;
+			if (widget != null) toolkit.removeChild(table, (C)widget);
+		}
 		cells.clear();
 		rows = 0;
 		columns = 0;
@@ -191,7 +193,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	public Cell getCell (C widget) {
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
-			if (c.getWidget() == widget) return c;
+			if (c.widget == widget) return c;
 		}
 		return null;
 	}
@@ -421,20 +423,36 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		return debug;
 	}
 
-	public Value getPadTop () {
+	public Value getPadTopValue () {
 		return padTop;
 	}
 
-	public Value getPadLeft () {
+	public float getPadTop () {
+		return padTop == null ? 0 : padTop.height(this);
+	}
+
+	public Value getPadLeftValue () {
 		return padLeft;
 	}
 
-	public Value getPadBottom () {
+	public float getPadLeft () {
+		return padLeft == null ? 0 : padLeft.width(this);
+	}
+
+	public Value getPadBottomValue () {
 		return padBottom;
 	}
 
-	public Value getPadRight () {
+	public float getPadBottom () {
+		return padBottom == null ? 0 : padBottom.height(this);
+	}
+
+	public Value getPadRightValue () {
 		return padRight;
+	}
+
+	public float getPadRight () {
+		return padRight == null ? 0 : padRight.width(this);
 	}
 
 	public int getAlign () {
@@ -562,6 +580,17 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		for (int i = 0, n = cells.size(); i < n; i++) {
 			Cell c = cells.get(i);
 			if (c.ignore) continue;
+
+			// Collect uniform sizes.
+			if (c.uniformX != null) {
+				uniformMinWidth = Math.max(uniformMinWidth, columnMinWidth[c.column]);
+				uniformPrefWidth = Math.max(uniformPrefWidth, columnPrefWidth[c.column]);
+			}
+			if (c.uniformY != null) {
+				uniformMinHeight = Math.max(uniformMinHeight, rowMinHeight[c.row]);
+				uniformPrefHeight = Math.max(uniformPrefHeight, rowPrefHeight[c.row]);
+			}
+
 			if (c.colspan == 1) continue;
 
 			float minWidth = w(c.minWidth, c);
@@ -588,16 +617,6 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 				columnMinWidth[column] += extraMinWidth * ratio;
 				columnPrefWidth[column] += extraPrefWidth * ratio;
 			}
-
-			// Collect uniform sizes.
-			if (c.uniformX != null) {
-				uniformMinWidth = Math.max(uniformMinWidth, columnMinWidth[c.column]);
-				uniformPrefWidth = Math.max(uniformPrefWidth, columnPrefWidth[c.column]);
-			}
-			if (c.uniformY != null) {
-				uniformMinHeight = Math.max(uniformMinHeight, rowMinHeight[c.row]);
-				uniformPrefHeight = Math.max(uniformPrefHeight, rowPrefHeight[c.row]);
-			}
 		}
 
 		// Size uniform cells to the same width/height.
@@ -611,8 +630,8 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 					columnPrefWidth[c.column] = uniformPrefWidth;
 				}
 				if (uniformPrefHeight > 0 && c.uniformY != null) {
-					rowMinHeight[c.column] = uniformMinHeight;
-					rowPrefHeight[c.column] = uniformPrefHeight;
+					rowMinHeight[c.row] = uniformMinHeight;
+					rowPrefHeight[c.row] = uniformPrefHeight;
 				}
 				continue outer;
 			}
@@ -760,7 +779,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 			float extraWidth = 0;
 			for (int column = c.column, nn = column + c.colspan; column < nn; column++)
 				extraWidth += columnWeightedWidth[column] - columnWidth[column];
-			extraWidth -= c.computedPadLeft + c.computedPadRight;
+			extraWidth -= Math.max(0, c.computedPadLeft + c.computedPadRight);
 
 			extraWidth /= c.colspan;
 			if (extraWidth > 0) {

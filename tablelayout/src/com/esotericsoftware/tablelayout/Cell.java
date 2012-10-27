@@ -113,9 +113,8 @@ public class Cell<C> {
 		if (cell.uniformY != null) uniformY = cell.uniformY;
 	}
 
-	/** Sets the widget in this cell and adds the widget to the cell's table. */
+	/** Sets the widget in this cell and adds the widget to the cell's table. If null, removes any current widget. */
 	public Cell setWidget (C widget) {
-		if (widget == null) throw new IllegalArgumentException("widget cannot be null.");
 		layout.toolkit.setWidget(layout, this, widget);
 		return this;
 	}
@@ -123,6 +122,11 @@ public class Cell<C> {
 	/** Returns the widget for this cell, or null. */
 	public C getWidget () {
 		return widget;
+	}
+
+	/** Returns true if the cell's widget is not null. */
+	public boolean hasWidget () {
+		return widget != null;
 	}
 
 	/** Sets the minWidth, prefWidth, maxWidth, minHeight, prefHeight, and maxHeight to the specified value. */
@@ -658,16 +662,32 @@ public class Cell<C> {
 		return widgetX;
 	}
 
+	public void setWidgetX (float widgetX) {
+		this.widgetX = widgetX;
+	}
+
 	public float getWidgetY () {
 		return widgetY;
+	}
+
+	public void setWidgetY (float widgetY) {
+		this.widgetY = widgetY;
 	}
 
 	public float getWidgetWidth () {
 		return widgetWidth;
 	}
 
+	public void setWidgetWidth (float widgetWidth) {
+		this.widgetWidth = widgetWidth;
+	}
+
 	public float getWidgetHeight () {
 		return widgetHeight;
+	}
+
+	public void setWidgetHeight (float widgetHeight) {
+		this.widgetHeight = widgetHeight;
 	}
 
 	public int getColumn () {
@@ -678,114 +698,193 @@ public class Cell<C> {
 		return row;
 	}
 
-	public Value getMinWidth () {
+	/** @return May be null if this cell is row defaults. */
+	public Value getMinWidthValue () {
 		return minWidth;
 	}
 
-	public Value getMinHeight () {
+	public float getMinWidth () {
+		return minWidth == null ? 0 : minWidth.width(this);
+	}
+
+	/** @return May be null if this cell is row defaults. */
+	public Value getMinHeightValue () {
 		return minHeight;
 	}
 
-	public Value getPrefWidth () {
+	public float getMinHeight () {
+		return minHeight == null ? 0 : minHeight.height(this);
+	}
+
+	/** @return May be null if this cell is row defaults. */
+	public Value getPrefWidthValue () {
 		return prefWidth;
 	}
 
-	public Value getPrefHeight () {
+	public float getPrefWidth () {
+		return prefWidth == null ? 0 : prefWidth.width(this);
+	}
+
+	/** @return May be null if this cell is row defaults. */
+	public Value getPrefHeightValue () {
 		return prefHeight;
 	}
 
-	public Value getMaxWidth () {
+	public float getPrefHeight () {
+		return prefHeight == null ? 0 : prefHeight.height(this);
+	}
+
+	/** @return May be null if this cell is row defaults. */
+	public Value getMaxWidthValue () {
 		return maxWidth;
 	}
 
-	public Value getMaxHeight () {
+	public float getMaxWidth () {
+		return maxWidth == null ? 0 : maxWidth.width(this);
+	}
+
+	/** @return May be null if this cell is row defaults. */
+	public Value getMaxHeightValue () {
 		return maxHeight;
 	}
 
-	public Value getSpaceTop () {
+	public float getMaxHeight () {
+		return maxHeight == null ? 0 : maxHeight.height(this);
+	}
+
+	/** @return May be null if this value is not set. */
+	public Value getSpaceTopValue () {
 		return spaceTop;
 	}
 
-	public Value getSpaceLeft () {
+	public float getSpaceTop () {
+		return spaceTop == null ? 0 : spaceTop.height(this);
+	}
+
+	/** @return May be null if this value is not set. */
+	public Value getSpaceLeftValue () {
 		return spaceLeft;
 	}
 
-	public Value getSpaceBottom () {
+	public float getSpaceLeft () {
+		return spaceLeft == null ? 0 : spaceLeft.width(this);
+	}
+
+	/** @return May be null if this value is not set. */
+	public Value getSpaceBottomValue () {
 		return spaceBottom;
 	}
 
-	public Value getSpaceRight () {
+	public float getSpaceBottom () {
+		return spaceBottom == null ? 0 : spaceBottom.height(this);
+	}
+
+	/** @return May be null if this value is not set. */
+	public Value getSpaceRightValue () {
 		return spaceRight;
 	}
 
-	public Value getPadTop () {
+	public float getSpaceRight () {
+		return spaceRight == null ? 0 : spaceRight.width(this);
+	}
+
+	/** @return May be null if this value is not set. */
+	public Value getPadTopValue () {
 		return padTop;
 	}
 
-	public Value getPadLeft () {
+	public float getPadTop () {
+		return padTop == null ? 0 : padTop.height(this);
+	}
+
+	/** @return May be null if this value is not set. */
+	public Value getPadLeftValue () {
 		return padLeft;
 	}
 
-	public Value getPadBottom () {
+	public float getPadLeft () {
+		return padLeft == null ? 0 : padLeft.width(this);
+	}
+
+	/** @return May be null if this value is not set. */
+	public Value getPadBottomValue () {
 		return padBottom;
 	}
 
-	public Value getPadRight () {
+	public float getPadBottom () {
+		return padBottom == null ? 0 : padBottom.height(this);
+	}
+
+	/** @return May be null if this value is not set. */
+	public Value getPadRightValue () {
 		return padRight;
 	}
 
+	public float getPadRight () {
+		return padRight == null ? 0 : padRight.width(this);
+	}
+
+	/** @return May be null if this value is not set. */
 	public Float getFillX () {
 		return fillX;
 	}
 
+	/** @return May be null. */
 	public Float getFillY () {
 		return fillY;
 	}
 
+	/** @return May be null. */
 	public Integer getAlign () {
 		return align;
 	}
 
+	/** @return May be null. */
 	public Integer getExpandX () {
 		return expandX;
 	}
 
+	/** @return May be null. */
 	public Integer getExpandY () {
 		return expandY;
 	}
 
+	/** @return May be null. */
 	public Integer getColspan () {
 		return colspan;
 	}
 
+	/** @return May be null. */
 	public Boolean getUniformX () {
 		return uniformX;
 	}
 
+	/** @return May be null. */
 	public Boolean getUniformY () {
 		return uniformY;
 	}
 
+	/** Returns true if this cell is the last cell in the row. */
 	public boolean isEndRow () {
 		return endRow;
 	}
 
-	/** The actual amount of space computed from padding and spacing from the last layout. */
+	/** The actual amount of combined padding and spacing from the last layout. */
 	public float getComputedPadTop () {
 		return computedPadTop;
 	}
 
-	/** The actual amount of space computed from padding and spacing from the last layout. */
+	/** The actual amount of combined padding and spacing from the last layout. */
 	public float getComputedPadLeft () {
 		return computedPadLeft;
 	}
 
-	/** The actual amount of space computed from padding and spacing from the last layout. */
+	/** The actual amount of combined padding and spacing from the last layout. */
 	public float getComputedPadBottom () {
 		return computedPadBottom;
 	}
 
-	/** The actual amount of space computed from padding and spacing from the last layout. */
+	/** The actual amount of combined padding and spacing from the last layout. */
 	public float getComputedPadRight () {
 		return computedPadRight;
 	}
@@ -796,20 +895,20 @@ public class Cell<C> {
 
 	static Cell defaults (BaseTableLayout layout) {
 		Cell defaults = new Cell(layout);
-		defaults.minWidth = Value.minWidth();
-		defaults.minHeight = Value.minHeight();
-		defaults.prefWidth = Value.prefWidth();
-		defaults.prefHeight = Value.prefHeight();
-		defaults.maxWidth = Value.maxWidth();
-		defaults.maxHeight = Value.maxHeight();
-		defaults.spaceTop = null;
-		defaults.spaceLeft = null;
-		defaults.spaceBottom = null;
-		defaults.spaceRight = null;
-		defaults.padTop = null;
-		defaults.padLeft = null;
-		defaults.padBottom = null;
-		defaults.padRight = null;
+		defaults.minWidth = Value.minWidth;
+		defaults.minHeight = Value.minHeight;
+		defaults.prefWidth = Value.prefWidth;
+		defaults.prefHeight = Value.prefHeight;
+		defaults.maxWidth = Value.maxWidth;
+		defaults.maxHeight = Value.maxHeight;
+		defaults.spaceTop = Value.zero;
+		defaults.spaceLeft = Value.zero;
+		defaults.spaceBottom = Value.zero;
+		defaults.spaceRight = Value.zero;
+		defaults.padTop = Value.zero;
+		defaults.padLeft = Value.zero;
+		defaults.padBottom = Value.zero;
+		defaults.padRight = Value.zero;
 		defaults.fillX = 0f;
 		defaults.fillY = 0f;
 		defaults.align = CENTER;
