@@ -16,7 +16,7 @@ class TableLayout extends BaseTableLayout<Component, Table, TableLayout, SwingTo
 	ArrayList<DebugRect> debugRects;
 
 	public TableLayout () {
-		super(SwingToolkit.instance);
+		super((SwingToolkit)SwingToolkit.instance);
 	}
 
 	public TableLayout (SwingToolkit toolkit) {

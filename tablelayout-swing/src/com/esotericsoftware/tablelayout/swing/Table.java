@@ -1,6 +1,12 @@
 
 package com.esotericsoftware.tablelayout.swing;
 
+import com.esotericsoftware.tablelayout.BaseTableLayout;
+import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
+import com.esotericsoftware.tablelayout.Cell;
+import com.esotericsoftware.tablelayout.Toolkit;
+import com.esotericsoftware.tablelayout.Value;
+
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -10,12 +16,11 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
-import com.esotericsoftware.tablelayout.BaseTableLayout;
-import com.esotericsoftware.tablelayout.Cell;
-import com.esotericsoftware.tablelayout.Value;
-import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
-
 public class Table extends JComponent {
+	static {
+		Toolkit.instance = new SwingToolkit();
+	}
+
 	private final TableLayout layout;
 
 	public Table () {
@@ -277,19 +282,19 @@ public class Table extends JComponent {
 	}
 
 	public Value getPadTop () {
-		return layout.getPadTop();
+		return layout.getPadTopValue();
 	}
 
 	public Value getPadLeft () {
-		return layout.getPadLeft();
+		return layout.getPadLeftValue();
 	}
 
 	public Value getPadBottom () {
-		return layout.getPadBottom();
+		return layout.getPadBottomValue();
 	}
 
 	public Value getPadRight () {
-		return layout.getPadRight();
+		return layout.getPadRightValue();
 	}
 
 	public int getAlign () {

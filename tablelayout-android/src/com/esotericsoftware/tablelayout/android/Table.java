@@ -1,16 +1,21 @@
 
 package com.esotericsoftware.tablelayout.android;
 
-import java.util.List;
-
 import android.graphics.Canvas;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
 import com.esotericsoftware.tablelayout.Cell;
+import com.esotericsoftware.tablelayout.Toolkit;
+
+import java.util.List;
 
 public class Table extends ViewGroup {
+	static {
+		Toolkit.instance = new AndroidToolkit();
+	}
+
 	static private final OnHierarchyChangeListener hierarchyChangeListener = new OnHierarchyChangeListener() {
 		public void onChildViewAdded (View parent, View child) {
 			((Table)parent).layout.otherChildren.add(child);

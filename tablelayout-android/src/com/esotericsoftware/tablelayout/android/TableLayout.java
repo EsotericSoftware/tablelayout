@@ -18,7 +18,7 @@ class TableLayout extends BaseTableLayout<View, Table, TableLayout, AndroidToolk
 	ArrayList<DebugRect> debugRects;
 
 	public TableLayout () {
-		super(AndroidToolkit.instance);
+		super((AndroidToolkit)AndroidToolkit.instance);
 	}
 
 	public TableLayout (AndroidToolkit toolkit) {

@@ -16,7 +16,6 @@ import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
 import com.esotericsoftware.tablelayout.Toolkit;
 
 class SwingToolkit extends Toolkit<Component, Table, TableLayout> {
-	static SwingToolkit instance = new SwingToolkit();
 	static Timer timer;
 	static ArrayList<TableLayout> debugLayouts = new ArrayList(0);
 
