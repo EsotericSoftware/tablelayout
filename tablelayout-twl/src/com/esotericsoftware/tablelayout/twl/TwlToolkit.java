@@ -2,12 +2,22 @@
 package com.esotericsoftware.tablelayout.twl;
 
 import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
+import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.Toolkit;
 
 import de.matthiasmann.twl.Widget;
 
 public class TwlToolkit extends Toolkit<Widget, Table, TableLayout> {
 	static public final TwlToolkit instance = new TwlToolkit();
+
+	public Cell obtainCell (TableLayout layout) {
+		Cell cell = new Cell();
+		cell.setLayout(layout);
+		return cell;
+	}
+
+	public void freeCell (Cell cell) {
+	}
 
 	public void addChild (Widget parent, Widget child) {
 		parent.add(child);

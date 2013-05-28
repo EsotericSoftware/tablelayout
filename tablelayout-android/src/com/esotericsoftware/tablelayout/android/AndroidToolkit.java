@@ -35,6 +35,15 @@ class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 	static final HashMap<String, Integer> drawableToID = new HashMap();
 	static Paint paint;
 
+	public Cell obtainCell (TableLayout layout) {
+		Cell cell = new Cell();
+		cell.setLayout(layout);
+		return cell;
+	}
+
+	public void freeCell (Cell cell) {
+	}
+
 	public void setWidget (TableLayout layout, Cell cell, View widget) {
 		super.setWidget(layout, cell, widget);
 		layout.otherChildren.remove(widget);

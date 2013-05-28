@@ -1,6 +1,10 @@
 
 package com.esotericsoftware.tablelayout.swing;
 
+import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
+import com.esotericsoftware.tablelayout.Cell;
+import com.esotericsoftware.tablelayout.Toolkit;
+
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.EventQueue;
@@ -8,16 +12,20 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.JButton;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-
-import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
-import com.esotericsoftware.tablelayout.Toolkit;
 
 class SwingToolkit extends Toolkit<Component, Table, TableLayout> {
 	static Timer timer;
 	static ArrayList<TableLayout> debugLayouts = new ArrayList(0);
+
+	public Cell obtainCell (TableLayout layout) {
+		Cell cell = new Cell();
+		cell.setLayout(layout);
+		return cell;
+	}
+
+	public void freeCell (Cell cell) {
+	}
 
 	public void addChild (Component parent, Component child) {
 		if (parent instanceof JScrollPane)
