@@ -1,5 +1,7 @@
 ![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/logo.gif)
 
+Please use the [TableLayout discussion group](http://groups.google.com/group/tablelayout-users) for support.
+
 ## Overview
 
 TableLayout is a lightweight Java library for setting the position and size of UI widgets using a logical table, similar to HTML tables. The core of TableLayout is UI toolkit agnostic and comes with support for [libgdx](http://code.google.com/p/libgdx/), Swing, Android, and [TWL](http://twl.l33tlabs.org/). Layout using tables is intuitive and TableLayout's Java API is very easy to use.
