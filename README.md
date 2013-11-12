@@ -2,7 +2,7 @@
 
 ## Overview
 
-TableLayout is a lightweight Java library for setting the position and size of UI widgets using a logical table, similar to HTML tables. The core of TableLayout is UI toolkit agnostic and comes with support for [http://code.google.com/p/libgdx/ libgdx](http://table-layout.googlecode.com/svn/wiki/tablelayout-logo.gif]), Swing, Android, and [TWL](http://twl.l33tlabs.org/). Layout using tables is intuitive and TableLayout's Java API is very easy to use.
+TableLayout is a lightweight Java library for setting the position and size of UI widgets using a logical table, similar to HTML tables. The core of TableLayout is UI toolkit agnostic and comes with support for [libgdx](http://code.google.com/p/libgdx/), Swing, Android, and [TWL](http://twl.l33tlabs.org/). Layout using tables is intuitive and TableLayout's Java API is very easy to use.
 
 - [Quickstart](#Quickstart)
 - [Root table](#Root_table)
