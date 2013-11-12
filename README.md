@@ -77,7 +77,13 @@ TableLayout can draw debug lines to visualize what is happening in the layout. D
 
 Widgets are added to a table with the `add` method (for UI toolkits that already have an `add` method, `addCell` is used). This adds a cell to the current row. To move to the next row, call the `row` method.
 
-5c6a300f17f31470fa498c6fec7119b3
+```java
+    table.add(nameLabel);
+    table.add(nameText);
+    table.row();
+    table.add(addressLabel);
+    table.add(addressText);
+```
 
 The `add` method returns a Cell, which has properties that control the layout. Every method on the cell returns the cell, allowing calls to be chained.
 
