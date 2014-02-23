@@ -179,7 +179,7 @@ Note the red cell lines are drawn on top of the green widget lines.
 
 ## Widget size
 
-By default, the table attempts to size widgets to their preferred size. If the widgets don't fit, they are sized between their preferred size and their minimum size, with widgets that have a larger preferred receiving more space. If the widgets don't fit at their minimum size then the layout is broken and widgets may overlap. The `fill` methods won't make a widget larger than the widget's maximum size.
+By default, the table attempts to size widgets to their preferred size. If the widgets don't fit, they are sized between their preferred size and their minimum size, with widgets that have a larger preferred size receiving more space. If the widgets don't fit at their minimum size then the layout is broken and widgets may overlap. The `fill` methods won't make a widget larger than the widget's maximum size.
 
 Widgets should not be subclassed to change the preferred, minimum, or maximum size. Instead, these sizes can be set on the cell and will be used instead of the widget's value.
 
@@ -211,7 +211,7 @@ Padding is extra space around the edges of a cell.
 
 ![](http://table-layout.googlecode.com/svn/wiki/home/pad.png)
 
-Note that padding between cells combines, so there are 20 pixels between the text fields.
+Note that padding between cells combines, so there are 20 pixels between the text fields. The debug lines don't necessarily show which cell the padding comes from, since it is not important for the layout of the table.
 
 Padding can also be applied to the edges of the table.
 
