@@ -21,9 +21,9 @@ TableLayout is a lightweight Java library for setting the position and size of U
 	- [Colspan](#colspan)
 - [Uniform](#uniform)
 - [Defaults](#defaults)
-- [Cell defaults](#cell-defaults)
-- [Column defaults](#column-defaults)
-- [Row defaults](#row-defaults)
+	- [Cell defaults](#cell-defaults)
+	- [Column defaults](#column-defaults)
+	- [Row defaults](#row-defaults)
 - [Stacks](#stacks)
 - [Similar libraries](#similar-libraries)
 
