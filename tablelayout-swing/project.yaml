@@ -1,3 +1,6 @@
 source:
 - src|**/*.java 
 - ../tablelayout/src|**/*.java 
+---
+Build.build(project);
+Build.oneJAR(project);
