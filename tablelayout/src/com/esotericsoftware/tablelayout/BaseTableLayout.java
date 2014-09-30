@@ -823,7 +823,7 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		else if ((align & LEFT) == 0) // Center
 			x += (layoutWidth - tableWidth) / 2;
 
-		float y = layoutY + w(padTop);
+		float y = layoutY + h(padTop);
 		if ((align & BOTTOM) != 0)
 			y += layoutHeight - tableHeight;
 		else if ((align & TOP) == 0) // Center
