@@ -39,11 +39,11 @@ Here is a quick example of a simple form in libgdx:
     TextField addressText = new TextField(skin);
 
     Table table = new Table();
-    table.add(nameLabel);              // row 1, column 1
-    table.add(nameText).width(100);    // row 1, column 2
-    table.row();                       // move to next row
-    table.add(addressLabel);           // row 2, column 1
-    table.add(addressText).width(100); // row 2, column 2
+    table.add(nameLabel);              // Row 0, column 0.
+    table.add(nameText).width(100);    // Row 0, column 1.
+    table.row();                       // Move to next row.
+    table.add(addressLabel);           // Row 1, column 0.
+    table.add(addressText).width(100); // Row 1, column 1.
 ```
 
 ![](http://table-layout.googlecode.com/svn/wiki/home/quickstart.png)
@@ -66,14 +66,11 @@ Sizing the root table varies in each UI toolkit. Eg, in Swing you would likely a
 
 ## Debugging
 
-TableLayout can draw debug lines to visualize what is happening in the layout. Debugging is enabled by calling `debug` on the table. libgdx requires `Table.drawDebug` to be called to actually render the debug lines. Other UI toolkits render the lines automatically.
+TableLayout can draw debug lines to visualize what is happening in the layout. Debugging is enabled by calling `debug` on the table. libgdx automatically renders debug lines if they are enabled. Other UI toolkits may require a method to be called to render the lines.
 
 ```java
-    table.debug(); // turn on all debug lines (table, cell, and widget)
-    table.debugTable(); // turn on only table lines
-    ...
-    stage.draw();
-    Table.drawDebug(stage);
+    table.debug();      // Turn on all debug lines (table, cell, and widget).
+    table.debugTable(); // Turn on only table lines.
 ```
 
 ## Adding cells
@@ -83,7 +80,7 @@ Widgets are added to a table with the `add` method (for UI toolkits that already
 ```java
     table.add(nameLabel);
     table.add(nameText);
-    table.row();
+    table.row();             // Move to next row.
     table.add(addressLabel);
     table.add(addressText);
 ```
@@ -91,7 +88,7 @@ Widgets are added to a table with the `add` method (for UI toolkits that already
 The `add` method returns a Cell, which has properties that control the layout. Every method on the cell returns the cell, allowing calls to be chained.
 
 ```java
-    table.add(nameText).padLeft(10).width(100);
+    table.add(nameText).padLeft(10).width(100); // Sets left padding and width on the new cell.
 ```
 
 ## Logical table
@@ -115,7 +112,7 @@ The outer blue rectangle shows the size of the table widget. The inner blue rect
 To make the logical table take up the entire size of the table widget, TableLayout needs to be told which cells will receive the extra space.
 
 ```java
-    table.add(nameLabel).expandX();
+    table.add(nameLabel).expandX(); // Column 0 receives all extra horizontal space.
     table.add(nameText).width(100);
     table.row();
     table.add(addressLabel);
@@ -127,8 +124,8 @@ To make the logical table take up the entire size of the table widget, TableLayo
 The red lines show the cell bounds and the green lines show the widget bounds. Note that the left column has received all of the extra space in the x direction. Only one cell needs to have expand to cause the entire column or row to expand. If multiple columns expand, the extra space is distributed evenly.
 
 ```java
-    table.add(nameLabel).expandX();
-    table.add(nameText).width(100).expandX();
+    table.add(nameLabel).expandX();           // Receives extra horizontal space.
+    table.add(nameText).width(100).expandX(); // Also receives extra horizontal space.
     table.row();
     table.add(addressLabel);
     table.add(addressText).width(100);
@@ -139,7 +136,7 @@ The red lines show the cell bounds and the green lines show the widget bounds. N
 Expand also works in the y direction via the `expandY` method. The `expand` method causes expand to happen in both directions.
 
 ```java
-    table.add(nameLabel).expand();
+    table.add(nameLabel).expand();     // Receives all extra horizontal and vertical space.
     table.add(nameText).width(100);
     table.row();
     table.add(addressLabel);
@@ -153,8 +150,8 @@ Expand also works in the y direction via the `expandY` method. The `expand` meth
 Similar to aligning the logical table, a widget can be aligned inside the cell.
 
 ```java
-    table.add(nameLabel).expand().bottom().right();
-    table.add(nameText).width(100).top();
+    table.add(nameLabel).expand().bottom().right(); // Aligned bottom right.
+    table.add(nameText).width(100).top();           // Aligned top.
     table.row();
     table.add(addressLabel);
     table.add(addressText).width(100);
@@ -167,7 +164,7 @@ Similar to aligning the logical table, a widget can be aligned inside the cell.
 The `fill` method causes a widget to be sized to the cell. Like expand, there are also `fillX` and `fillY` methods.
 
 ```java
-    table.add(nameLabel).expand().bottom().fillX();
+    table.add(nameLabel).expand().bottom().fillX(); // Sized to cell horizontally.
     table.add(nameText).width(100).top();
     table.row();
     table.add(addressLabel);
@@ -186,10 +183,10 @@ Widgets should not be subclassed to change the preferred, minimum, or maximum si
 
 ```java
     table.add(nameLabel);
-    table.add(nameText).minWidth(100);
+    table.add(nameText).minWidth(100);     // Sets min width.
     table.row();
     table.add(addressLabel);
-    table.add(addressText).prefWidth(999);
+    table.add(addressText).prefWidth(999); // Sets pref width.
 ```
 
 ![](http://table-layout.googlecode.com/svn/wiki/home/size.png)
@@ -204,10 +201,10 @@ Padding is extra space around the edges of a cell.
 
 ```java
     table.add(nameLabel);
-    table.add(nameText).width(100).padBottom(10);
+    table.add(nameText).width(100).padBottom(10); // Sets bottom padding.
     table.row();
     table.add(addressLabel);
-    table.add(addressText).width(100).pad(10);
+    table.add(addressText).width(100).pad(10);    // Sets top, left, bottom, right padding.
 ```
 
 ![](http://table-layout.googlecode.com/svn/wiki/home/pad.png)
@@ -226,10 +223,10 @@ Like padding, spacing is extra space around the edges of a cell. However, spacin
 
 ```java
     table.add(nameLabel);
-    table.add(nameText).width(100).spaceBottom(10);
+    table.add(nameText).width(100).spaceBottom(10); // Sets bottom spacing.
     table.row();
     table.add(addressLabel);
-    table.add(addressText).width(100).space(10);
+    table.add(addressText).width(100).space(10);    // Sets top, left, bottom, right spacing.
 ```
 
 ![](http://table-layout.googlecode.com/svn/wiki/home/space.png)
@@ -244,7 +241,7 @@ A cell can span multiple columns.
     table.add(nameLabel);
     table.add(nameText).width(100).spaceBottom(10);
     table.row();
-    table.add(addressLabel).colspan(2);
+    table.add(addressLabel).colspan(2);             // Spans 2 columns.
 ```
 
 ![](http://table-layout.googlecode.com/svn/wiki/home/colspan.png)
@@ -256,8 +253,8 @@ Note that there is no rowspan. To acheive this, use a nested table.
 Cells with `uniform` set to true will be the same size.
 
 ```java
-    table.add(nameLabel).uniform();
-    table.add(nameText).width(100).uniform();
+    table.add(nameLabel).uniform();           // These two cells will have
+    table.add(nameText).width(100).uniform(); // the same width and height.
     table.row();
     table.add(addressLabel);
     table.add(addressText).width(100);
@@ -272,7 +269,7 @@ Cells with `uniform` set to true will be the same size.
 Often many cells have the same properties, so setting the default properties for all cells can greatly reduce the code needed for a layout. The `defaults` method on the table returns a cell whose properties are the defaults for all cells.
 
 ```java
-    table.defaults().width(100);
+    table.defaults().width(100); // Sets defaults for all cells.
     table.add(nameLabel);
     table.add(nameText);
     table.row();
@@ -287,7 +284,7 @@ Often many cells have the same properties, so setting the default properties for
 The `columnDefaults` method on the table returns a cell whose properties are the defaults for all cells in that column. Any properties set here will override the cell default properties. Columns are indexed starting at 0.
 
 ```java
-    table.columnDefaults(1).width(150);
+    table.columnDefaults(1).width(150); // Sets defaults for cells in column 0.
     table.add(nameLabel);
     table.add(nameText);
     table.row();
@@ -302,10 +299,10 @@ The `columnDefaults` method on the table returns a cell whose properties are the
 When the `row` method is called, it returns a cell whose properties are the defaults for all cells in that row. Any properties set here will override both the cell default properties and the column default properties. Note it is allowed to call `row` before any cells are added. This allows the first row to have row default properties.
 
 ```java
-    table.row().height(50);
+    table.row().height(50);  // Set cell defaults for row 0.
     table.add(nameLabel);
     table.add(nameText);
-    table.row().height(100);
+    table.row().height(100); // Set cell defaults for row 1.
     table.add(addressLabel);
     table.add(addressText);
 ```
