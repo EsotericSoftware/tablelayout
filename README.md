@@ -32,17 +32,18 @@ TableLayout is a lightweight Java library for setting the position and size of U
 Here is a quick example of a simple form in libgdx:
 
 ```java
+    // Keep your code clean by creating widgets separate from layout.
     Label nameLabel = new Label("Name:", skin);
     TextField nameText = new TextField(skin);
     Label addressLabel = new Label("Address:", skin);
     TextField addressText = new TextField(skin);
-    
+
     Table table = new Table();
-    table.add(nameLabel);
-    table.add(nameText).width(100);
-    table.row();
-    table.add(addressLabel);
-    table.add(addressText).width(100);
+    table.add(nameLabel);              // row 1, column 1
+    table.add(nameText).width(100);    // row 1, column 2
+    table.row();                       // move to next row
+    table.add(addressLabel);           // row 2, column 1
+    table.add(addressText).width(100); // row 2, column 2
 ```
 
 ![](http://table-layout.googlecode.com/svn/wiki/home/quickstart.png)
