@@ -4,7 +4,9 @@ Please use the [TableLayout discussion group](http://groups.google.com/group/tab
 
 ## Overview
 
-TableLayout is a lightweight Java library for setting the position and size of UI widgets using a logical table, similar to HTML tables. The core of TableLayout is UI toolkit agnostic and comes with support for [libgdx](http://code.google.com/p/libgdx/), Swing, Android, and [TWL](http://twl.l33tlabs.org/). Layout using tables is intuitive and TableLayout's Java API is very easy to use.
+TableLayout is a lightweight Java library for setting the position and size of UI widgets using a logical table, similar to HTML tables. The core of TableLayout is UI toolkit agnostic and comes with support for Swing, Android, and [TWL](http://twl.l33tlabs.org/). Layout using tables is intuitive and TableLayout's Java API is very easy to use.
+
+A fork of TableLayout is included inside [libgdx](https://libgdx.badlogicgames.com/), so TableLayout is not needed if using libgdx.
 
 - [Quickstart](#quickstart)
 - [Root table](#root-table)
@@ -46,7 +48,7 @@ Here is a quick example of a simple form in libgdx:
     table.add(addressText).width(100); // Row 1, column 1.
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/quickstart.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/quickstart.png)
 
 This code adds 4 cells to the table which are arranged in two columns and two rows. The `add` method returns a Cell, which has methods to control layout. Here the width of the text fields are set to 100.
 
@@ -95,7 +97,7 @@ The `add` method returns a Cell, which has properties that control the layout. E
 
 The cells make up a logical table, but it is not sized to the table widget.
 
-![](http://table-layout.googlecode.com/svn/wiki/home/logicaltable.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/logicaltable.png)
 
 The outer blue rectangle shows the size of the table widget. The inner blue rectangle shows the size of the logical table, which is aligned to center by default. The alignment can be changed using methods on the table. The table methods return the table, so can be chained just like the cell methods.
 
@@ -103,7 +105,7 @@ The outer blue rectangle shows the size of the table widget. The inner blue rect
     table.right().bottom();
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/tablealign.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/tablealign.png)
 
 ## Cell properties
 
@@ -119,7 +121,7 @@ To make the logical table take up the entire size of the table widget, TableLayo
     table.add(addressText).width(100);
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/expand.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/expand.png)
 
 The red lines show the cell bounds and the green lines show the widget bounds. Note that the left column has received all of the extra space in the x direction. Only one cell needs to have expand to cause the entire column or row to expand. If multiple columns expand, the extra space is distributed evenly.
 
@@ -131,7 +133,7 @@ The red lines show the cell bounds and the green lines show the widget bounds. N
     table.add(addressText).width(100);
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/expandmultiple.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/expandmultiple.png)
 
 Expand also works in the y direction via the `expandY` method. The `expand` method causes expand to happen in both directions.
 
@@ -143,7 +145,7 @@ Expand also works in the y direction via the `expandY` method. The `expand` meth
     table.add(addressText).width(100);
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/expandboth.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/expandboth.png)
 
 ### Alignment
 
@@ -157,7 +159,7 @@ Similar to aligning the logical table, a widget can be aligned inside the cell.
     table.add(addressText).width(100);
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/align.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/align.png)
 
 ### Fill
 
@@ -171,7 +173,7 @@ The `fill` method causes a widget to be sized to the cell. Like expand, there ar
     table.add(addressText).width(100);
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/fill.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/fill.png)
 
 Note the red cell lines are drawn on top of the green widget lines.
 
@@ -189,7 +191,7 @@ Widgets should not be subclassed to change the preferred, minimum, or maximum si
     table.add(addressText).prefWidth(999); // Sets pref width.
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/size.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/size.png)
 
 Here the `prefWidth` of 999 is larger than the table, so it is sized down to fit.
 
@@ -207,7 +209,7 @@ Padding is extra space around the edges of a cell.
     table.add(addressText).width(100).pad(10);    // Sets top, left, bottom, right padding.
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/pad.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/pad.png)
 
 Note that padding between cells combines, so there are 20 pixels between the text fields. The debug lines don't necessarily show which cell the padding comes from, since it is not important for the layout of the table.
 
@@ -229,7 +231,7 @@ Like padding, spacing is extra space around the edges of a cell. However, spacin
     table.add(addressText).width(100).space(10);    // Sets top, left, bottom, right spacing.
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/space.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/space.png)
 
 Note that the spacing between cells doesn't combine, so there are 10 pixels between the text fields. Also note that there is no spacing under the bottom text field because spacing isn't applied around the edge of the table.
 
@@ -244,7 +246,7 @@ A cell can span multiple columns.
     table.add(addressLabel).colspan(2);             // Spans 2 columns.
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/colspan.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/colspan.png)
 
 Note that there is no rowspan. To acheive this, use a nested table.
 
@@ -260,7 +262,7 @@ Cells with `uniform` set to true will be the same size.
     table.add(addressText).width(100);
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/uniform.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/uniform.png)
 
 ## Defaults
 
@@ -277,7 +279,7 @@ Often many cells have the same properties, so setting the default properties for
     table.add(addressText);
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/defaults.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/defaults.png)
 
 ### Column defaults
 
@@ -292,7 +294,7 @@ The `columnDefaults` method on the table returns a cell whose properties are the
     table.add(addressText);
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/columndefaults.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/columndefaults.png)
 
 ### Row defaults
 
@@ -307,7 +309,7 @@ When the `row` method is called, it returns a cell whose properties are the defa
     table.add(addressText);
 ```
 
-![](http://table-layout.googlecode.com/svn/wiki/home/rowdefaults.png)
+![](https://raw.github.com/wiki/EsotericSoftware/tablelayout/images/home/rowdefaults.png)
 
 ## Stacks
 
