@@ -71,7 +71,7 @@ class SwingToolkit extends Toolkit<Component, Table, TableLayout> {
 	}
 
 	public void clearDebugRectangles (TableLayout layout) {
-		if (layout.debugRects != null) debugLayouts.remove(this);
+		if (layout.debugRects != null) debugLayouts.remove(layout);
 		layout.debugRects = null;
 	}
 
