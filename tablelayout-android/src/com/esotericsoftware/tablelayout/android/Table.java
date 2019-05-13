@@ -124,7 +124,7 @@ public class Table extends ViewGroup {
 		this.sizeToBackground = sizeToBackground;
 	}
 
-	public TableLayout getTableLayout () {
+	public BaseTableLayout getTableLayout () {
 		return layout;
 	}
 }
