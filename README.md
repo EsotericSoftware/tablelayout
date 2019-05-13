@@ -324,14 +324,6 @@ On Android, when the application starts, `AndroidToolkit.setup` must be called:
     AndroidToolkit.setup(yourActivity, R.drawable.class);
 ```
 
-On Android, `Table` is an `android.view.ViewGroup`. Manipulating the layout, for example to enable debugging lines, must be done on the TableLayout:
-
-```java
-    Table table = new Table();
-    table.getTableLayout().debug(); // Turn on all debug lines (table, cell, and widget).
-    table.getTableLayout().debugTable(); // Turn on only table lines.
-```
-
 ## Similar libraries
 
 A few Java, table-based layout managers:
