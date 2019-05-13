@@ -329,7 +329,7 @@ On Android, `Table` is an `android.view.ViewGroup`. Manipulating the layout, for
 ```java
     Table table = new Table();
     table.getTableLayout().debug(); // Turn on all debug lines (table, cell, and widget).
-    table.getTableLayout().table.debugTable(); // Turn on only table lines.
+    table.getTableLayout().debugTable(); // Turn on only table lines.
 ```
 
 ## Similar libraries
