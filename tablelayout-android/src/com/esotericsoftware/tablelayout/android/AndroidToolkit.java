@@ -28,7 +28,7 @@ import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.Toolkit;
 
-class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
+public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 	static public Context context;
 	static public float density = 1;
 
