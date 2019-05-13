@@ -34,27 +34,27 @@ import static com.esotericsoftware.tablelayout.BaseTableLayout.*;
 /** A cell in a table.
  * @author Nathan Sweet */
 public class Cell<C> {
-	Value minWidth, minHeight;
-	Value prefWidth, prefHeight;
-	Value maxWidth, maxHeight;
-	Value spaceTop, spaceLeft, spaceBottom, spaceRight;
-	Value padTop, padLeft, padBottom, padRight;
-	Float fillX, fillY;
-	Integer align;
-	Integer expandX, expandY;
-	Boolean ignore;
-	Integer colspan;
-	Boolean uniformX, uniformY;
+	public Value minWidth, minHeight;
+	public Value prefWidth, prefHeight;
+	public Value maxWidth, maxHeight;
+	public Value spaceTop, spaceLeft, spaceBottom, spaceRight;
+	public Value padTop, padLeft, padBottom, padRight;
+	public Float fillX, fillY;
+	public Integer align;
+	public Integer expandX, expandY;
+	public Boolean ignore;
+	public Integer colspan;
+	public Boolean uniformX, uniformY;
 
-	C widget;
-	float widgetX, widgetY;
-	float widgetWidth, widgetHeight;
+	public C widget;
+	public float widgetX, widgetY;
+	public float widgetWidth, widgetHeight;
 
-	private BaseTableLayout layout;
-	boolean endRow;
-	int column, row;
-	int cellAboveIndex = -1;
-	float computedPadTop, computedPadLeft, computedPadBottom, computedPadRight;
+	public BaseTableLayout layout; // public BaseTableLayout getLayout () { return layout; }
+	public boolean endRow;
+	public int column, row;
+	public int cellAboveIndex = -1;
+	public float computedPadTop, computedPadLeft, computedPadBottom, computedPadRight;
 
 	public Cell () {
 	}
@@ -63,7 +63,7 @@ public class Cell<C> {
 		this.layout = layout;
 	}
 
-	void set (Cell defaults) {
+	public void set (Cell defaults) {
 		minWidth = defaults.minWidth;
 		minHeight = defaults.minHeight;
 		prefWidth = defaults.prefWidth;
@@ -89,7 +89,7 @@ public class Cell<C> {
 		uniformY = defaults.uniformY;
 	}
 
-	void merge (Cell cell) {
+	public void merge (Cell cell) {
 		if (cell == null) return;
 		if (cell.minWidth != null) minWidth = cell.minWidth;
 		if (cell.minHeight != null) minHeight = cell.minHeight;
@@ -945,7 +945,7 @@ public class Cell<C> {
 	}
 
 	/** Set all constraints to cell default values. */
-	void defaults () {
+	public void defaults () {
 		minWidth = Value.minWidth;
 		minHeight = Value.minHeight;
 		prefWidth = Value.prefWidth;

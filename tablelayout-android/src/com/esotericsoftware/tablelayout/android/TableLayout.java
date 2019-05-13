@@ -13,9 +13,9 @@ import com.esotericsoftware.tablelayout.BaseTableLayout;
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.android.AndroidToolkit.DebugRect;
 
-class TableLayout extends BaseTableLayout<View, Table, TableLayout, AndroidToolkit> {
-	ArrayList<View> otherChildren = new ArrayList(1);
-	ArrayList<DebugRect> debugRects;
+public class TableLayout extends BaseTableLayout<View, Table, TableLayout, AndroidToolkit> {
+	public ArrayList<View> otherChildren = new ArrayList(1);
+	public ArrayList<DebugRect> debugRects;
 
 	public TableLayout () {
 		super((AndroidToolkit)AndroidToolkit.instance);
@@ -57,7 +57,7 @@ class TableLayout extends BaseTableLayout<View, Table, TableLayout, AndroidToolk
 		}
 	}
 
-	void invalidateSuper () {
+	public void invalidateSuper () {
 		super.invalidate();
 	}
 

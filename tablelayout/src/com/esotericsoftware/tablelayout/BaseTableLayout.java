@@ -63,9 +63,9 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 	private float[] expandWidth, expandHeight;
 	private float[] columnWeightedWidth, rowWeightedHeight;
 
-	Value padTop, padLeft, padBottom, padRight;
-	int align = CENTER;
-	Debug debug = Debug.none;
+	public Value padTop, padLeft, padBottom, padRight;
+	public int align = CENTER;
+	public Debug debug = Debug.none;
 
 	public BaseTableLayout (K toolkit) {
 		this.toolkit = toolkit;

@@ -32,8 +32,8 @@ public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 	static public Context context;
 	static public float density = 1;
 
-	static final HashMap<String, Integer> drawableToID = new HashMap();
-	static Paint paint;
+	static public final HashMap<String, Integer> drawableToID = new HashMap();
+	static public Paint paint;
 
 	public Cell obtainCell (TableLayout layout) {
 		Cell cell = new Cell();
@@ -106,7 +106,7 @@ public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 		return view.getHeight();
 	}
 
-	static Paint getDebugPaint () {
+	static public Paint getDebugPaint () {
 		if (paint == null) {
 			paint = new Paint();
 			paint.setStyle(Paint.Style.STROKE);
@@ -226,7 +226,7 @@ public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 	}
 
 	/** Marker class to know when the background is no longer the default. */
-	static class CustomizedStateListDrawable extends StateListDrawable {
+	static public class CustomizedStateListDrawable extends StateListDrawable {
 	}
 
 	static public class DebugRect {

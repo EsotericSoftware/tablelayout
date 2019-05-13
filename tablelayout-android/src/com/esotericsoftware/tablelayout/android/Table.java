@@ -26,7 +26,7 @@ public class Table extends ViewGroup {
 		}
 	};
 
-	final TableLayout layout;
+	public final TableLayout layout;
 	private boolean sizeToBackground;
 
 	public Table () {
@@ -57,7 +57,7 @@ public class Table extends ViewGroup {
 		return layout.defaults();
 	}
 
-	protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec) {
+	public protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec) {
 		boolean widthUnspecified = MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.UNSPECIFIED;
 		boolean heightUnspecified = MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED;
 
@@ -89,7 +89,7 @@ public class Table extends ViewGroup {
 		setMeasuredDimension(resolveSize(measuredWidth, widthMeasureSpec), resolveSize(measuredHeight, heightMeasureSpec));
 	}
 
-	protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
+	public protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
 		layout.layout(0, 0, right - left, bottom - top);
 
 		if (layout.getDebug() != Debug.none && layout.debugRects != null) {
@@ -103,19 +103,19 @@ public class Table extends ViewGroup {
 		super.requestLayout();
 	}
 
-	protected int getSuggestedMinimumWidth () {
+	public protected int getSuggestedMinimumWidth () {
 		int width = (int)layout.getMinWidth();
 		if (sizeToBackground && getBackground() != null) width = Math.max(width, getBackground().getMinimumWidth());
 		return width;
 	}
 
-	protected int getSuggestedMinimumHeight () {
+	public protected int getSuggestedMinimumHeight () {
 		int height = (int)layout.getMinHeight();
 		if (sizeToBackground && getBackground() != null) height = Math.max(height, getBackground().getMinimumHeight());
 		return height;
 	}
 
-	protected void dispatchDraw (Canvas canvas) {
+	public protected void dispatchDraw (Canvas canvas) {
 		super.dispatchDraw(canvas);
 		layout.drawDebug(canvas);
 	}
