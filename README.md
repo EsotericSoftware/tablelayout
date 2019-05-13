@@ -27,6 +27,7 @@ A fork of TableLayout is included inside [libgdx](https://libgdx.badlogicgames.c
 	- [Column defaults](#column-defaults)
 	- [Row defaults](#row-defaults)
 - [Stacks](#stacks)
+- [Android](#Android)
 - [Similar libraries](#similar-libraries)
 
 ## Quickstart
@@ -314,6 +315,22 @@ When the `row` method is called, it returns a cell whose properties are the defa
 ## Stacks
 
 A stack widget is a special kind of container that lays out each child to be the size of the stack. This is useful when it is necessary to have widgets stacked on top of each other. The first widget added to the stack is drawn on the bottom, and the last widget added is drawn on the top.
+
+## Android
+
+On Android, when the application starts, `AndroidToolkit.setup` must be called:
+
+```java
+    AndroidToolkit.setup(yourActivity, R.drawable.class);
+```
+
+On Android, `Table` is an `android.view.ViewGroup`. Manipulating the layout, for example to enable debugging lines, must be done on the TableLayout:
+
+```java
+    Table table = new Table();
+    table.getTableLayout().debug(); // Turn on all debug lines (table, cell, and widget).
+    table.getTableLayout().table.debugTable(); // Turn on only table lines.
+```
 
 ## Similar libraries
 
