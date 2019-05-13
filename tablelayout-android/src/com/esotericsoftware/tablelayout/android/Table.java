@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.esotericsoftware.tablelayout.BaseTableLayout;
 import com.esotericsoftware.tablelayout.BaseTableLayout.Debug;
 import com.esotericsoftware.tablelayout.Cell;
 import com.esotericsoftware.tablelayout.Toolkit;
@@ -57,7 +58,7 @@ public class Table extends ViewGroup {
 		return layout.defaults();
 	}
 
-	public protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec) {
+	protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec) {
 		boolean widthUnspecified = MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.UNSPECIFIED;
 		boolean heightUnspecified = MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED;
 
@@ -89,7 +90,7 @@ public class Table extends ViewGroup {
 		setMeasuredDimension(resolveSize(measuredWidth, widthMeasureSpec), resolveSize(measuredHeight, heightMeasureSpec));
 	}
 
-	public protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
+	protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
 		layout.layout(0, 0, right - left, bottom - top);
 
 		if (layout.getDebug() != Debug.none && layout.debugRects != null) {
@@ -103,19 +104,19 @@ public class Table extends ViewGroup {
 		super.requestLayout();
 	}
 
-	public protected int getSuggestedMinimumWidth () {
+	protected int getSuggestedMinimumWidth () {
 		int width = (int)layout.getMinWidth();
 		if (sizeToBackground && getBackground() != null) width = Math.max(width, getBackground().getMinimumWidth());
 		return width;
 	}
 
-	public protected int getSuggestedMinimumHeight () {
+	protected int getSuggestedMinimumHeight () {
 		int height = (int)layout.getMinHeight();
 		if (sizeToBackground && getBackground() != null) height = Math.max(height, getBackground().getMinimumHeight());
 		return height;
 	}
 
-	public protected void dispatchDraw (Canvas canvas) {
+	protected void dispatchDraw (Canvas canvas) {
 		super.dispatchDraw(canvas);
 		layout.drawDebug(canvas);
 	}
