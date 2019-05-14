@@ -120,9 +120,9 @@ public class AndroidToolkit extends Toolkit<View, Table, TableLayout> {
 		// if (!drawableClass.getName().endsWith(".R$drawable"))
 		// throw new RuntimeException("The drawable class must be R.drawable: " + drawableClass);
 
-		DisplayMetrics metrics = new DisplayMetrics();
-		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		density = metrics.density;
+		// DisplayMetrics metrics = new DisplayMetrics();
+		// activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		// density = metrics.density;
 
 		drawableToID.clear();
 		Field[] fields = drawableClass.getFields();
