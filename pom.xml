@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+    Maven build configuration for distribution
+    -->
+
+    <groupId>com.esotericsoftware</groupId>
+    <artifactId>tablelayout-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>tablelayout-parent</name>
+    <url>https://github.com/EsotericSoftware/tablelayout</url>
+
+    <description>
+        Table-based layout for Java UI toolkits: libgdx, Swing, Android, TWL
+    </description>
+
+    <inceptionYear>2011</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>BSD 3-Clause "New" or "Revised" License</name>
+            <url>https://api.github.com/licenses/bsd-3-clause</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>NathanSweet</id>
+            <name>Nathan Sweet</name>
+            <url>http://esotericsoftware.com</url>
+        </developer>
+    </developers>
+
+    <modules>
+        <module>tablelayout</module>
+        <module>tablelayout-swing</module>
+        <module>tablelayout-twl</module>
+        <module>tablelayout-android</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
+    </build>
+</project>
