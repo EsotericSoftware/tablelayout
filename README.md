@@ -347,12 +347,12 @@ _[Orignal webpage](http://www.datadosen.se/riverlayout/) is no longer available.
 
 [DesignGridLayout](https://web.archive.org/web/20070728043408/https://designgridlayout.dev.java.net/)) uses canonical grids. For the most part, widgets are simply added and the ideal table is determined automatically. This cuts down the needed Java code to a minimum and enforces UI guidelines. The downside is that DesignGridLayout does not handle arbitrary table layouts. If a UI problem can be handled using a canonical grid, DesignGridLayout is the most elegant solution. If you want to deviate from a canonical grid, you have no recourse.
 
-[PanelMatic](https://github.com/codeworth-gh/PanelMatic) a both a layout and a simple UI builder mostly on the page axis. The fluent builder allows to add text fields or components.
+[PanelMatic](https://github.com/codeworth-gh/PanelMatic) both a layout and a simple UI builder mostly on the page axis. The fluent builder allows to add text fields or components.
 
-[Sliding Layout](https://github.com/AurelienRibon/sliding-layout) is an interesting layout that allows to reposition components, it's working with an interpolation library to animate the changes.
+[Sliding Layout](https://github.com/AurelienRibon/sliding-layout) is an interesting layout that allows to reposition components, it works with an interpolation library to animate the changes.
 
-[Slick Layout](https://github.com/jpxor/slick) is a constraint based layout, where various constraint is created a new when added to the container. SlickLayout adds components by rows. Constraints can be alignment, vertical / horizontal fill or packed.
+[Slick Layout](https://github.com/jpxor/slick) is a row- and constraint-based layout, where various constraints are created when added to the container. Constraints can be alignment, vertical/horizontal, fill, or packed.
 
-[Better Layout](https://github.com/Osiris-Team/Better-Layout) is similar to MigLayout but use a typed fluent builder API to add the components and tweak their constraints.
+[Better Layout](https://github.com/Osiris-Team/Better-Layout) is similar to MigLayout but uses a typed fluent builder API to add components and specify their constraints.
 
 Please feel free to submit additional libraries to be included in this section or suggest better descriptions.
