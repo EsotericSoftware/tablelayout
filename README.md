@@ -328,22 +328,31 @@ On Android, when the application starts, `AndroidToolkit.setup` must be called:
 
 A few Java, table-based layout managers:
 
-GridBagLayout can handle complex table-based layouts, but does so via a clunky API.
+[GridBagLayout](https://docs.oracle.com/javase/tutorial/uiswing/layout/gridbag.html) can handle complex table-based layouts, but does so via a clunky API.
 
-[TableLayout (the other one)](http://java.sun.com/products/jfc/tsc/articles/tablelayout/) uses 2D arrays of percentages, sizes, and flags to describe the table and how it should be sized. This approach has the same problems as GridBagLayout.
+TableLayout (the other one from Sun, webpage no longer available) uses 2D arrays of percentages, sizes, and flags to describe the table and how it should be sized. This approach has the same problems as GridBagLayout.
 
 [PageLayout](http://pagelayout.sourceforge.net/) uses a concise Java API to describe the table.
 
 PnutsLayout (webpage no longer available) was written by Toyokazu Tomatsu as part of [Pnuts](http://en.wikipedia.org/wiki/Pnuts). TableLayout was originally inspired by PnutsLayout.
 
-[UIHierarchy](http://chrriis.free.fr/projects/uihierarchy/index.html) was also inspired by PnutsLayout. It is interesting because it is not actually a layout manager, instead it uses a combination of method chaining and constraint strings to more cleanly create UI hierarchies and configure layout parameters.
+UIHierarchy (webpage no longer available) was also inspired by PnutsLayout. It is interesting because it is not actually a layout manager, instead it uses a combination of method chaining and constraint strings to more cleanly create UI hierarchies and configure layout parameters.
 
-[RiverLayout](http://www.datadosen.se/riverlayout/) uses tags in constraint strings.
+[RiverLayout](https://github.com/Deses/RiverLayout) uses tags in constraint strings. 
+_Orignal webpage no longer available http://www.datadosen.se/riverlayout/_.
 
-[FormLayout](http://www.jgoodies.com/freeware/forms/index.html) is similar to RiverLayout, but more sophisticated.
+[FormLayout](https://www.jgoodies.com/freeware/libraries/forms/) is similar to RiverLayout, but more sophisticated.
 
 [MIGLayout](http://www.miglayout.com/) is even more sophisticated than FormLayout. It attempts to support many kinds of layouts beyond tables and has a somewhat bloated number of features. It has a complex constraint language. It can layout using a grid, border, absolute, etc.
 
-[DesignGridLayout](http://java.net/projects/designgridlayout) uses canonical grids. For the most part, widgets are simply added and the ideal table is determined automatically. This cuts down the needed Java code to a minimum and enforces UI guidelines. The downside is that DesignGridLayout does not handle arbitrary table layouts. If a UI problem can be handled using a canonical grid, DesignGridLayout is the most elegant solution. If you want to deviate from a canonical grid, you have no recourse.
+DesignGridLayout (webpage no longer available) uses canonical grids. For the most part, widgets are simply added and the ideal table is determined automatically. This cuts down the needed Java code to a minimum and enforces UI guidelines. The downside is that DesignGridLayout does not handle arbitrary table layouts. If a UI problem can be handled using a canonical grid, DesignGridLayout is the most elegant solution. If you want to deviate from a canonical grid, you have no recourse.
+
+[PanelMatic](https://github.com/codeworth-gh/PanelMatic) a both a layout and a simple UI builder mostly on the page axis. The fluent builder allows to add text fields or components.
+
+[Sliding Layout](https://github.com/AurelienRibon/sliding-layout) is an interesting layout that allows to reposition components, it's working with an interpolation library to animate the changes.
+
+[Slick Layout](https://github.com/jpxor/slick) is a constraint based layout, where various constraint is created a new when added to the container. SlickLayout adds components by rows. Constraints can be alignment, vertical / horizontal fill or packed.
+
+[Better Layout](https://github.com/Osiris-Team/Better-Layout) is similar to MigLayout but use a typed fluent builder API to add the components and tweak their constraints.
 
 Please feel free to submit additional libraries to be included in this section or suggest better descriptions.
