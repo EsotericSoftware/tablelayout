@@ -334,18 +334,18 @@ TableLayout (the other one from Sun, webpage no longer available) uses 2D arrays
 
 [PageLayout](http://pagelayout.sourceforge.net/) uses a concise Java API to describe the table.
 
-PnutsLayout (webpage no longer available) was written by Toyokazu Tomatsu as part of [Pnuts](http://en.wikipedia.org/wiki/Pnuts). TableLayout was originally inspired by PnutsLayout.
+[PnutsLayout](https://github.com/kmizu/spnuts/blob/master/modules/pnuts.awt/src/pnuts/awt/PnutsLayout.java) was written by Toyokazu Tomatsu as part of [Pnuts](http://en.wikipedia.org/wiki/Pnuts). TableLayout was originally inspired by PnutsLayout.
 
-UIHierarchy (webpage no longer available) was also inspired by PnutsLayout. It is interesting because it is not actually a layout manager, instead it uses a combination of method chaining and constraint strings to more cleanly create UI hierarchies and configure layout parameters.
+[UIHierarch](https://web.archive.org/web/20200216023713/http://chrriis.free.fr/projects/uihierarchy/index.html) was also inspired by PnutsLayout. It is interesting because it is not actually a layout manager, instead it uses a combination of method chaining and constraint strings to more cleanly create UI hierarchies and configure layout parameters.
 
 [RiverLayout](https://github.com/Deses/RiverLayout) uses tags in constraint strings. 
-_Orignal webpage no longer available http://www.datadosen.se/riverlayout/_.
+_[Orignal webpage](http://www.datadosen.se/riverlayout/) is no longer available._
 
 [FormLayout](https://www.jgoodies.com/freeware/libraries/forms/) is similar to RiverLayout, but more sophisticated.
 
 [MIGLayout](http://www.miglayout.com/) is even more sophisticated than FormLayout. It attempts to support many kinds of layouts beyond tables and has a somewhat bloated number of features. It has a complex constraint language. It can layout using a grid, border, absolute, etc.
 
-DesignGridLayout (webpage no longer available) uses canonical grids. For the most part, widgets are simply added and the ideal table is determined automatically. This cuts down the needed Java code to a minimum and enforces UI guidelines. The downside is that DesignGridLayout does not handle arbitrary table layouts. If a UI problem can be handled using a canonical grid, DesignGridLayout is the most elegant solution. If you want to deviate from a canonical grid, you have no recourse.
+[DesignGridLayout](https://web.archive.org/web/20070728043408/https://designgridlayout.dev.java.net/)) uses canonical grids. For the most part, widgets are simply added and the ideal table is determined automatically. This cuts down the needed Java code to a minimum and enforces UI guidelines. The downside is that DesignGridLayout does not handle arbitrary table layouts. If a UI problem can be handled using a canonical grid, DesignGridLayout is the most elegant solution. If you want to deviate from a canonical grid, you have no recourse.
 
 [PanelMatic](https://github.com/codeworth-gh/PanelMatic) a both a layout and a simple UI builder mostly on the page axis. The fluent builder allows to add text fields or components.
 
